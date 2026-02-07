@@ -1792,6 +1792,17 @@
             return date.toLocaleDateString('fr-FR');
         }
         
+      // AJOUTEZ CE CODE - Fonction pour enlever les espaces dans les nombres
+function formatNumberForPDF(num) {
+    // Si ce n'est pas un nombre, retourne "0"
+    if (typeof num !== 'number') return '0';
+    
+    // Arrondir le nombre
+    const rounded = Math.round(num);
+    
+    // Retourner le nombre sans espaces
+    return rounded.toString();
+}
          
         function updateStatistics() {
              
@@ -2658,9 +2669,9 @@ function generatePDFDocument(records, options, periodName) {
             catTableData.push([
                 cat.name,
                 cat.quantity,
-                `${cat.avgPrice.toLocaleString('fr-FR')} F CFA`,
+                `${formatNumberForPDF(cat.avgPrice)} F CFA`,
                 cat.sold,
-                `${cat.totalValue.toLocaleString('fr-FR')} F CFA`
+                `${formatNumberForPDF(cat.totalValue)} F CFA`
             ]);
         });
         
@@ -2710,7 +2721,7 @@ function generatePDFDocument(records, options, periodName) {
                 record.smallSold || 0,
                 record.mediumSold || 0,
                 record.largeSold || 0,
-                totalRevenue.toLocaleString('fr-FR')
+                formatNumberForPDF(totalRevenue)
             ]);
         });
         
@@ -2765,7 +2776,7 @@ function generatePDFDocument(records, options, periodName) {
             doc.text(`Stock ajusté (avec croissance): ${item.adjustedStock.toFixed(0)}`, margin + 10, currentY);
             currentY += 5;
             
-            doc.text(`Valeur estimée: ${item.estimatedValue.toLocaleString('fr-FR')} F CFA`, margin + 10, currentY);
+            doc.text(`Valeur estimée: ${formatNumberForPDF(item.estimatedValue)} F CFA`, margin + 10, currentY);
             currentY += 10;
         });
     }
@@ -2834,10 +2845,10 @@ function generatePDFDocument(records, options, periodName) {
             doc.text(`Quantité vendue: ${detail.sold} (${detail.percentSold}%)`, margin + 10, currentY);
             currentY += 5;
             
-            doc.text(`Prix unitaire: ${detail.price.toLocaleString('fr-FR')} F CFA`, margin + 10, currentY);
+            doc.text(`Prix unitaire: ${formatNumberForPDF(detail.price)} F CFA`, margin + 10, currentY);
             currentY += 5;
             
-            doc.text(`Valeur totale: ${detail.totalValue.toLocaleString('fr-FR')} F CFA`, margin + 10, currentY);
+            doc.text(`Valeur totale: ${formatNumberForPDF(detail.totalValue)} F CFA`, margin + 10, currentY);
             currentY += 10;
         });
     }
