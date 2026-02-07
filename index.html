@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
         :root {
             /* Couleurs */
@@ -802,6 +804,33 @@
                 padding: var(--space-lg);
             }
         }
+      /* Style pour la sélection de période personnalisée */
+#customPeriodSelector {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Amélioration des options */
+.option-group {
+    transition: all 0.3s ease;
+}
+
+.option-group:hover {
+    box-shadow: var(--shadow-sm);
+}
+
+/* Style pour les sélections */
+select.form-input {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%231E293B' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 40px;
+}
     </style>
 </head>
 <body>
@@ -819,7 +848,7 @@
                 <i class="fas fa-lock-open"></i> Accéder au Tableau de Bord
             </button>
             <div id="loginError" class="error-message">
-                Code incorrect. Essayez 0000
+                Code incorrect.    
             </div>
         </div>
     </div>
@@ -953,47 +982,154 @@
             <section id="pdfSection" class="dashboard-section" style="display: none;">
                 <h2 class="section-title"><i class="fas fa-file-pdf"></i> Générer un Rapport PDF</h2>
                 
-                <div class="pdf-options">
-                    <div class="option-group">
-                        <h3 style="margin-bottom: var(--space-md);">Contenu à inclure</h3>
-                        <div class="option-item">
-                            <input type="checkbox" id="includeLogo" class="checkbox" checked>
-                            <label for="includeLogo">Logo et en-tête</label>
-                        </div>
-                        <div class="option-item">
-                            <input type="checkbox" id="includeStats" class="checkbox" checked>
-                            <label for="includeStats">Statistiques résumées</label>
-                        </div>
-                        <div class="option-item">
-                            <input type="checkbox" id="includeTable" class="checkbox" checked>
-                            <label for="includeTable">Tableau complet</label>
-                        </div>
-                        <div class="option-item">
-                            <input type="checkbox" id="includeDetails" class="checkbox">
-                            <label for="includeDetails">Détails par catégorie</label>
-                        </div>
+               <div class="pdf-options">
+    <div class="option-group">
+        <h3 style="margin-bottom: var(--space-md);">Contenu à inclure</h3>
+        
+        <div class="option-item">
+            <input type="checkbox" id="includeHeader" class="checkbox" checked>
+            <label for="includeHeader">En-tête et informations générales</label>
+        </div>
+        
+        <div class="option-item">
+            <input type="checkbox" id="includeLogo" class="checkbox" checked>
+            <label for="includeLogo">Logo</label>
+        </div>
+        
+        <div class="option-item">
+            <input type="checkbox" id="includeSummary" class="checkbox" checked>
+            <label for="includeSummary">Résumé et statistiques</label>
+        </div>
+        
+        <div class="option-item">
+            <input type="checkbox" id="includeStats" class="checkbox" checked>
+            <label for="includeStats">Statistiques détaillées</label>
+        </div>
+        
+        <div class="option-item">
+            <input type="checkbox" id="includeTable" class="checkbox" checked>
+            <label for="includeTable">Tableau complet des enregistrements</label>
+        </div>
+        
+        <div class="option-item">
+            <input type="checkbox" id="includeDetails" class="checkbox" checked>
+            <label for="includeDetails">Détails par catégorie</label>
+        </div>
+        
+        <div class="option-item">
+            <input type="checkbox" id="includeSales" class="checkbox" checked>
+            <label for="includeSales">Ventes par catégorie</label>
+        </div>
+        
+        <div class="option-item">
+            <input type="checkbox" id="includeNotes" class="checkbox" checked>
+            <label for="includeNotes">Notes et observations</label>
+        </div>
+        
+        <div class="option-item">
+            <input type="checkbox" id="includeLosses" class="checkbox" checked>
+            <label for="includeLosses">Perdus (morts) et donnés gratuitement</label>
+        </div>
+        
+        <div class="option-item">
+            <input type="checkbox" id="includeStock" class="checkbox" checked>
+            <label for="includeStock">Stock initial et évolution</label>
+        </div>
+        
+        <div class="option-item">
+            <input type="checkbox" id="includeGrowth" class="checkbox" checked>
+            <label for="includeGrowth">Taux de croissance et de perte</label>
+        </div>
+        
+        <div class="option-item">
+            <input type="checkbox" id="includeCharts" class="checkbox">
+            <label for="includeCharts">Graphiques (si disponible)</label>
+        </div>
+    </div>
+    
+    <div class="option-group">
+        <h3 style="margin-bottom: var(--space-md);">Période du rapport</h3>
+        
+        <div class="option-item">
+            <input type="radio" id="periodAll" name="period" class="checkbox" checked>
+            <label for="periodAll">Tous les enregistrements</label>
+        </div>
+        
+        <div class="option-item">
+            <input type="radio" id="periodMonth" name="period" class="checkbox">
+            <label for="periodMonth">30 derniers jours</label>
+        </div>
+        
+        <div class="option-item">
+            <input type="radio" id="periodWeek" name="period" class="checkbox">
+            <label for="periodWeek">7 derniers jours</label>
+        </div>
+        
+        <div class="option-item">
+            <input type="radio" id="periodCustom" name="period" class="checkbox">
+            <label for="periodCustom">Période personnalisée</label>
+        </div>
+        
+        <!-- Section pour choisir une période spécifique -->
+        <div id="customPeriodSelector" style="display: none; margin-top: var(--space-lg); padding: var(--space-lg); background: var(--light-gray); border-radius: var(--radius-md);">
+            <h4 style="margin-bottom: var(--space-md);">Choisir une période existante</h4>
+            <div class="form-group">
+                <label for="selectPeriod" class="form-label">Sélectionner une période :</label>
+                <select id="selectPeriod" class="form-input">
+                    <option value="">-- Choisir une période --</option>
+                    <!-- Les périodes seront ajoutées dynamiquement -->
+                </select>
+            </div>
+            
+            <div style="margin-top: var(--space-md);">
+                <strong>Ou spécifier une période :</strong>
+                <div class="form-row" style="margin-top: var(--space-sm);">
+                    <div class="form-group">
+                        <label for="customStartDate" class="form-label">Date de début</label>
+                        <input type="date" id="customStartDate" class="form-input">
                     </div>
                     
-                    <div class="option-group">
-                        <h3 style="margin-bottom: var(--space-md);">Période</h3>
-                        <div class="option-item">
-                            <input type="radio" id="periodAll" name="period" class="checkbox" checked>
-                            <label for="periodAll">Tous les enregistrements</label>
-                        </div>
-                        <div class="option-item">
-                            <input type="radio" id="periodMonth" name="period" class="checkbox">
-                            <label for="periodMonth">30 derniers jours</label>
-                        </div>
-                        <div class="option-item">
-                            <input type="radio" id="periodWeek" name="period" class="checkbox">
-                            <label for="periodWeek">7 derniers jours</label>
-                        </div>
-                        <div class="option-item">
-                            <input type="radio" id="periodCustom" name="period" class="checkbox">
-                            <label for="periodCustom">Période personnalisée</label>
-                        </div>
+                    <div class="form-group">
+                        <label for="customEndDate" class="form-label">Date de fin</label>
+                        <input type="date" id="customEndDate" class="form-input">
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="option-group">
+        <h3 style="margin-bottom: var(--space-md);">Options de formatage</h3>
+        
+        <div class="option-item">
+            <input type="checkbox" id="includePageNumbers" class="checkbox" checked>
+            <label for="includePageNumbers">Numéros de page</label>
+        </div>
+        
+        <div class="option-item">
+            <input type="checkbox" id="includeTimestamp" class="checkbox" checked>
+            <label for="includeTimestamp">Date de génération</label>
+        </div>
+        
+        <div class="option-item">
+            <input type="checkbox" id="includeFooter" class="checkbox" checked>
+            <label for="includeFooter">Pied de page avec copyright</label>
+        </div>
+        
+        <div class="option-item">
+            <input type="checkbox" id="colorPrint" class="checkbox" checked>
+            <label for="colorPrint">Impression en couleur</label>
+        </div>
+        
+        <div class="option-item">
+            <label for="orientation" class="form-label" style="display: block; margin-bottom: var(--space-sm);">Orientation :</label>
+            <select id="orientation" class="form-input" style="width: 100%;">
+                <option value="portrait">Portrait</option>
+                <option value="landscape">Paysage</option>
+            </select>
+        </div>
+    </div>
+</div>
                 
                 <div class="modal-actions">
                     <button id="generatePdfActionBtn" class="btn btn-primary">
@@ -1409,13 +1545,13 @@
             });
         }
         
-        // Gestion de la connexion
+        // Gestion de la con nexion
         function handleLogin() {
             const inputs = document.querySelectorAll('.code-input');
             const enteredCode = Array.from(inputs).map(input => input.value).join('');
             
             // Code par défaut
-            const defaultCode = "0000";
+            const defaultCode = "8008";
             
             if (enteredCode === defaultCode || enteredCode.length === 4) {
                 // Vérifier dans Firebase si un code est stocké
@@ -1467,7 +1603,7 @@
         function showLoginError() {
             const errorDiv = document.getElementById('loginError');
             errorDiv.style.display = 'block';
-            errorDiv.textContent = 'Code incorrect. Essayez 0000';
+            errorDiv.textContent = 'Code incorrect.';
             
             // Réinitialiser les champs
             const inputs = document.querySelectorAll('.code-input');
@@ -2243,27 +2379,825 @@
             });
         }
         
-        // Générer un PDF
-        function generatePDF() {
-            showMessage('Génération de PDF en cours...', 'warning');
-            
-            // Récupérer les options sélectionnées
-            const includeLogo = document.getElementById('includeLogo').checked;
-            const includeStats = document.getElementById('includeStats').checked;
-            const includeTable = document.getElementById('includeTable').checked;
-            const includeDetails = document.getElementById('includeDetails').checked;
-            
-            // Ici, vous implémenteriez la génération de PDF
-            // Pour cet exemple, nous simulons juste la génération
-            
-            setTimeout(() => {
-                showMessage('PDF généré avec succès! (simulation)', 'success');
-                
-                // Dans une implémentation réelle, vous utiliseriez une bibliothèque comme jsPDF
-                // Pour l'instant, nous affichons juste un message
-                alert('Fonctionnalité PDF: Cette fonctionnalité nécessiterait l\'ajout de la bibliothèque jsPDF pour générer et télécharger un PDF réel avec les données sélectionnées.');
-            }, 1500);
+      
+      // Gestionnaire pour les options de période
+document.querySelectorAll('input[name="period"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const customPeriodDiv = document.getElementById('customPeriodSelector');
+        if (this.id === 'periodCustom') {
+            customPeriodDiv.style.display = 'block';
+            loadAvailablePeriods();
+        } else {
+            customPeriodDiv.style.display = 'none';
         }
+    });
+});
+
+// Charger les périodes disponibles
+function loadAvailablePeriods() {
+    const selectPeriod = document.getElementById('selectPeriod');
+    selectPeriod.innerHTML = '<option value="">-- Choisir une période --</option>';
+    
+    if (allRecords.length === 0) {
+        selectPeriod.innerHTML += '<option value="" disabled>Aucun enregistrement disponible</option>';
+        return;
+    }
+    
+    // Créer un ensemble de périodes uniques (par mois)
+    const periods = new Set();
+    
+    allRecords.forEach(record => {
+        const date = new Date(record.startDate);
+        const monthYear = `${date.getMonth() + 1}/${date.getFullYear()}`;
+        periods.add(monthYear);
+        
+        // Ajouter aussi l'année complète
+        periods.add(`Année ${date.getFullYear()}`);
+    });
+    
+    // Ajouter les options
+    periods.forEach(period => {
+        const option = document.createElement('option');
+        option.value = period;
+        option.textContent = period;
+        selectPeriod.appendChild(option);
+    });
+    
+    // Option pour toutes les périodes
+    const allOption = document.createElement('option');
+    allOption.value = 'all';
+    allOption.textContent = 'Toutes les périodes disponibles';
+    selectPeriod.appendChild(allOption);
+}
+      
+      
+        // Générer un PDF complet
+function generatePDF() {
+    showMessage('Préparation du rapport PDF...', 'warning');
+    
+    // Récupérer toutes les options
+    const options = {
+        // Contenu à inclure
+        includeHeader: document.getElementById('includeHeader').checked,
+        includeLogo: document.getElementById('includeLogo').checked,
+        includeSummary: document.getElementById('includeSummary').checked,
+        includeStats: document.getElementById('includeStats').checked,
+        includeTable: document.getElementById('includeTable').checked,
+        includeDetails: document.getElementById('includeDetails').checked,
+        includeSales: document.getElementById('includeSales').checked,
+        includeNotes: document.getElementById('includeNotes').checked,
+        includeLosses: document.getElementById('includeLosses').checked,
+        includeStock: document.getElementById('includeStock').checked,
+        includeGrowth: document.getElementById('includeGrowth').checked,
+        includeCharts: document.getElementById('includeCharts').checked,
+        
+        // Formatage
+        includePageNumbers: document.getElementById('includePageNumbers').checked,
+        includeTimestamp: document.getElementById('includeTimestamp').checked,
+        includeFooter: document.getElementById('includeFooter').checked,
+        colorPrint: document.getElementById('colorPrint').checked,
+        orientation: document.getElementById('orientation').value
+    };
+    
+    // Déterminer la période
+    let periodType = 'all';
+    let startDate = null;
+    let endDate = null;
+    let periodName = 'Tous les enregistrements';
+    
+    // Vérifier quelle période est sélectionnée
+    if (document.getElementById('periodMonth').checked) {
+        periodType = 'month';
+        periodName = '30 derniers jours';
+        endDate = new Date();
+        startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
+    } else if (document.getElementById('periodWeek').checked) {
+        periodType = 'week';
+        periodName = '7 derniers jours';
+        endDate = new Date();
+        startDate = new Date();
+        startDate.setDate(startDate.getDate() - 7);
+    } else if (document.getElementById('periodCustom').checked) {
+        periodType = 'custom';
+        
+        // Vérifier si une période spécifique est sélectionnée
+        const selectedPeriod = document.getElementById('selectPeriod').value;
+        const customStart = document.getElementById('customStartDate').value;
+        const customEnd = document.getElementById('customEndDate').value;
+        
+        if (selectedPeriod && selectedPeriod !== '') {
+            periodName = `Période: ${selectedPeriod}`;
+            
+            // Filtrer par période sélectionnée
+            if (selectedPeriod === 'all') {
+                // Toutes les périodes
+                periodName = 'Toutes les périodes disponibles';
+            } else if (selectedPeriod.startsWith('Année ')) {
+                // Année complète
+                const year = parseInt(selectedPeriod.replace('Année ', ''));
+                startDate = new Date(year, 0, 1);
+                endDate = new Date(year, 11, 31);
+            } else {
+                // Mois/Année spécifique
+                const [month, year] = selectedPeriod.split('/').map(Number);
+                startDate = new Date(year, month - 1, 1);
+                endDate = new Date(year, month, 0); // Dernier jour du mois
+            }
+        } else if (customStart && customEnd) {
+            // Période personnalisée spécifiée
+            startDate = new Date(customStart);
+            endDate = new Date(customEnd);
+            periodName = `Période du ${formatDate(customStart)} au ${formatDate(customEnd)}`;
+        } else {
+            showMessage('Veuillez sélectionner ou spécifier une période personnalisée', 'error');
+            return;
+        }
+    }
+    
+    // Filtrer les enregistrements selon la période
+    let recordsForPDF = [];
+    
+    if (periodType === 'all') {
+        recordsForPDF = [...allRecords];
+    } else if (startDate && endDate) {
+        recordsForPDF = allRecords.filter(record => {
+            const recordDate = new Date(record.startDate);
+            return recordDate >= startDate && recordDate <= endDate;
+        });
+    } else {
+        recordsForPDF = [...allRecords];
+    }
+    
+    if (recordsForPDF.length === 0) {
+        showMessage('Aucun enregistrement trouvé pour la période sélectionnée', 'error');
+        return;
+    }
+    
+    // Générer le PDF
+    generatePDFDocument(recordsForPDF, options, periodName);
+}
+
+// Fonction principale de génération du PDF
+function generatePDFDocument(records, options, periodName) {
+    // Initialiser jsPDF
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+        orientation: options.orientation,
+        unit: 'mm',
+        format: 'a4'
+    });
+    
+    let currentY = 20;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 15;
+    
+    // 1. EN-TÊTE
+    if (options.includeHeader) {
+        // Logo (si disponible)
+        if (options.includeLogo) {
+            try {
+                // Vous devrez charger l'image du logo
+                // Pour l'instant, nous ajoutons un rectangle pour représenter le logo
+                doc.setFillColor(59, 130, 246);
+                doc.rect(margin, currentY, 20, 20, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(10);
+                doc.text("LP", margin + 10, currentY + 10, { align: 'center', baseline: 'middle' });
+            } catch (e) {
+                console.log("Logo non disponible, continuation sans logo");
+            }
+        }
+        
+        // Titre principal
+        doc.setTextColor(30, 41, 59);
+        doc.setFontSize(24);
+        doc.setFont("helvetica", "bold");
+        doc.text("RAPPORT DE GESTION DE POULAILLER", pageWidth / 2, currentY + 10, { align: 'center' });
+        
+        // Sous-titre
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+        doc.text(periodName, pageWidth / 2, currentY + 20, { align: 'center' });
+        
+        // Date de génération
+        if (options.includeTimestamp) {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('fr-FR', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            doc.setFontSize(10);
+            doc.text(`Généré le: ${dateStr}`, pageWidth - margin, currentY + 5, { align: 'right' });
+        }
+        
+        currentY += 40;
+    }
+    
+    // 2. RÉSUMÉ ET STATISTIQUES
+    if (options.includeSummary) {
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(59, 130, 246);
+        doc.text("RÉSUMÉ GÉNÉRAL", margin, currentY);
+        currentY += 10;
+        
+        // Calculer les statistiques
+        const stats = calculateStatisticsForPDF(records);
+        
+        // Afficher les statistiques
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(30, 41, 59);
+        
+        const col1 = margin;
+        const col2 = pageWidth / 2;
+        
+        doc.text(`Nombre d'enregistrements: ${stats.totalRecords}`, col1, currentY);
+        doc.text(`Période couverte: ${stats.periodCovered}`, col2, currentY);
+        currentY += 7;
+        
+        doc.text(`Poulets en production: ${stats.totalProduction}`, col1, currentY);
+        doc.text(`Stock disponible: ${stats.totalStock}`, col2, currentY);
+        currentY += 7;
+        
+        doc.text(`Valeur du stock: ${stats.totalValue.toLocaleString('fr-FR')} F CFA`, col1, currentY);
+        doc.text(`Chiffre d'affaires: ${stats.totalRevenue.toLocaleString('fr-FR')} F CFA`, col2, currentY);
+        currentY += 15;
+    }
+    
+    // 3. STATISTIQUES DÉTAILLÉES
+    if (options.includeStats) {
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(59, 130, 246);
+        doc.text("STATISTIQUES DÉTAILLÉES", margin, currentY);
+        currentY += 10;
+        
+        const stats = calculateDetailedStatistics(records);
+        
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        
+        // Tableau des statistiques
+        const tableData = [
+            ['Métrique', 'Valeur', 'Pourcentage'],
+            ['Poulets vendus', stats.totalSold, '100%'],
+            ['Petits poulets vendus', stats.smallSold, `${stats.percentSmall.toFixed(1)}%`],
+            ['Poulets moyens vendus', stats.mediumSold, `${stats.percentMedium.toFixed(1)}%`],
+            ['Gros poulets vendus', stats.largeSold, `${stats.percentLarge.toFixed(1)}%`],
+            ['Donnés gratuitement', stats.totalGiven, '-'],
+            ['Perdus (morts)', stats.totalLost, '-'],
+            ['Nouveaux poulets ajoutés', stats.totalNewChickens, '-'],
+            ['Stock initial moyen', stats.avgInitialStock.toFixed(0), '-']
+        ];
+        
+        doc.autoTable({
+            startY: currentY,
+            head: [tableData[0]],
+            body: tableData.slice(1),
+            margin: { left: margin, right: margin },
+            styles: { fontSize: 9, cellPadding: 3 },
+            headStyles: { fillColor: [59, 130, 246], textColor: [255, 255, 255] },
+            alternateRowStyles: { fillColor: [240, 240, 240] }
+        });
+        
+        currentY = doc.lastAutoTable.finalY + 10;
+    }
+    
+    // 4. DÉTAILS PAR CATÉGORIE
+    if (options.includeDetails) {
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(59, 130, 246);
+        doc.text("DÉTAILS PAR CATÉGORIE DE POULETS", margin, currentY);
+        currentY += 10;
+        
+        const categories = calculateCategoryDetails(records);
+        
+        // Tableau des catégories
+        const catTableData = [
+            ['Catégorie', 'Quantité', 'Prix moyen', 'Total vendu', 'Valeur totale']
+        ];
+        
+        categories.forEach(cat => {
+            catTableData.push([
+                cat.name,
+                cat.quantity,
+                `${cat.avgPrice.toLocaleString('fr-FR')} F CFA`,
+                cat.sold,
+                `${cat.totalValue.toLocaleString('fr-FR')} F CFA`
+            ]);
+        });
+        
+        doc.autoTable({
+            startY: currentY,
+            head: [catTableData[0]],
+            body: catTableData.slice(1),
+            margin: { left: margin, right: margin },
+            styles: { fontSize: 9, cellPadding: 3 },
+            headStyles: { fillColor: [16, 185, 129], textColor: [255, 255, 255] },
+            alternateRowStyles: { fillColor: [240, 240, 240] }
+        });
+        
+        currentY = doc.lastAutoTable.finalY + 10;
+    }
+    
+    // 5. TABLEAU COMPLET DES ENREGISTREMENTS
+    if (options.includeTable) {
+        // Vérifier s'il y a assez d'espace sur la page
+        if (currentY > 200) {
+            doc.addPage();
+            currentY = 20;
+        }
+        
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(59, 130, 246);
+        doc.text("TABLEAU COMPLET DES ENREGISTREMENTS", margin, currentY);
+        currentY += 10;
+        
+        // Préparer les données du tableau
+        const tableData = [
+            ['Date', 'Nouveaux', 'Stock', 'Vendus', 'Petits', 'Moyens', 'Gros', 'CA (F CFA)']
+        ];
+        
+        records.forEach(record => {
+            const totalSold = (record.smallSold || 0) + (record.mediumSold || 0) + (record.largeSold || 0);
+            const totalRevenue = (record.smallSold || 0) * (record.smallPrice || 0) + 
+                                (record.mediumSold || 0) * (record.mediumPrice || 0) + 
+                                (record.largeSold || 0) * (record.largePrice || 0);
+            
+            tableData.push([
+                formatDate(record.startDate),
+                record.newChickens || 0,
+                record.initialStock || 0,
+                totalSold,
+                record.smallSold || 0,
+                record.mediumSold || 0,
+                record.largeSold || 0,
+                totalRevenue.toLocaleString('fr-FR')
+            ]);
+        });
+        
+        doc.autoTable({
+            startY: currentY,
+            head: [tableData[0]],
+            body: tableData.slice(1),
+            margin: { left: margin, right: margin },
+            styles: { fontSize: 8, cellPadding: 2 },
+            headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255] },
+            alternateRowStyles: { fillColor: [245, 247, 250] },
+            pageBreak: 'auto'
+        });
+        
+        currentY = doc.lastAutoTable.finalY + 10;
+    }
+    
+    // 6. STOCK INITIAL ET ÉVOLUTION
+    if (options.includeStock) {
+        if (currentY > 200) {
+            doc.addPage();
+            currentY = 20;
+        }
+        
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(59, 130, 246);
+        doc.text("ANALYSE DU STOCK", margin, currentY);
+        currentY += 10;
+        
+        const stockAnalysis = analyzeStockEvolution(records);
+        
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "normal");
+        
+        stockAnalysis.forEach((item, index) => {
+            if (currentY > 270) {
+                doc.addPage();
+                currentY = 20;
+            }
+            
+            doc.setTextColor(30, 41, 59);
+            doc.setFont("helvetica", "bold");
+            doc.text(`Période: ${item.period}`, margin, currentY);
+            
+            doc.setFont("helvetica", "normal");
+            currentY += 7;
+            
+            doc.text(`Stock initial: ${item.initialStock}`, margin + 10, currentY);
+            currentY += 5;
+            
+            doc.text(`Stock ajusté (avec croissance): ${item.adjustedStock.toFixed(0)}`, margin + 10, currentY);
+            currentY += 5;
+            
+            doc.text(`Valeur estimée: ${item.estimatedValue.toLocaleString('fr-FR')} F CFA`, margin + 10, currentY);
+            currentY += 10;
+        });
+    }
+    
+    // 7. TAUX DE CROISSANCE ET DE PERTE
+    if (options.includeGrowth) {
+        if (currentY > 200) {
+            doc.addPage();
+            currentY = 20;
+        }
+        
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(59, 130, 246);
+        doc.text("ANALYSE DES TAUX DE CROISSANCE ET DE PERTE", margin, currentY);
+        currentY += 10;
+        
+        const growthStats = calculateGrowthStats(records);
+        
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "normal");
+        
+        doc.text(`Taux de croissance moyen: ${growthStats.avgGrowthRate.toFixed(2)}%`, margin, currentY);
+        currentY += 7;
+        
+        doc.text(`Taux de perte moyen: ${growthStats.avgLossRate.toFixed(2)}%`, margin, currentY);
+        currentY += 7;
+        
+        doc.text(`Impact net sur la production: ${growthStats.netImpact.toFixed(2)}%`, margin, currentY);
+        currentY += 15;
+    }
+    
+    // 8. VENTES PAR CATÉGORIE
+    if (options.includeSales) {
+        if (currentY > 200) {
+            doc.addPage();
+            currentY = 20;
+        }
+        
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(59, 130, 246);
+        doc.text("VENTES PAR CATÉGORIE DÉTAILLÉES", margin, currentY);
+        currentY += 10;
+        
+        const salesDetails = getSalesDetails(records);
+        
+        salesDetails.forEach(detail => {
+            if (currentY > 250) {
+                doc.addPage();
+                currentY = 20;
+            }
+            
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(30, 41, 59);
+            doc.text(detail.category, margin, currentY);
+            
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            currentY += 7;
+            
+            doc.text(`Quantité disponible: ${detail.quantity}`, margin + 10, currentY);
+            currentY += 5;
+            
+            doc.text(`Quantité vendue: ${detail.sold} (${detail.percentSold}%)`, margin + 10, currentY);
+            currentY += 5;
+            
+            doc.text(`Prix unitaire: ${detail.price.toLocaleString('fr-FR')} F CFA`, margin + 10, currentY);
+            currentY += 5;
+            
+            doc.text(`Valeur totale: ${detail.totalValue.toLocaleString('fr-FR')} F CFA`, margin + 10, currentY);
+            currentY += 10;
+        });
+    }
+    
+    // 9. NOTES ET OBSERVATIONS
+    if (options.includeNotes) {
+        const notes = getNotesFromRecords(records);
+        if (notes.length > 0) {
+            if (currentY > 200) {
+                doc.addPage();
+                currentY = 20;
+            }
+            
+            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(59, 130, 246);
+            doc.text("NOTES ET OBSERVATIONS", margin, currentY);
+            currentY += 10;
+            
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(30, 41, 59);
+            
+            notes.forEach(note => {
+                if (currentY > 270) {
+                    doc.addPage();
+                    currentY = 20;
+                }
+                
+                doc.setFont("helvetica", "italic");
+                doc.text(`Date: ${note.date}`, margin, currentY);
+                currentY += 5;
+                
+                doc.setFont("helvetica", "normal");
+                const lines = doc.splitTextToSize(note.text, pageWidth - 2 * margin);
+                doc.text(lines, margin, currentY);
+                currentY += lines.length * 5 + 10;
+            });
+        }
+    }
+    
+    // 10. PERTES ET DONS
+    if (options.includeLosses) {
+        const lossData = getLossAndGivenData(records);
+        if (lossData.totalLost > 0 || lossData.totalGiven > 0) {
+            if (currentY > 200) {
+                doc.addPage();
+                currentY = 20;
+            }
+            
+            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(59, 130, 246);
+            doc.text("ANALYSE DES PERTES ET DONS", margin, currentY);
+            currentY += 10;
+            
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "normal");
+            
+            doc.text(`Total des poulets perdus (morts): ${lossData.totalLost}`, margin, currentY);
+            currentY += 7;
+            
+            doc.text(`Total des poulets donnés gratuitement: ${lossData.totalGiven}`, margin, currentY);
+            currentY += 7;
+            
+            doc.text(`Impact financier estimé: ${lossData.estimatedLoss.toLocaleString('fr-FR')} F CFA`, margin, currentY);
+            currentY += 15;
+        }
+    }
+    
+    // 11. PIED DE PAGE
+    if (options.includeFooter) {
+        const totalPages = doc.internal.getNumberOfPages();
+        
+        for (let i = 1; i <= totalPages; i++) {
+            doc.setPage(i);
+            
+            // Numéros de page
+            if (options.includePageNumbers) {
+                doc.setFontSize(10);
+                doc.setTextColor(100, 100, 100);
+                doc.text(`Page ${i} / ${totalPages}`, pageWidth / 2, 290, { align: 'center' });
+            }
+            
+            // Copyright
+            doc.text("© 2026 Gestion Poulailler Pro - Tous droits réservés", pageWidth / 2, 295, { align: 'center' });
+        }
+    }
+    
+    // Sauvegarder le PDF
+    const fileName = `Rapport_Poulailler_${new Date().toISOString().slice(0,10)}.pdf`;
+    doc.save(fileName);
+    
+    showMessage('PDF généré avec succès et téléchargement lancé!', 'success');
+}
+
+// Fonctions auxiliaires pour le PDF
+function calculateStatisticsForPDF(records) {
+    let totalProduction = 0;
+    let totalStock = 0;
+    let totalValue = 0;
+    let totalRevenue = 0;
+    
+    records.forEach(record => {
+        const newChickens = record.newChickens || 0;
+        const lost = record.lost || 0;
+        totalProduction += newChickens - lost;
+        
+        const initialStock = record.initialStock || 0;
+        const growthRate = record.growthRate || 0;
+        const adjustedStock = initialStock * (1 + growthRate/100);
+        totalStock += adjustedStock;
+        
+        const smallPrice = record.smallPrice || 0;
+        const mediumPrice = record.mediumPrice || 0;
+        const largePrice = record.largePrice || 0;
+        const avgPrice = (smallPrice + mediumPrice + largePrice) / 3;
+        totalValue += adjustedStock * avgPrice;
+        
+        const smallSold = record.smallSold || 0;
+        const mediumSold = record.mediumSold || 0;
+        const largeSold = record.largeSold || 0;
+        totalRevenue += (smallSold * smallPrice) + (mediumSold * mediumPrice) + (largeSold * largePrice);
+    });
+    
+    // Dates de début et fin
+    const startDates = records.map(r => new Date(r.startDate));
+    const endDates = records.filter(r => r.endDate).map(r => new Date(r.endDate));
+    
+    const earliestDate = startDates.length > 0 ? new Date(Math.min(...startDates)) : null;
+    const latestDate = endDates.length > 0 ? new Date(Math.max(...endDates)) : 
+                      startDates.length > 0 ? new Date(Math.max(...startDates)) : null;
+    
+    let periodCovered = 'N/A';
+    if (earliestDate && latestDate) {
+        periodCovered = `${formatDate(earliestDate.toISOString())} - ${formatDate(latestDate.toISOString())}`;
+    }
+    
+    return {
+        totalRecords: records.length,
+        totalProduction: Math.max(0, totalProduction),
+        totalStock: Math.round(totalStock),
+        totalValue: Math.round(totalValue),
+        totalRevenue: Math.round(totalRevenue),
+        periodCovered
+    };
+}
+
+function calculateDetailedStatistics(records) {
+    let totalSold = 0;
+    let smallSold = 0;
+    let mediumSold = 0;
+    let largeSold = 0;
+    let totalGiven = 0;
+    let totalLost = 0;
+    let totalNewChickens = 0;
+    let totalInitialStock = 0;
+    
+    records.forEach(record => {
+        smallSold += record.smallSold || 0;
+        mediumSold += record.mediumSold || 0;
+        largeSold += record.largeSold || 0;
+        totalGiven += record.given || 0;
+        totalLost += record.lost || 0;
+        totalNewChickens += record.newChickens || 0;
+        totalInitialStock += record.initialStock || 0;
+    });
+    
+    totalSold = smallSold + mediumSold + largeSold;
+    
+    return {
+        totalSold,
+        smallSold,
+        mediumSold,
+        largeSold,
+        percentSmall: totalSold > 0 ? (smallSold / totalSold) * 100 : 0,
+        percentMedium: totalSold > 0 ? (mediumSold / totalSold) * 100 : 0,
+        percentLarge: totalSold > 0 ? (largeSold / totalSold) * 100 : 0,
+        totalGiven,
+        totalLost,
+        totalNewChickens,
+        avgInitialStock: records.length > 0 ? totalInitialStock / records.length : 0
+    };
+}
+
+function calculateCategoryDetails(records) {
+    const categories = [
+        { name: 'Petits poulets', quantity: 0, sold: 0, price: 0, totalValue: 0 },
+        { name: 'Poulets moyens', quantity: 0, sold: 0, price: 0, totalValue: 0 },
+        { name: 'Gros poulets', quantity: 0, sold: 0, price: 0, totalValue: 0 }
+    ];
+    
+    records.forEach(record => {
+        // Petits poulets
+        categories[0].quantity += record.smallQuantity || 0;
+        categories[0].sold += record.smallSold || 0;
+        categories[0].price += record.smallPrice || 0;
+        categories[0].totalValue += (record.smallSold || 0) * (record.smallPrice || 0);
+        
+        // Poulets moyens
+        categories[1].quantity += record.mediumQuantity || 0;
+        categories[1].sold += record.mediumSold || 0;
+        categories[1].price += record.mediumPrice || 0;
+        categories[1].totalValue += (record.mediumSold || 0) * (record.mediumPrice || 0);
+        
+        // Gros poulets
+        categories[2].quantity += record.largeQuantity || 0;
+        categories[2].sold += record.largeSold || 0;
+        categories[2].price += record.largePrice || 0;
+        categories[2].totalValue += (record.largeSold || 0) * (record.largePrice || 0);
+    });
+    
+    // Calculer les prix moyens
+    categories.forEach(cat => {
+        cat.avgPrice = records.length > 0 ? cat.price / records.length : 0;
+    });
+    
+    return categories;
+}
+
+function analyzeStockEvolution(records) {
+    const analysis = [];
+    
+    records.forEach(record => {
+        const initialStock = record.initialStock || 0;
+        const growthRate = record.growthRate || 0;
+        const adjustedStock = initialStock * (1 + growthRate/100);
+        const avgPrice = ((record.smallPrice || 0) + (record.mediumPrice || 0) + (record.largePrice || 0)) / 3;
+        const estimatedValue = adjustedStock * avgPrice;
+        
+        analysis.push({
+            period: formatDate(record.startDate),
+            initialStock,
+            growthRate,
+            adjustedStock,
+            estimatedValue
+        });
+    });
+    
+    return analysis;
+}
+
+function calculateGrowthStats(records) {
+    let totalGrowth = 0;
+    let totalLoss = 0;
+    let count = 0;
+    
+    records.forEach(record => {
+        if (record.growthRate !== undefined) {
+            totalGrowth += record.growthRate || 0;
+            totalLoss += record.lossRate || 0;
+            count++;
+        }
+    });
+    
+    return {
+        avgGrowthRate: count > 0 ? totalGrowth / count : 0,
+        avgLossRate: count > 0 ? totalLoss / count : 0,
+        netImpact: count > 0 ? (totalGrowth - totalLoss) / count : 0
+    };
+}
+
+function getSalesDetails(records) {
+    const details = [
+        { category: 'Petits poulets', quantity: 0, sold: 0, price: 0, totalValue: 0 },
+        { category: 'Poulets moyens', quantity: 0, sold: 0, price: 0, totalValue: 0 },
+        { category: 'Gros poulets', quantity: 0, sold: 0, price: 0, totalValue: 0 }
+    ];
+    
+    records.forEach(record => {
+        details[0].quantity += record.smallQuantity || 0;
+        details[0].sold += record.smallSold || 0;
+        details[0].price += record.smallPrice || 0;
+        details[0].totalValue += (record.smallSold || 0) * (record.smallPrice || 0);
+        
+        details[1].quantity += record.mediumQuantity || 0;
+        details[1].sold += record.mediumSold || 0;
+        details[1].price += record.mediumPrice || 0;
+        details[1].totalValue += (record.mediumSold || 0) * (record.mediumPrice || 0);
+        
+        details[2].quantity += record.largeQuantity || 0;
+        details[2].sold += record.largeSold || 0;
+        details[2].price += record.largePrice || 0;
+        details[2].totalValue += (record.largeSold || 0) * (record.largePrice || 0);
+    });
+    
+    // Calculer les pourcentages et prix moyens
+    details.forEach(detail => {
+        detail.percentSold = detail.quantity > 0 ? (detail.sold / detail.quantity) * 100 : 0;
+        detail.price = records.length > 0 ? detail.price / records.length : 0;
+    });
+    
+    return details;
+}
+
+function getNotesFromRecords(records) {
+    const notes = [];
+    
+    records.forEach(record => {
+        if (record.notes && record.notes.trim() !== '') {
+            notes.push({
+                date: formatDate(record.startDate),
+                text: record.notes
+            });
+        }
+    });
+    
+    return notes;
+}
+
+function getLossAndGivenData(records) {
+    let totalLost = 0;
+    let totalGiven = 0;
+    let estimatedLoss = 0;
+    
+    records.forEach(record => {
+        totalLost += record.lost || 0;
+        totalGiven += record.given || 0;
+        
+        // Estimation de la perte financière (prix moyen)
+        const avgPrice = ((record.smallPrice || 0) + (record.mediumPrice || 0) + (record.largePrice || 0)) / 3;
+        estimatedLoss += (record.lost || 0) * avgPrice;
+    });
+    
+    return {
+        totalLost,
+        totalGiven,
+        estimatedLoss
+    };
+}
         
         // Afficher un message
         function showMessage(text, type) {
@@ -2296,3 +3230,7 @@
     </script>
 </body>
 </html>
+
+// Développé par AHMED SAID AIDARA 756394499
+
+
