@@ -872,7 +872,7 @@
                             <i class="fas fa-egg"></i>
                         </div>
                         <div class="stat-value" id="productionCount">0</div>
-                        <div class="stat-label">Poulets en production</div>
+                        <div class="stat-label">Stock disponible</div>
                     </div>
                     
                     <div class="stat-card">
@@ -880,7 +880,7 @@
                             <i class="fas fa-box"></i>
                         </div>
                         <div class="stat-value" id="stockCount">0</div>
-                        <div class="stat-label">Stock disponible</div>
+                        <div class="stat-label">Production</div>
                     </div>
                     
                     <div class="stat-card">
@@ -1383,7 +1383,7 @@
             <div style="margin-bottom: var(--space-xl);">
                 <input type="text" id="confirmDeleteInput" class="form-input" placeholder="Écrivez 'SUPPRIMER'">
                 <small style="color: var(--gray-text); display: block; margin-top: var(--space-sm);">
-                    Confirmation simple pour éviter les erreurs
+                     Apres avoir fini de supprimer, quittez le site et entrez a nouveau 
                 </small>
             </div>
         </div>
@@ -1396,9 +1396,9 @@
                 <i class="fas fa-trash"></i> Supprimer
             </button>
         </div>
-    </div>
-</div>
-     
+    </div> 
+</div> 
+      
      <div id="messageContainer"></div>
 
     <script>
@@ -1466,9 +1466,7 @@
             document.getElementById('confirmDeleteBtn').addEventListener('click', deleteRecord);
             
             
-            ['confirmDeleteInput', 'confirmDeleteInput2', 'confirmDeleteInput3'].forEach(id => {
-                document.getElementById(id).addEventListener('input', validateDeleteConfirmation);
-            });
+           document.getElementById('confirmDeleteInput').addEventListener('input', validateDeleteConfirmation);
             
             
             document.getElementById('searchInput').addEventListener('input', filterRecords);
@@ -2283,27 +2281,28 @@ function formatNumberForPDF(num) {
         }
         
          
-        function showDeleteModal(recordId) {
-            currentRecordToDelete = allRecords.find(r => r.id === recordId);
-            if (!currentRecordToDelete) return;
-            
-             
-            const startDateFormatted = formatDate(currentRecordToDelete.startDate);
-            document.getElementById('deleteConfirmText').textContent = 
-                `Êtes-vous sûr de vouloir supprimer l'enregistrement du ${startDateFormatted} ?`;
-            
-            showModal('deleteModal');
-        }
+       function showDeleteModal(recordId) {
+    currentRecordToDelete = allRecords.find(r => r.id === recordId);
+    if (!currentRecordToDelete) return;
+    
+    // Réinitialiser le champ de confirmation
+    document.getElementById('confirmDeleteInput').value = '';
+    document.getElementById('confirmDeleteBtn').disabled = true;
+    
+    showModal('deleteModal');
+    
+    // Focus sur le champ de saisie
+    setTimeout(() => {
+        document.getElementById('confirmDeleteInput').focus();
+    }, 300);
+}
         
          
-        function validateDeleteConfirmation() {
-            const input1 = document.getElementById('confirmDeleteInput').value;
-            const input2 = document.getElementById('confirmDeleteInput2').value;
-            const input3 = document.getElementById('confirmDeleteInput3').value;
-            
-            const allCorrect = input1 === 'SUPPRIMER' && input2 === 'SUPPRIMER' && input3 === 'SUPPRIMER';
-            document.getElementById('confirmDeleteBtn').disabled = !allCorrect;
-        }
+       function validateDeleteConfirmation() {
+    const input = document.getElementById('confirmDeleteInput').value;
+    const isCorrect = input.toUpperCase() === 'SUPPRIMER';
+    document.getElementById('confirmDeleteBtn').disabled = !isCorrect;
+}
         
         
         function deleteRecord() {
