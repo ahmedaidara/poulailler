@@ -1373,8 +1373,7 @@
      <div id="messageContainer"></div>
 
     <script>
-        // Configuration Firebase
-        const firebaseConfig = {
+         const firebaseConfig = {
             apiKey: "AIzaSyAAQ9G3w94aM7iGc_ufHMzdCvrwzzEzlhI",
             authDomain: "poulailler-3515e.firebaseapp.com",
             projectId: "poulailler-3515e",
@@ -1384,45 +1383,40 @@
             measurementId: "G-ZKH1QG9JW0"
         };
 
-        // Initialisation Firebase
-        firebase.initializeApp(firebaseConfig);
+         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         
-        // Variables globales
-        let currentRecordToUpdate = null;
+         let currentRecordToUpdate = null;
         let currentRecordToDelete = null;
         let currentRecordToEdit = null;
         let allRecords = [];
         let filteredRecords = [];
         
-        // Initialisation
-        document.addEventListener('DOMContentLoaded', function() {
-            // Configuration des champs de code de connexion
-            setupCodeInputs();
+         document.addEventListener('DOMContentLoaded', function() {
+             setupCodeInputs();
             
-            // Gestionnaires d'événements pour la connexion
-            document.getElementById('loginBtn').addEventListener('click', handleLogin);
+             document.getElementById('loginBtn').addEventListener('click', handleLogin);
             
-            // Gestionnaires d'événements pour la navigation
+             
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const section = this.getAttribute('data-section');
                     showSection(section);
                     
-                    // Mettre à jour l'état actif
+                    
                     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
                 });
             });
             
-            // Gestionnaires d'événements pour les boutons
+            
             document.getElementById('newRecordBtn').addEventListener('click', () => showModal('recordModal'));
             document.getElementById('generatePdfBtn').addEventListener('click', () => showSection('pdf'));
             document.getElementById('addFirstRecordBtn').addEventListener('click', () => showModal('recordModal'));
             document.getElementById('generatePdfActionBtn').addEventListener('click', generatePDF);
             document.getElementById('updateCodeBtn').addEventListener('click', updateAccessCode);
             
-            // Gestionnaires d'événements pour les modals
+            
             document.getElementById('closeRecordModal').addEventListener('click', () => hideModal('recordModal'));
             document.getElementById('cancelRecordBtn').addEventListener('click', () => hideModal('recordModal'));
             document.getElementById('saveRecordBtn').addEventListener('click', saveRecord);
@@ -1439,67 +1433,67 @@
             document.getElementById('closeDeleteModal').addEventListener('click', () => hideModal('deleteModal'));
             document.getElementById('cancelDeleteBtn').addEventListener('click', () => hideModal('deleteModal'));
             
-            // Gestionnaire pour la confirmation de suppression
+             
             document.getElementById('confirmDeleteBtn').addEventListener('click', deleteRecord);
             
-            // Validation des champs de confirmation de suppression
+            
             ['confirmDeleteInput', 'confirmDeleteInput2', 'confirmDeleteInput3'].forEach(id => {
                 document.getElementById(id).addEventListener('input', validateDeleteConfirmation);
             });
             
-            // Gestionnaire pour la recherche
+            
             document.getElementById('searchInput').addEventListener('input', filterRecords);
             
-            // Gestionnaires pour les filtres
+            
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const filter = this.getAttribute('data-filter');
                     
-                    // Mettre à jour l'état actif
+                     
                     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
                     
-                    // Appliquer le filtre
+                    
                     applyFilter(filter);
                 });
             });
             
-            // Initialiser la date du jour dans le formulaire
+             
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('startDate').value = today;
             document.getElementById('endDate').value = today;
         });
         
-        // Configuration des champs de code de connexion
+         
         function setupCodeInputs() {
             const inputs = document.querySelectorAll('.code-input');
             
             inputs.forEach((input, index) => {
-                // Focus sur le premier champ
+                
                 if (index === 0) {
                     input.focus();
                 }
                 
-                // Gestion de la saisie
+                 
                 input.addEventListener('input', function(e) {
-                    // Si un chiffre est saisi, passer au champ suivant
+                    
                     if (this.value.length === 1) {
                         if (index < inputs.length - 1) {
                             inputs[index + 1].focus();
                         }
                     }
                     
-                    // Vérifier si tous les champs sont remplis
+                     
                     const allFilled = Array.from(inputs).every(input => input.value.length === 1);
                     if (allFilled) {
-                        // Délai court avant validation automatique
+                         
                         setTimeout(() => {
                             handleLogin();
                         }, 300);
                     }
                 });
                 
-                // Gestion de la suppression
+                 
                 input.addEventListener('keydown', function(e) {
                     if (e.key === 'Backspace' && this.value.length === 0) {
                         if (index > 0) {
@@ -1510,16 +1504,16 @@
             });
         }
         
-        // Gestion de la con nexion
+         
         function handleLogin() {
             const inputs = document.querySelectorAll('.code-input');
             const enteredCode = Array.from(inputs).map(input => input.value).join('');
             
-            // Code par défaut
+             
             const defaultCode = "8008";
             
             if (enteredCode === defaultCode || enteredCode.length === 4) {
-                // Vérifier dans Firebase si un code est stocké
+                 
                 db.collection('poulailler_settings').doc('access_code').get()
                     .then(doc => {
                         if (doc.exists) {
@@ -1530,7 +1524,7 @@
                                 showLoginError();
                             }
                         } else {
-                            // Aucun code enregistré, utiliser le code par défaut
+                             
                             if (enteredCode === defaultCode) {
                                 loginSuccess();
                             } else {
@@ -1540,7 +1534,7 @@
                     })
                     .catch(error => {
                         console.error("Erreur de vérification du code:", error);
-                        // En cas d'erreur, permettre l'accès avec le code par défaut
+                         
                         if (enteredCode === defaultCode) {
                             loginSuccess();
                         } else {
@@ -1552,35 +1546,35 @@
             }
         }
         
-        // Connexion réussie
+         
         function loginSuccess() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('appInterface').style.display = 'block';
             
-            // Charger les données
+             
             loadRecords();
             
-            // Afficher un message de bienvenue
+            
             showMessage('Connexion réussie!', 'success');
         }
         
-        // Afficher une erreur de connexion
+        
         function showLoginError() {
             const errorDiv = document.getElementById('loginError');
             errorDiv.style.display = 'block';
             errorDiv.textContent = 'Code incorrect.';
             
-            // Réinitialiser les champs
+             
             const inputs = document.querySelectorAll('.code-input');
             inputs.forEach(input => {
                 input.value = '';
                 input.style.borderColor = 'var(--danger)';
             });
             
-            // Focus sur le premier champ
+             
             inputs[0].focus();
             
-            // Réinitialiser la couleur après un délai
+             
             setTimeout(() => {
                 inputs.forEach(input => {
                     input.style.borderColor = '';
@@ -1588,28 +1582,28 @@
             }, 2000);
         }
         
-        // Afficher une section
+         
         function showSection(sectionId) {
-            // Masquer toutes les sections
+            
             document.querySelectorAll('.dashboard-section').forEach(section => {
                 section.style.display = 'none';
             });
             
-            // Afficher la section demandée
+            
             document.getElementById(sectionId + 'Section').style.display = 'block';
             
-            // Si c'est la section des enregistrements, recharger les données
+             
             if (sectionId === 'records') {
                 loadRecords();
             }
         }
         
-        // Afficher un modal
+         
         function showModal(modalId) {
             const modal = document.getElementById(modalId);
             modal.classList.add('active');
             
-            // Si c'est le modal d'enregistrement, réinitialiser la date
+             
             if (modalId === 'recordModal') {
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('startDate').value = today;
@@ -1617,12 +1611,12 @@
             }
         }
         
-        // Masquer un modal
+         
         function hideModal(modalId) {
             const modal = document.getElementById(modalId);
             modal.classList.remove('active');
             
-            // Réinitialiser le formulaire de suppression si nécessaire
+             
             if (modalId === 'deleteModal') {
                 document.getElementById('confirmDeleteInput').value = '';
                 document.getElementById('confirmDeleteInput2').value = '';
@@ -1631,7 +1625,7 @@
             }
         }
         
-        // Charger les enregistrements
+         
         function loadRecords() {
             db.collection('poulailler_records')
                 .orderBy('startDate', 'desc')
@@ -1645,11 +1639,11 @@
                         });
                     });
                     
-                    // Appliquer le filtre actif
+                     
                     const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
                     applyFilter(activeFilter);
                     
-                    // Mettre à jour les statistiques
+                    
                     updateStatistics();
                 })
                 .catch(error => {
@@ -1658,7 +1652,7 @@
                 });
         }
         
-        // Appliquer un filtre
+         
         function applyFilter(filterType) {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -1683,7 +1677,7 @@
                 }
             });
             
-            // Appliquer également le filtre de recherche si présent
+             
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             if (searchTerm) {
                 filteredRecords = filteredRecords.filter(record => {
@@ -1695,22 +1689,22 @@
                 });
             }
             
-            // Mettre à jour le tableau
+             
             updateRecordsTable();
         }
         
-        // Filtrer les enregistrements par recherche
+        
         function filterRecords() {
             const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
             applyFilter(activeFilter);
         }
         
-        // Mettre à jour le tableau des enregistrements
+        
         function updateRecordsTable() {
             const tbody = document.getElementById('recordsTableBody');
             const emptyState = document.getElementById('emptyState');
             
-            // Vider le tableau
+            
             tbody.innerHTML = '';
             
             if (filteredRecords.length === 0) {
@@ -1720,16 +1714,16 @@
                 return;
             }
             
-            // Masquer l'état vide
+             
             tbody.style.display = 'table-row-group';
             emptyState.style.display = 'none';
             
-            // Ajouter chaque enregistrement
+            
             filteredRecords.forEach(record => {
-                // Calculer le total vendu
+                
                 const totalSold = (record.smallSold || 0) + (record.mediumSold || 0) + (record.largeSold || 0);
                 
-                // Formater les dates
+                 
                 const startDateFormatted = formatDate(record.startDate);
                 const endDateFormatted = record.endDate ? formatDate(record.endDate) : '-';
                 
@@ -1761,7 +1755,7 @@
                 tbody.appendChild(row);
             });
             
-            // Ajouter les gestionnaires d'événements pour les boutons d'action
+            
             document.querySelectorAll('.action-btn-small.view').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const recordId = this.getAttribute('data-id');
@@ -1791,56 +1785,56 @@
             });
         }
         
-        // Formater une date
+         
         function formatDate(dateString) {
             const date = new Date(dateString);
             return date.toLocaleDateString('fr-FR');
         }
         
-        // Mettre à jour les statistiques
+         
         function updateStatistics() {
-            // Calculer les totaux
+             
             let totalProduction = 0;
             let totalStock = 0;
             let totalValue = 0;
             let totalRevenue = 0;
             
             allRecords.forEach(record => {
-                // Production = nouveaux poulets - perdus
+                 
                 const newChickens = record.newChickens || 0;
                 const lost = record.lost || 0;
                 totalProduction += newChickens - lost;
                 
-                // Stock initial ajusté avec le taux de croissance
+                
                 const initialStock = record.initialStock || 0;
                 const growthRate = record.growthRate || 0;
                 const adjustedStock = initialStock * (1 + growthRate/100);
                 totalStock += adjustedStock;
                 
-                // Valeur du stock (stock ajusté * prix moyen)
+                 
                 const smallPrice = record.smallPrice || 0;
                 const mediumPrice = record.mediumPrice || 0;
                 const largePrice = record.largePrice || 0;
                 const avgPrice = (smallPrice + mediumPrice + largePrice) / 3;
                 totalValue += adjustedStock * avgPrice;
                 
-                // Revenu total des ventes
+                
                 const smallSold = record.smallSold || 0;
                 const mediumSold = record.mediumSold || 0;
                 const largeSold = record.largeSold || 0;
                 totalRevenue += (smallSold * smallPrice) + (mediumSold * mediumPrice) + (largeSold * largePrice);
             });
             
-            // Mettre à jour l'affichage
+             
             document.getElementById('productionCount').textContent = Math.max(0, totalProduction).toLocaleString('fr-FR');
             document.getElementById('stockCount').textContent = Math.round(totalStock).toLocaleString('fr-FR');
             document.getElementById('stockValue').textContent = Math.round(totalValue).toLocaleString('fr-FR') + ' F CFA';
             document.getElementById('revenueCount').textContent = Math.round(totalRevenue).toLocaleString('fr-FR') + ' F CFA';
         }
         
-        // Sauvegarder un nouvel enregistrement
+        
         function saveRecord() {
-            // Récupérer les valeurs du formulaire
+             
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value || null;
             const newChickens = parseInt(document.getElementById('newChickens').value) || 0;
@@ -1855,13 +1849,13 @@
             const lossRate = parseFloat(document.getElementById('lossRate').value) || 0;
             const notes = document.getElementById('notes').value;
             
-            // Validation de base
+             
             if (!startDate) {
                 showMessage('La date de début est obligatoire', 'error');
                 return;
             }
             
-            // Préparer l'objet d'enregistrement
+             
             const record = {
                 startDate,
                 endDate,
@@ -1884,14 +1878,14 @@
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
             
-            // Enregistrer dans Firebase
+             
             db.collection('poulailler_records').add(record)
                 .then(() => {
                     showMessage('Enregistrement ajouté avec succès!', 'success');
                     hideModal('recordModal');
                     loadRecords();
                     
-                    // Réinitialiser le formulaire
+                     
                     document.getElementById('newChickens').value = '';
                     document.getElementById('initialStock').value = '';
                     document.getElementById('smallQuantity').value = '0';
@@ -1907,22 +1901,22 @@
                 });
         }
         
-        // Afficher les détails d'un enregistrement
+         
         function viewRecord(recordId) {
             const record = allRecords.find(r => r.id === recordId);
             if (!record) return;
             
-            // Calculer les totaux
+             
             const totalSold = (record.smallSold || 0) + (record.mediumSold || 0) + (record.largeSold || 0);
             const totalRevenue = (record.smallSold || 0) * (record.smallPrice || 0) + 
                                 (record.mediumSold || 0) * (record.mediumPrice || 0) + 
                                 (record.largeSold || 0) * (record.largePrice || 0);
             
-            // Formater les dates
+            
             const startDateFormatted = formatDate(record.startDate);
             const endDateFormatted = record.endDate ? formatDate(record.endDate) : 'Non définie';
             
-            // Créer le contenu HTML
+            
             let content = `
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl);">
                     <div class="form-group">
@@ -2012,12 +2006,12 @@
             showModal('viewModal');
         }
         
-        // Afficher le modal de mise à jour
+         
         function showUpdateModal(recordId) {
             currentRecordToUpdate = allRecords.find(r => r.id === recordId);
             if (!currentRecordToUpdate) return;
             
-            // Pré-remplir les champs avec les valeurs actuelles
+             
             document.getElementById('updateSmallSold').value = currentRecordToUpdate.smallSold || 0;
             document.getElementById('updateMediumSold').value = currentRecordToUpdate.mediumSold || 0;
             document.getElementById('updateLargeSold').value = currentRecordToUpdate.largeSold || 0;
@@ -2027,18 +2021,18 @@
             showModal('updateModal');
         }
         
-        // Mettre à jour les ventes
+         
         function updateSales() {
             if (!currentRecordToUpdate) return;
             
-            // Récupérer les nouvelles valeurs
+             
             const smallSold = parseInt(document.getElementById('updateSmallSold').value) || 0;
             const mediumSold = parseInt(document.getElementById('updateMediumSold').value) || 0;
             const largeSold = parseInt(document.getElementById('updateLargeSold').value) || 0;
             const given = parseInt(document.getElementById('updateGiven').value) || 0;
             const lost = parseInt(document.getElementById('updateLost').value) || 0;
             
-            // Validation: ne pas dépasser les quantités disponibles
+             
             if (smallSold > currentRecordToUpdate.smallQuantity) {
                 showMessage('Le nombre de petits poulets vendus ne peut pas dépasser la quantité disponible', 'error');
                 return;
@@ -2054,7 +2048,7 @@
                 return;
             }
             
-            // Mettre à jour l'enregistrement
+             
             db.collection('poulailler_records').doc(currentRecordToUpdate.id).update({
                 smallSold,
                 mediumSold,
@@ -2075,16 +2069,16 @@
             });
         }
         
-        // Afficher le modal d'édition
+        
         function showEditModal(recordId) {
             currentRecordToEdit = allRecords.find(r => r.id === recordId);
             if (!currentRecordToEdit) return;
             
-            // Formater les dates pour l'input type="date"
+             
             const startDate = currentRecordToEdit.startDate.split('T')[0];
             const endDate = currentRecordToEdit.endDate ? currentRecordToEdit.endDate.split('T')[0] : '';
             
-            // Créer le formulaire d'édition
+             
             let form = `
                 <form id="editForm">
                     <div class="form-grid">
@@ -2185,18 +2179,18 @@
             
             document.getElementById('editModalContent').innerHTML = form;
             
-            // Ajouter les gestionnaires d'événements
+             
             document.getElementById('cancelEditBtn').addEventListener('click', () => hideModal('editModal'));
             document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
             
             showModal('editModal');
         }
         
-        // Sauvegarder les modifications
+        
         function saveEdit() {
             if (!currentRecordToEdit) return;
             
-            // Récupérer les valeurs du formulaire
+             
             const startDate = document.getElementById('editStartDate').value;
             const endDate = document.getElementById('editEndDate').value || null;
             const newChickens = parseInt(document.getElementById('editNewChickens').value) || 0;
@@ -2211,13 +2205,13 @@
             const lossRate = parseFloat(document.getElementById('editLossRate').value) || 0;
             const notes = document.getElementById('editNotes').value;
             
-            // Validation
+            
             if (!startDate) {
                 showMessage('La date de début est obligatoire', 'error');
                 return;
             }
             
-            // Validation des quantités vendues vs nouvelles quantités
+             
             if (smallQuantity < currentRecordToEdit.smallSold) {
                 showMessage('La nouvelle quantité de petits poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
                 return;
@@ -2233,7 +2227,7 @@
                 return;
             }
             
-            // Mettre à jour l'enregistrement
+            
             db.collection('poulailler_records').doc(currentRecordToEdit.id).update({
                 startDate,
                 endDate,
@@ -2262,12 +2256,12 @@
             });
         }
         
-        // Afficher le modal de suppression
+         
         function showDeleteModal(recordId) {
             currentRecordToDelete = allRecords.find(r => r.id === recordId);
             if (!currentRecordToDelete) return;
             
-            // Mettre à jour le texte de confirmation
+             
             const startDateFormatted = formatDate(currentRecordToDelete.startDate);
             document.getElementById('deleteConfirmText').textContent = 
                 `Êtes-vous sûr de vouloir supprimer l'enregistrement du ${startDateFormatted} ?`;
@@ -2275,7 +2269,7 @@
             showModal('deleteModal');
         }
         
-        // Valider la confirmation de suppression
+         
         function validateDeleteConfirmation() {
             const input1 = document.getElementById('confirmDeleteInput').value;
             const input2 = document.getElementById('confirmDeleteInput2').value;
@@ -2285,7 +2279,7 @@
             document.getElementById('confirmDeleteBtn').disabled = !allCorrect;
         }
         
-        // Supprimer un enregistrement
+        
         function deleteRecord() {
             if (!currentRecordToDelete) return;
             
@@ -2302,12 +2296,12 @@
                 });
         }
         
-        // Mettre à jour le code d'accès
+         
         function updateAccessCode() {
             const newCode = document.getElementById('newCode').value;
             const confirmCode = document.getElementById('confirmCode').value;
             
-            // Validation
+             
             if (!newCode || !confirmCode) {
                 showMessage('Veuillez remplir les deux champs', 'error');
                 return;
@@ -2328,7 +2322,7 @@
                 return;
             }
             
-            // Enregistrer dans Firebase
+             
             db.collection('poulailler_settings').doc('access_code').set({
                 code: newCode,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -2345,7 +2339,7 @@
         }
         
       
-      // Gestionnaire pour les options de période
+       
 document.querySelectorAll('input[name="period"]').forEach(radio => {
     radio.addEventListener('change', function() {
         const customPeriodDiv = document.getElementById('customPeriodSelector');
@@ -2358,7 +2352,7 @@ document.querySelectorAll('input[name="period"]').forEach(radio => {
     });
 });
 
-// Charger les périodes disponibles
+ 
 function loadAvailablePeriods() {
     const selectPeriod = document.getElementById('selectPeriod');
     selectPeriod.innerHTML = '<option value="">-- Choisir une période --</option>';
