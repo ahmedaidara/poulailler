@@ -9,6 +9,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
   
     <style>
         :root {
@@ -1020,11 +1022,40 @@
         </div>
         
         <div class="option-item">
-            <input type="checkbox" id="includeCharts" class="checkbox">
-            <label for="includeCharts">Graphiques (si disponible)</label>
-        </div>
+    <input type="checkbox" id="includeCharts" class="checkbox">
+    <label for="includeCharts">Graphiques d'analyse</label>
+</div>
     </div>
     
+                 <div class="option-group">
+    <h3 style="margin-bottom: var(--space-md);">Graphiques à inclure</h3>
+    
+    <div class="option-item">
+        <input type="checkbox" id="chartSales" class="checkbox" checked>
+        <label for="chartSales">Graphique des ventes par catégorie</label>
+    </div>
+    
+    <div class="option-item">
+        <input type="checkbox" id="chartEvolution" class="checkbox" checked>
+        <label for="chartEvolution">Évolution des stocks dans le temps</label>
+    </div>
+    
+    <div class="option-item">
+        <input type="checkbox" id="chartRevenue" class="checkbox" checked>
+        <label for="chartRevenue">Répartition du chiffre d'affaires</label>
+    </div>
+    
+    <div class="option-item">
+        <input type="checkbox" id="chartLoss" class="checkbox" checked>
+        <label for="chartLoss">Analyse des pertes et dons</label>
+    </div>
+    
+    <div class="option-item">
+        <input type="checkbox" id="chartGrowth" class="checkbox" checked>
+        <label for="chartGrowth">Taux de croissance et mortalité</label>
+    </div>
+</div>
+                 
     <div class="option-group">
         <h3 style="margin-bottom: var(--space-md);">Période du rapport</h3>
         
@@ -2403,7 +2434,8 @@ function loadAvailablePeriods() {
       
       
          
-function generatePDF() {
+async function generatePDF() {
+
     showMessage('Préparation du rapport PDF...', 'warning');
     
      
@@ -2506,11 +2538,13 @@ function generatePDF() {
     }
     
     // Génér  PDF
-    generatePDFDocument(recordsForPDF, options, periodName);
+    await generatePDFDocument(recordsForPDF, options, periodName);
+
 }
 
 // Fonction  généation du PDF
-function generatePDFDocument(records, options, periodName) {
+async function generatePDFDocument(records, options, periodName) {
+
      
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({
@@ -2919,6 +2953,91 @@ function generatePDFDocument(records, options, periodName) {
         }
     }
     
+ // 11. GR 
+if (options.includeCharts) {
+    try {
+        // Vérifier l'e e
+        if (currentY > 150) {
+            doc.addPage();
+            currentY = 20;
+        }
+        
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(59, 130, 246);
+        doc.text("ANALYSE VISUELLE - GRAPHIQUES", margin, currentY);
+        currentY += 15;
+        
+        // Réc 
+        const chartOptions = {
+            chartSales: document.getElementById('chartSales')?.checked || false,
+            chartEvolution: document.getElementById('chartEvolution')?.checked || false,
+            chartRevenue: document.getElementById('chartRevenue')?.checked || false,
+            chartLoss: document.getElementById('chartLoss')?.checked || false,
+            chartGrowth: false    
+        };
+        
+        // Gén es
+        const charts = await generateChartsForPDF(records, chartOptions);
+        
+        if (charts.length > 0) {
+            // Aj aphique
+            for (let i = 0; i < charts.length; i++) {
+                const chart = charts[i];
+                
+                // Véri e
+                if (currentY + chart.height > 250) {
+                    doc.addPage();
+                    currentY = 20;
+                }
+                
+                // Ti e
+                doc.setFontSize(12);
+                doc.setFont("helvetica", "bold");
+                doc.setTextColor(30, 41, 59);
+                doc.text(chart.title, margin, currentY);
+                currentY += 8;
+                
+                // Ima 
+                if (chart.canvas) {
+                    try {
+                        const imgData = chart.canvas.toDataURL('image/png');
+                        doc.addImage(imgData, 'PNG', margin, currentY, chart.width, chart.height);
+                        currentY += chart.height + 15;
+                    } catch (imgError) {
+                        console.error("Erreur ajout image graphique:", imgError);
+                        doc.setFontSize(10);
+                        doc.setTextColor(239, 68, 68);
+                        doc.text(`[Graphique ${chart.title} non disponible]`, margin, currentY);
+                        currentY += 20;
+                    }
+                }
+                
+                // S es
+                if ((i + 1) % 2 === 0 && i < charts.length - 1) {
+                    doc.addPage();
+                    currentY = 20;
+                }
+            }
+        } else {
+            // A 
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(100, 100, 100);
+            doc.text("Aucun graphique disponible avec les données actuelles.", margin, currentY);
+            currentY += 20;
+        }
+        
+    } catch (error) {
+        console.error("Erreur section graphiques:", error);
+        // Continuer sans graphiques
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(239, 68, 68);
+        doc.text("Erreur lors de la génération des graphiques.", margin, currentY);
+        currentY += 20;
+    }
+}
     // 11.  
     if (options.includeFooter) {
         const totalPages = doc.internal.getNumberOfPages();
@@ -2926,7 +3045,7 @@ function generatePDFDocument(records, options, periodName) {
         for (let i = 1; i <= totalPages; i++) {
             doc.setPage(i);
             
-            // Numéros de page
+             
             if (options.includePageNumbers) {
                 doc.setFontSize(10);
                 doc.setTextColor(100, 100, 100);
@@ -2990,8 +3109,8 @@ function generatePDFDocument(records, options, periodName) {
         totalRecords: records.length,
         totalProduction: Math.max(0, totalProduction),
         totalStock: Math.round(totalStock),
-        totalValue: Math.round(totalValue).toString(), // Convertir en string
-        totalRevenue: Math.round(totalRevenue).toString(), // Convertir en string
+        totalValue: Math.round(totalValue).toString(),  
+        totalRevenue: Math.round(totalRevenue).toString(),  
         periodCovered
     };
 }
@@ -3207,6 +3326,678 @@ function getLossAndGivenData(records) {
                 }, 300);
             }, 3000);
         }
+      
+    
+function createSimpleChart(type, data, labels, colors, title) {
+    try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 600;
+        canvas.height = 400;
+        const ctx = canvas.getContext('2d');
+        
+         
+        if (typeof Chart === 'undefined') {
+            console.error("Chart.js n'est pas chargé");
+            return null;
+        }
+        
+        return new Promise((resolve) => {
+             
+            setTimeout(() => {
+                try {
+                    new Chart(ctx, {
+                        type: type,
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: data,
+                                backgroundColor: colors,
+                                borderColor: colors.map(c => c.replace('0.8', '1')),
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: title,
+                                    font: { size: 14, weight: 'bold' }
+                                },
+                                legend: {
+                                    display: type !== 'bar'
+                                }
+                            }
+                        }
+                    });
+                    
+                     
+                    setTimeout(() => {
+                        resolve(canvas);
+                    }, 100);
+                    
+                } catch (error) {
+                    console.error("Erreur création graphique:", error);
+                    resolve(null);
+                }
+            }, 50);
+        });
+        
+    } catch (error) {
+        console.error("Erreur création canvas:", error);
+        return Promise.resolve(null);
+    }
+}
+
+ 
+async function generateChartsForPDF(records, options) {
+    const charts = [];
+    
+    try {
+        // 1. Gra 
+        if (options.chartSales) {
+            const smallSold = records.reduce((sum, r) => sum + (r.smallSold || 0), 0);
+            const mediumSold = records.reduce((sum, r) => sum + (r.mediumSold || 0), 0);
+            const largeSold = records.reduce((sum, r) => sum + (r.largeSold || 0), 0);
+            
+            const salesCanvas = await createSimpleChart(
+                'bar',
+                [smallSold, mediumSold, largeSold],
+                ['Petits', 'Moyens', 'Gros'],
+                ['rgba(59, 130, 246, 0.8)', 'rgba(16, 185, 129, 0.8)', 'rgba(245, 158, 11, 0.8)'],
+                'Ventes par catégorie'
+            );
+            
+            if (salesCanvas) {
+                charts.push({
+                    title: "VENTES PAR CATÉGORIE",
+                    canvas: salesCanvas,
+                    width: 180,
+                    height: 100
+                });
+            }
+        }
+        
+        // 2. Gra 
+        if (options.chartEvolution && records.length > 0) {
+            // Prendre les 5 derniers records
+            const recentRecords = records.slice(0, Math.min(5, records.length));
+            const dates = recentRecords.map(r => {
+                const d = new Date(r.startDate);
+                return `${d.getDate()}/${d.getMonth() + 1}`;
+            }).reverse();
+            
+            const stocks = recentRecords.map(r => r.initialStock || 0).reverse();
+            
+            const evolutionCanvas = await createSimpleChart(
+                'line',
+                stocks,
+                dates,
+                ['rgba(59, 130, 246, 0.8)'],
+                'Évolution du stock'
+            );
+            
+            if (evolutionCanvas) {
+                charts.push({
+                    title: "ÉVOLUTION DU STOCK",
+                    canvas: evolutionCanvas,
+                    width: 180,
+                    height: 100
+                });
+            }
+        }
+        
+        // 3. Grap 
+        if (options.chartRevenue) {
+            const smallRevenue = records.reduce((sum, r) => sum + ((r.smallSold || 0) * (r.smallPrice || 0)), 0);
+            const mediumRevenue = records.reduce((sum, r) => sum + ((r.mediumSold || 0) * (r.mediumPrice || 0)), 0);
+            const largeRevenue = records.reduce((sum, r) => sum + ((r.largeSold || 0) * (r.largePrice || 0)), 0);
+            
+            if (smallRevenue > 0 || mediumRevenue > 0 || largeRevenue > 0) {
+                const revenueCanvas = await createSimpleChart(
+                    'doughnut',
+                    [smallRevenue, mediumRevenue, largeRevenue],
+                    ['Petits', 'Moyens', 'Gros'],
+                    ['rgba(59, 130, 246, 0.8)', 'rgba(16, 185, 129, 0.8)', 'rgba(245, 158, 11, 0.8)'],
+                    'Répartition du chiffre d\'affaires'
+                );
+                
+                if (revenueCanvas) {
+                    charts.push({
+                        title: "RÉPARTITION DU CA",
+                        canvas: revenueCanvas,
+                        width: 180,
+                        height: 100
+                    });
+                }
+            }
+        }
+        
+        // 4. Gra 
+        if (options.chartLoss) {
+            const totalLost = records.reduce((sum, r) => sum + (r.lost || 0), 0);
+            const totalGiven = records.reduce((sum, r) => sum + (r.given || 0), 0);
+            const totalSold = records.reduce((sum, r) => sum + (r.smallSold || 0) + (r.mediumSold || 0) + (r.largeSold || 0), 0);
+            
+            const lossCanvas = await createSimpleChart(
+                'pie',
+                [totalLost, totalGiven, totalSold],
+                ['Perdus', 'Donnés', 'Vendus'],
+                ['rgba(239, 68, 68, 0.8)', 'rgba(168, 85, 247, 0.8)', 'rgba(16, 185, 129, 0.8)'],
+                'Pertes, dons et ventes'
+            );
+            
+            if (lossCanvas) {
+                charts.push({
+                    title: "ANALYSE PERTES/DONS",
+                    canvas: lossCanvas,
+                    width: 180,
+                    height: 100
+                });
+            }
+        }
+        
+    } catch (error) {
+        console.error("Erreur génération graphiques:", error);
+    }
+    
+    return charts;
+}
+
+// Fonct 
+function createSalesChart(records) {
+    return new Promise((resolve) => {
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 450;
+            const ctx = canvas.getContext('2d');
+            
+            // Calc 
+            let smallSold = 0, mediumSold = 0, largeSold = 0;
+            records.forEach(record => {
+                smallSold += record.smallSold || 0;
+                mediumSold += record.mediumSold || 0;
+                largeSold += record.largeSold || 0;
+            });
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Petits', 'Moyens', 'Gros'],
+                    datasets: [{
+                        label: 'Poulets vendus',
+                        data: [smallSold, mediumSold, largeSold],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgb(59, 130, 246)',
+                            'rgb(16, 185, 129)',
+                            'rgb(245, 158, 11)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Ventes par catégorie',
+                            font: { size: 16, weight: 'bold' }
+                        },
+                        legend: { display: false },
+                        datalabels: {
+                            color: '#fff',
+                            font: { weight: 'bold', size: 14 },
+                            formatter: (value) => value
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Nombre de poulets'
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+            
+            resolve(canvas);
+        } catch (error) {
+            console.error("Erreur création graphique ventes:", error);
+            resolve(null);
+        }
+    });
+}
+
+function createEvolutionChart(records) {
+    return new Promise((resolve) => {
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 450;
+            const ctx = canvas.getContext('2d');
+            
+            // Prépare 
+            const recentRecords = records.slice(0, 10).reverse();
+            const labels = recentRecords.map(r => {
+                const date = new Date(r.startDate);
+                return `${date.getDate()}/${date.getMonth() + 1}`;
+            });
+            
+            const stockData = recentRecords.map(r => r.initialStock || 0);
+            const soldData = recentRecords.map(r => 
+                (r.smallSold || 0) + (r.mediumSold || 0) + (r.largeSold || 0)
+            );
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Stock initial',
+                            data: stockData,
+                            borderColor: 'rgb(59, 130, 246)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Poulets vendus',
+                            data: soldData,
+                            borderColor: 'rgb(16, 185, 129)',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Évolution des stocks et ventes',
+                            font: { size: 16, weight: 'bold' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Nombre de poulets'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Dates'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            resolve(canvas);
+        } catch (error) {
+            console.error("Erreur création graphique évolution:", error);
+            resolve(null);
+        }
+    });
+}
+
+function createRevenueChart(records) {
+    return new Promise((resolve) => {
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 450;
+            const ctx = canvas.getContext('2d');
+            
+            // Calculer les revenus par catégorie
+            let smallRevenue = 0, mediumRevenue = 0, largeRevenue = 0;
+            records.forEach(record => {
+                smallRevenue += (record.smallSold || 0) * (record.smallPrice || 0);
+                mediumRevenue += (record.mediumSold || 0) * (record.mediumPrice || 0);
+                largeRevenue += (record.largeSold || 0) * (record.largePrice || 0);
+            });
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Petits poulets', 'Poulets moyens', 'Gros poulets'],
+                    datasets: [{
+                        data: [smallRevenue, mediumRevenue, largeRevenue],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgb(59, 130, 246)',
+                            'rgb(16, 185, 129)',
+                            'rgb(245, 158, 11)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Répartition du chiffre d\'affaires',
+                            font: { size: 16, weight: 'bold' }
+                        },
+                        legend: {
+                            position: 'right',
+                            labels: { font: { size: 12 } }
+                        },
+                        datalabels: {
+                            color: '#fff',
+                            font: { weight: 'bold', size: 14 },
+                            formatter: (value, context) => {
+                                const total = smallRevenue + mediumRevenue + largeRevenue;
+                                const percentage = Math.round((value / total) * 100);
+                                return percentage + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+            
+            resolve(canvas);
+        } catch (error) {
+            console.error("Erreur création graphique revenus:", error);
+            resolve(null);
+        }
+    });
+}
+
+function createLossChart(records) {
+    return new Promise((resolve) => {
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 450;
+            const ctx = canvas.getContext('2d');
+            
+            // Calcul 
+            let totalLost = 0, totalGiven = 0, totalSold = 0;
+            records.forEach(record => {
+                totalLost += record.lost || 0;
+                totalGiven += record.given || 0;
+                totalSold += (record.smallSold || 0) + (record.mediumSold || 0) + (record.largeSold || 0);
+            });
+            
+            new Chart(ctx, {
+                type: 'polarArea',
+                data: {
+                    labels: ['Perdus (morts)', 'Donnés gratuitement', 'Vendus'],
+                    datasets: [{
+                        data: [totalLost, totalGiven, totalSold],
+                        backgroundColor: [
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(168, 85, 247, 0.8)',
+                            'rgba(16, 185, 129, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgb(239, 68, 68)',
+                            'rgb(168, 85, 247)',
+                            'rgb(16, 185, 129)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Analyse des pertes, dons et ventes',
+                            font: { size: 16, weight: 'bold' }
+                        },
+                        legend: {
+                            position: 'right',
+                            labels: { font: { size: 12 } }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            ticks: { display: false }
+                        }
+                    }
+                }
+            });
+            
+            resolve(canvas);
+        } catch (error) {
+            console.error("Erreur création graphique pertes:", error);
+            resolve(null);
+        }
+    });
+}
+
+function createGrowthChart(records) {
+    return new Promise((resolve) => {
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 450;
+            const ctx = canvas.getContext('2d');
+            
+            // Calcu 
+            let totalGrowth = 0, totalLoss = 0, count = 0;
+            records.forEach(record => {
+                if (record.growthRate !== undefined) {
+                    totalGrowth += record.growthRate || 0;
+                    totalLoss += record.lossRate || 0;
+                    count++;
+                }
+            });
+            
+            const avgGrowth = count > 0 ? totalGrowth / count : 0;
+            const avgLoss = count > 0 ? totalLoss / count : 0;
+            
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Taux de croissance', 'Taux de perte', 'Impact net'],
+                    datasets: [{
+                        label: 'Performances',
+                        data: [avgGrowth, avgLoss, avgGrowth - avgLoss],
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 3,
+                        pointBackgroundColor: 'rgb(59, 130, 246)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Analyse des taux de croissance et perte',
+                            font: { size: 16, weight: 'bold' }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            resolve(canvas);
+        } catch (error) {
+            console.error("Erreur création graphique croissance:", error);
+            resolve(null);
+        }
+    });
+}
+      // Fonct 
+function drawSimpleSalesChart(doc, records, x, y) {
+    try {
+        // Cal 
+        let smallSold = 0, mediumSold = 0, largeSold = 0;
+        records.forEach(record => {
+            smallSold += record.smallSold || 0;
+            mediumSold += record.mediumSold || 0;
+            largeSold += record.largeSold || 0;
+        });
+        
+        const maxSales = Math.max(smallSold, mediumSold, largeSold);
+        const barWidth = 40;
+        const maxHeight = 50;
+        
+        // Titre
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(30, 41, 59);
+        doc.text("Ventes par catégorie", x, y);
+        y += 10;
+        
+        // Lég e
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+        
+        // Barre  
+        const smallHeight = maxSales > 0 ? (smallSold / maxSales) * maxHeight : 0;
+        doc.setFillColor(59, 130, 246);
+        doc.rect(x, y + maxHeight - smallHeight, barWidth, smallHeight, 'F');
+        doc.text("Petits", x + barWidth/2, y + maxHeight + 5, { align: 'center' });
+        doc.text(smallSold.toString(), x + barWidth/2, y + maxHeight - smallHeight - 5, { align: 'center' });
+        
+        // Barre  
+        const mediumHeight = maxSales > 0 ? (mediumSold / maxSales) * maxHeight : 0;
+        doc.setFillColor(16, 185, 129);
+        doc.rect(x + barWidth + 10, y + maxHeight - mediumHeight, barWidth, mediumHeight, 'F');
+        doc.text("Moyens", x + barWidth + 10 + barWidth/2, y + maxHeight + 5, { align: 'center' });
+        doc.text(mediumSold.toString(), x + barWidth + 10 + barWidth/2, y + maxHeight - mediumHeight - 5, { align: 'center' });
+        
+        // Barre gros
+        const largeHeight = maxSales > 0 ? (largeSold / maxSales) * maxHeight : 0;
+        doc.setFillColor(245, 158, 11);
+        doc.rect(x + (barWidth + 10) * 2, y + maxHeight - largeHeight, barWidth, largeHeight, 'F');
+        doc.text("Gros", x + (barWidth + 10) * 2 + barWidth/2, y + maxHeight + 5, { align: 'center' });
+        doc.text(largeSold.toString(), x + (barWidth + 10) * 2 + barWidth/2, y + maxHeight - largeHeight - 5, { align: 'center' });
+        
+    } catch (error) {
+        console.error("Erreur dessin graphique ventes:", error);
+    }
+}
+
+function drawSimpleEvolutionChart(doc, records, x, y) {
+    try {
+        // Pr 
+        const recentRecords = records.slice(0, 5).reverse();
+        if (recentRecords.length === 0) return;
+        
+        //  
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(30, 41, 59);
+        doc.text("Évolution récente", x, y);
+        y += 10;
+        
+        const chartWidth = 150;
+        const chartHeight = 50;
+        const pointRadius = 2;
+        
+        // Tr 
+        let maxStock = 0;
+        let maxSold = 0;
+        
+        recentRecords.forEach(record => {
+            const stock = record.initialStock || 0;
+            const sold = (record.smallSold || 0) + (record.mediumSold || 0) + (record.largeSold || 0);
+            if (stock > maxStock) maxStock = stock;
+            if (sold > maxSold) maxSold = sold;
+        });
+        
+        const maxValue = Math.max(maxStock, maxSold);
+        
+        // D 
+        doc.setDrawColor(200, 200, 200);
+        for (let i = 0; i <= 4; i++) {
+            const lineY = y + chartHeight - (i * chartHeight / 4);
+            doc.line(x, lineY, x + chartWidth, lineY);
+        }
+        
+        // Dessiner les points et lignes
+        recentRecords.forEach((record, index) => {
+            const stock = record.initialStock || 0;
+            const sold = (record.smallSold || 0) + (record.mediumSold || 0) + (record.largeSold || 0);
+            
+            const xPos = x + (index * chartWidth / (recentRecords.length - 1));
+            const stockY = y + chartHeight - (stock / maxValue) * chartHeight;
+            const soldY = y + chartHeight - (sold / maxValue) * chartHeight;
+            
+            // Points stock (bleu)
+            doc.setFillColor(59, 130, 246);
+            doc.circle(xPos, stockY, pointRadius, 'F');
+            
+            // Points ventes (vert)
+            doc.setFillColor(16, 185, 129);
+            doc.circle(xPos, soldY, pointRadius, 'F');
+            
+            // Relier les points
+            if (index > 0) {
+                const prevStockY = y + chartHeight - ((recentRecords[index-1].initialStock || 0) / maxValue) * chartHeight;
+                const prevSoldY = y + chartHeight - (((recentRecords[index-1].smallSold || 0) + 
+                                                     (recentRecords[index-1].mediumSold || 0) + 
+                                                     (recentRecords[index-1].largeSold || 0)) / maxValue) * chartHeight;
+                
+                // Ligne stock (bleu)
+                doc.setDrawColor(59, 130, 246);
+                doc.line(x - (chartWidth / (recentRecords.length - 1)), prevStockY, xPos, stockY);
+                
+                // Ligne ventes (vert)
+                doc.setDrawColor(16, 185, 129);
+                doc.line(x - (chartWidth / (recentRecords.length - 1)), prevSoldY, xPos, soldY);
+            }
+            
+            // Dates
+            if (index === 0 || index === recentRecords.length - 1) {
+                const date = new Date(record.startDate);
+                const dateStr = `${date.getDate()}/${date.getMonth() + 1}`;
+                doc.setFontSize(8);
+                doc.setTextColor(100, 100, 100);
+                doc.text(dateStr, xPos, y + chartHeight + 8, { align: 'center' });
+            }
+        });
+        
+        // Légende
+        doc.setFontSize(9);
+        doc.setTextColor(59, 130, 246);
+        doc.text("● Stock", x + 10, y + chartHeight + 20);
+        doc.setTextColor(16, 185, 129);
+        doc.text("● Ventes", x + 60, y + chartHeight + 20);
+        
+    } catch (error) {
+        console.error("Erreur dessin graphique évolution:", error);
+    }
+}
       // Développer par AHMED SAID IDDA AIDARA
     </script>
 </body>
