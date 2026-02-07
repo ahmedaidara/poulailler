@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  
     <style>
         :root {
              
@@ -840,8 +841,8 @@
      <div id="appInterface" style="display: none;">
          <header>
             <div class="logo-container">
-                <img src="https://i.postimg.cc/5tKGRgtC/d3351e45-c47a-466d-8adf-c20e7f88292b.jpg" alt="Logo Poulailler Pro" class="logo">
-                <span class="app-title">Poulailler Pro</span>
+                <img src="https://i.postimg.cc/0QBKNcGj/photo-5782651308169956527-x.jpg" alt="Logo Poulailler Pro" class="logo">
+                <span class="app-title">DAKAR CHICKEN EXPRESS </span>
             </div>
             <div class="nav-links">
                 <button class="nav-btn active" data-section="dashboard">
@@ -2362,7 +2363,7 @@ function loadAvailablePeriods() {
         return;
     }
     
-    // Créer un ensemble de périodes uniques (par mois)
+    
     const periods = new Set();
     
     allRecords.forEach(record => {
@@ -2370,11 +2371,11 @@ function loadAvailablePeriods() {
         const monthYear = `${date.getMonth() + 1}/${date.getFullYear()}`;
         periods.add(monthYear);
         
-        // Ajouter aussi l'année complète
+         
         periods.add(`Année ${date.getFullYear()}`);
     });
     
-    // Ajouter les options
+     
     periods.forEach(period => {
         const option = document.createElement('option');
         option.value = period;
@@ -2382,7 +2383,7 @@ function loadAvailablePeriods() {
         selectPeriod.appendChild(option);
     });
     
-    // Option pour toutes les périodes
+     
     const allOption = document.createElement('option');
     allOption.value = 'all';
     allOption.textContent = 'Toutes les périodes disponibles';
@@ -2390,13 +2391,13 @@ function loadAvailablePeriods() {
 }
       
       
-        // Générer un PDF complet
+         
 function generatePDF() {
     showMessage('Préparation du rapport PDF...', 'warning');
     
-    // Récupérer toutes les options
+     
     const options = {
-        // Contenu à inclure
+         
         includeHeader: document.getElementById('includeHeader').checked,
         includeLogo: document.getElementById('includeLogo').checked,
         includeSummary: document.getElementById('includeSummary').checked,
@@ -2410,7 +2411,7 @@ function generatePDF() {
         includeGrowth: document.getElementById('includeGrowth').checked,
         includeCharts: document.getElementById('includeCharts').checked,
         
-        // Formatage
+         
         includePageNumbers: document.getElementById('includePageNumbers').checked,
         includeTimestamp: document.getElementById('includeTimestamp').checked,
         includeFooter: document.getElementById('includeFooter').checked,
@@ -2418,13 +2419,13 @@ function generatePDF() {
         orientation: document.getElementById('orientation').value
     };
     
-    // Déterminer la période
+     
     let periodType = 'all';
     let startDate = null;
     let endDate = null;
     let periodName = 'Tous les enregistrements';
     
-    // Vérifier quelle période est sélectionnée
+     
     if (document.getElementById('periodMonth').checked) {
         periodType = 'month';
         periodName = '30 derniers jours';
@@ -2440,7 +2441,7 @@ function generatePDF() {
     } else if (document.getElementById('periodCustom').checked) {
         periodType = 'custom';
         
-        // Vérifier si une période spécifique est sélectionnée
+         
         const selectedPeriod = document.getElementById('selectPeriod').value;
         const customStart = document.getElementById('customStartDate').value;
         const customEnd = document.getElementById('customEndDate').value;
@@ -2448,23 +2449,23 @@ function generatePDF() {
         if (selectedPeriod && selectedPeriod !== '') {
             periodName = `Période: ${selectedPeriod}`;
             
-            // Filtrer par période sélectionnée
+            
             if (selectedPeriod === 'all') {
-                // Toutes les périodes
+                 
                 periodName = 'Toutes les périodes disponibles';
             } else if (selectedPeriod.startsWith('Année ')) {
-                // Année complète
+                 
                 const year = parseInt(selectedPeriod.replace('Année ', ''));
                 startDate = new Date(year, 0, 1);
                 endDate = new Date(year, 11, 31);
             } else {
-                // Mois/Année spécifique
+                // Mois/Année  
                 const [month, year] = selectedPeriod.split('/').map(Number);
                 startDate = new Date(year, month - 1, 1);
-                endDate = new Date(year, month, 0); // Dernier jour du mois
+                endDate = new Date(year, month, 0);  
             }
         } else if (customStart && customEnd) {
-            // Période personnalisée spécifiée
+            // Période personnalisée  
             startDate = new Date(customStart);
             endDate = new Date(customEnd);
             periodName = `Période du ${formatDate(customStart)} au ${formatDate(customEnd)}`;
@@ -2474,7 +2475,7 @@ function generatePDF() {
         }
     }
     
-    // Filtrer les enregistrements selon la période
+    // Filtrer les   période
     let recordsForPDF = [];
     
     if (periodType === 'all') {
@@ -2493,13 +2494,13 @@ function generatePDF() {
         return;
     }
     
-    // Générer le PDF
+    // Génér  PDF
     generatePDFDocument(recordsForPDF, options, periodName);
 }
 
-// Fonction principale de génération du PDF
+// Fonction  généation du PDF
 function generatePDFDocument(records, options, periodName) {
-    // Initialiser jsPDF
+     
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({
         orientation: options.orientation,
@@ -2528,18 +2529,18 @@ function generatePDFDocument(records, options, periodName) {
             }
         }
         
-        // Titre principal
+        // Titre  
         doc.setTextColor(30, 41, 59);
         doc.setFontSize(24);
         doc.setFont("helvetica", "bold");
         doc.text("RAPPORT DE GESTION DE POULAILLER", pageWidth / 2, currentY + 10, { align: 'center' });
         
-        // Sous-titre
+        // Sous itre
         doc.setFontSize(12);
         doc.setFont("helvetica", "normal");
         doc.text(periodName, pageWidth / 2, currentY + 20, { align: 'center' });
         
-        // Date de génération
+        // Date  
         if (options.includeTimestamp) {
             const now = new Date();
             const dateStr = now.toLocaleDateString('fr-FR', {
@@ -2557,7 +2558,7 @@ function generatePDFDocument(records, options, periodName) {
         currentY += 40;
     }
     
-    // 2. RÉSUMÉ ET STATISTIQUES
+    //  TISTIQUES
     if (options.includeSummary) {
         doc.setFontSize(16);
         doc.setFont("helvetica", "bold");
@@ -2565,10 +2566,10 @@ function generatePDFDocument(records, options, periodName) {
         doc.text("RÉSUMÉ GÉNÉRAL", margin, currentY);
         currentY += 10;
         
-        // Calculer les statistiques
+        // Calcule statistiques
         const stats = calculateStatisticsForPDF(records);
         
-        // Afficher les statistiques
+        // Affiche tatistiques
         doc.setFontSize(11);
         doc.setFont("helvetica", "normal");
         doc.setTextColor(30, 41, 59);
@@ -2589,7 +2590,7 @@ function generatePDFDocument(records, options, periodName) {
         currentY += 15;
     }
     
-    // 3. STATISTIQUES DÉTAILLÉES
+    // 3. STATIS  DÉTAILLÉ S
     if (options.includeStats) {
         doc.setFontSize(16);
         doc.setFont("helvetica", "bold");
@@ -2602,7 +2603,7 @@ function generatePDFDocument(records, options, periodName) {
         doc.setFontSize(10);
         doc.setFont("helvetica", "normal");
         
-        // Tableau des statistiques
+        // Table tistiques
         const tableData = [
             ['Métrique', 'Valeur', 'Pourcentage'],
             ['Poulets vendus', stats.totalSold, '100%'],
@@ -2628,7 +2629,7 @@ function generatePDFDocument(records, options, periodName) {
         currentY = doc.lastAutoTable.finalY + 10;
     }
     
-    // 4. DÉTAILS PAR CATÉGORIE
+    // 4. DÉTAILS  PARCATÉGORIE
     if (options.includeDetails) {
         doc.setFontSize(16);
         doc.setFont("helvetica", "bold");
@@ -2638,7 +2639,7 @@ function generatePDFDocument(records, options, periodName) {
         
         const categories = calculateCategoryDetails(records);
         
-        // Tableau des catégories
+        // Tableau catégories
         const catTableData = [
             ['Catégorie', 'Quantité', 'Prix moyen', 'Total vendu', 'Valeur totale']
         ];
@@ -2666,9 +2667,9 @@ function generatePDFDocument(records, options, periodName) {
         currentY = doc.lastAutoTable.finalY + 10;
     }
     
-    // 5. TABLEAU COMPLET DES ENREGISTREMENTS
+    // 5. TABLEAU COMP EGISTREMENTS
     if (options.includeTable) {
-        // Vérifier s'il y a assez d'espace sur la page
+         
         if (currentY > 200) {
             doc.addPage();
             currentY = 20;
@@ -2680,7 +2681,7 @@ function generatePDFDocument(records, options, periodName) {
         doc.text("TABLEAU COMPLET DES ENREGISTREMENTS", margin, currentY);
         currentY += 10;
         
-        // Préparer les données du tableau
+         
         const tableData = [
             ['Date', 'Nouveaux', 'Stock', 'Vendus', 'Petits', 'Moyens', 'Gros', 'CA (F CFA)']
         ];
@@ -2759,7 +2760,7 @@ function generatePDFDocument(records, options, periodName) {
         });
     }
     
-    // 7. TAUX DE CROISSANCE ET DE PERTE
+    // 7.  DE PERTE
     if (options.includeGrowth) {
         if (currentY > 200) {
             doc.addPage();
@@ -2787,7 +2788,7 @@ function generatePDFDocument(records, options, periodName) {
         currentY += 15;
     }
     
-    // 8. VENTES PAR CATÉGORIE
+    // R CATÉGORIE
     if (options.includeSales) {
         if (currentY > 200) {
             doc.addPage();
@@ -2831,7 +2832,7 @@ function generatePDFDocument(records, options, periodName) {
         });
     }
     
-    // 9. NOTES ET OBSERVATIONS
+    // 9. N TIONS
     if (options.includeNotes) {
         const notes = getNotesFromRecords(records);
         if (notes.length > 0) {
@@ -2868,7 +2869,7 @@ function generatePDFDocument(records, options, periodName) {
         }
     }
     
-    // 10. PERTES ET DONS
+    // 10. PER 
     if (options.includeLosses) {
         const lossData = getLossAndGivenData(records);
         if (lossData.totalLost > 0 || lossData.totalGiven > 0) {
@@ -2897,7 +2898,7 @@ function generatePDFDocument(records, options, periodName) {
         }
     }
     
-    // 11. PIED DE PAGE
+    // 11.  
     if (options.includeFooter) {
         const totalPages = doc.internal.getNumberOfPages();
         
@@ -2911,20 +2912,19 @@ function generatePDFDocument(records, options, periodName) {
                 doc.text(`Page ${i} / ${totalPages}`, pageWidth / 2, 290, { align: 'center' });
             }
             
-            // Copyright
+             
             doc.text("© 2026 Gestion Poulailler Pro - Tous droits réservés", pageWidth / 2, 295, { align: 'center' });
         }
     }
     
-    // Sauvegarder le PDF
+     
     const fileName = `Rapport_Poulailler_${new Date().toISOString().slice(0,10)}.pdf`;
     doc.save(fileName);
     
     showMessage('PDF généré avec succès et téléchargement lancé!', 'success');
 }
 
-// Fonctions auxiliaires pour le PDF
-function calculateStatisticsForPDF(records) {
+ function calculateStatisticsForPDF(records) {
     let totalProduction = 0;
     let totalStock = 0;
     let totalValue = 0;
@@ -2952,7 +2952,7 @@ function calculateStatisticsForPDF(records) {
         totalRevenue += (smallSold * smallPrice) + (mediumSold * mediumPrice) + (largeSold * largePrice);
     });
     
-    // Dates de début et fin
+     
     const startDates = records.map(r => new Date(r.startDate));
     const endDates = records.filter(r => r.endDate).map(r => new Date(r.endDate));
     
@@ -3026,20 +3026,20 @@ function calculateCategoryDetails(records) {
         categories[0].price += record.smallPrice || 0;
         categories[0].totalValue += (record.smallSold || 0) * (record.smallPrice || 0);
         
-        // Poulets moyens
+        //   moyens
         categories[1].quantity += record.mediumQuantity || 0;
         categories[1].sold += record.mediumSold || 0;
         categories[1].price += record.mediumPrice || 0;
         categories[1].totalValue += (record.mediumSold || 0) * (record.mediumPrice || 0);
         
-        // Gros poulets
+        //   poulets
         categories[2].quantity += record.largeQuantity || 0;
         categories[2].sold += record.largeSold || 0;
         categories[2].price += record.largePrice || 0;
         categories[2].totalValue += (record.largeSold || 0) * (record.largePrice || 0);
     });
     
-    // Calculer les prix moyens
+    // Calculer  
     categories.forEach(cat => {
         cat.avgPrice = records.length > 0 ? cat.price / records.length : 0;
     });
@@ -3113,7 +3113,7 @@ function getSalesDetails(records) {
         details[2].totalValue += (record.largeSold || 0) * (record.largePrice || 0);
     });
     
-    // Calculer les pourcentages et prix moyens
+     
     details.forEach(detail => {
         detail.percentSold = detail.quantity > 0 ? (detail.sold / detail.quantity) * 100 : 0;
         detail.price = records.length > 0 ? detail.price / records.length : 0;
@@ -3146,7 +3146,7 @@ function getLossAndGivenData(records) {
         totalLost += record.lost || 0;
         totalGiven += record.given || 0;
         
-        // Estimation de la perte financière (prix moyen)
+         
         const avgPrice = ((record.smallPrice || 0) + (record.mediumPrice || 0) + (record.largePrice || 0)) / 3;
         estimatedLoss += (record.lost || 0) * avgPrice;
     });
@@ -3158,11 +3158,11 @@ function getLossAndGivenData(records) {
     };
 }
         
-        // Afficher un message
+         
         function showMessage(text, type) {
             const messageContainer = document.getElementById('messageContainer');
             
-            // Créer l'élément de message
+            
             const message = document.createElement('div');
             message.className = `message ${type}`;
             message.innerHTML = `
@@ -3170,15 +3170,15 @@ function getLossAndGivenData(records) {
                 <span>${text}</span>
             `;
             
-            // Ajouter au conteneur
+            
             messageContainer.appendChild(message);
             
-            // Afficher avec animation
+            
             setTimeout(() => {
                 message.classList.add('show');
             }, 10);
             
-            // Supprimer après 3 secondes
+            // Suppri s
             setTimeout(() => {
                 message.classList.remove('show');
                 setTimeout(() => {
@@ -3186,6 +3186,9 @@ function getLossAndGivenData(records) {
                 }, 300);
             }, 3000);
         }
+      // Développer par AHMED SAID IDDA AIDARA
     </script>
 </body>
-</html>
+ </html>
+
+ 
