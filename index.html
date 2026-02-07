@@ -1086,7 +1086,7 @@
         </div>
     </div>
 
-    <!-- Settings Modal -->
+     
     <div id="settingsModal" class="modal-overlay hidden">
         <div class="modal">
             <div class="modal-header">
@@ -1127,7 +1127,7 @@
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
+    
     <div id="deleteModal" class="modal-overlay hidden">
         <div class="modal">
             <div class="modal-header">
@@ -1153,7 +1153,7 @@
     </div>
 
     <script>
-        // Configuration Firebase - VOS CLÉS
+        
         const firebaseConfig = {
             apiKey: "AIzaSyAAQ9G3w94aM7iGc_ufHMzdCvrwzzEzlhI",
             authDomain: "poulailler-3515e.firebaseapp.com",
@@ -1164,7 +1164,7 @@
             measurementId: "G-ZKH1QG9JW0"
         };
 
-        // Initialisation Firebase
+        
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
@@ -1177,7 +1177,7 @@
         let isAuthenticated = false;
         let accessCode = "0000";
 
-        // Références aux éléments DOM
+        
         const loginScreen = document.getElementById('loginScreen');
         const mainApp = document.getElementById('mainApp');
         const accessCodeInput = document.getElementById('accessCode');
@@ -1185,80 +1185,80 @@
         const loginError = document.getElementById('loginError');
         const logoutBtn = document.getElementById('logoutBtn');
         
-        // Boutons d'action
+        
         const newRecordBtn = document.getElementById('newRecordBtn');
         const addStockBtn = document.getElementById('addStockBtn');
         const quickSaleBtn = document.getElementById('quickSaleBtn');
         const pdfBtn = document.getElementById('pdfBtn');
         const firstRecordBtn = document.getElementById('firstRecordBtn');
         
-        // Modals
+        
         const recordModal = document.getElementById('recordModal');
         const settingsModal = document.getElementById('settingsModal');
         const deleteModal = document.getElementById('deleteModal');
         
-        // Formulaires
+         
         const recordForm = document.getElementById('recordForm');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const cancelRecordBtn = document.getElementById('cancelRecordBtn');
         const modalTitle = document.getElementById('modalTitle');
         
-        // Filtres
+         
         const filterButtons = document.querySelectorAll('.filter-btn');
         const searchInput = document.getElementById('searchInput');
         const clearSearchBtn = document.getElementById('clearSearchBtn');
         
-        // Paramètres
+        
         const updateCodeBtn = document.getElementById('updateCodeBtn');
         const newAccessCode = document.getElementById('newAccessCode');
         const confirmAccessCode = document.getElementById('confirmAccessCode');
         const codeUpdateMessage = document.getElementById('codeUpdateMessage');
         
-        // Suppression
+        
         const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
         const closeDeleteBtns = document.querySelectorAll('.close-delete');
         const closeSettingsBtns = document.querySelectorAll('.close-settings');
 
-        // Initialisation
+        
         document.addEventListener('DOMContentLoaded', () => {
             initApp();
             setupEventListeners();
         });
 
         function initApp() {
-            // Initialiser les collections
+             
             recordsCollection = db.collection('poulailler_records');
             accessCodeCollection = db.collection('poulailler_settings');
             
-            // Définir la date du jour
+             
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('date').value = today;
             
-            // Charger le code d'accès
+             
             loadAccessCode();
         }
 
         function setupEventListeners() {
-            // Connexion
+            
             loginBtn.addEventListener('click', handleLogin);
             accessCodeInput.addEventListener('keyup', (e) => e.key === 'Enter' && handleLogin());
             
-            // Déconnexion
+            
             logoutBtn.addEventListener('click', handleLogout);
             
-            // Boutons d'action
+            
             newRecordBtn.addEventListener('click', () => openRecordModal());
             addStockBtn.addEventListener('click', () => openAddStockModal());
             quickSaleBtn.addEventListener('click', () => openQuickSaleModal());
             pdfBtn.addEventListener('click', generatePdf);
             firstRecordBtn.addEventListener('click', () => openRecordModal());
             
-            // Formulaire
+            
             recordForm.addEventListener('submit', handleRecordSubmit);
             closeModalBtn.addEventListener('click', () => recordModal.classList.add('hidden'));
             cancelRecordBtn.addEventListener('click', () => recordModal.classList.add('hidden'));
             
-            // Filtres
+            
             filterButtons.forEach(btn => {
                 btn.addEventListener('click', () => {
                     filterButtons.forEach(b => b.classList.remove('active'));
@@ -1268,20 +1268,20 @@
                 });
             });
             
-            // Recherche
+            
             searchInput.addEventListener('input', filterRecords);
             clearSearchBtn.addEventListener('click', () => {
                 searchInput.value = '';
                 filterRecords();
             });
             
-            // Paramètres
+            
             updateCodeBtn.addEventListener('click', updateAccessCode);
             closeSettingsBtns.forEach(btn => {
                 btn.addEventListener('click', () => settingsModal.classList.add('hidden'));
             });
             
-            // Suppression
+             
             confirmDeleteBtn.addEventListener('click', confirmDelete);
             closeDeleteBtns.forEach(btn => {
                 btn.addEventListener('click', () => deleteModal.classList.add('hidden'));
@@ -1311,7 +1311,7 @@
                 mainApp.classList.remove('hidden');
                 loadRecords();
             } else {
-                loginError.textContent = "Code incorrect. Le code par défaut est 0000";
+                loginError.textContent = "Code incorrect. Le code par défaut est ****";
                 accessCodeInput.value = "";
                 accessCodeInput.focus();
             }
@@ -1349,7 +1349,7 @@
             let filteredRecords = [...records];
             const searchTerm = searchInput.value.toLowerCase();
             
-            // Filtrer par recherche
+            
             if (searchTerm) {
                 filteredRecords = filteredRecords.filter(record => {
                     return record.notes?.toLowerCase().includes(searchTerm) ||
@@ -1357,7 +1357,7 @@
                 });
             }
             
-            // Filtrer par période
+             
             const now = new Date();
             switch(currentFilter) {
                 case 'today':
@@ -1372,7 +1372,7 @@
                     const oneMonthAgo = new Date(now.setMonth(now.getMonth() - 1)).toISOString().split('T')[0];
                     filteredRecords = filteredRecords.filter(r => r.date >= oneMonthAgo);
                     break;
-                // 'all' ne filtre pas par date
+                
             }
             
             displayRecords(filteredRecords);
@@ -1474,7 +1474,7 @@
             let totalRevenue = 0;
             let currentUnitPrice = 0;
             
-            // Récupérer le prix unitaire le plus récent
+             
             if (records.length > 0) {
                 const sortedRecords = [...records].sort((a, b) => 
                     new Date(b.date) - new Date(a.date)
@@ -1482,7 +1482,7 @@
                 currentUnitPrice = sortedRecords.find(r => r.unitPrice)?.unitPrice || 0;
             }
             
-            // Calculer les totaux
+             
             records.forEach(record => {
                 totalInitial += (record.initial || 0);
                 totalSold += (record.sold || 0);
@@ -1491,7 +1491,7 @@
                 totalRevenue += ((record.sold || 0) * (record.unitPrice || 0));
             });
             
-            // Mettre à jour l'affichage
+             
             document.getElementById('currentProduction').textContent = 
                 (totalInitial - totalLost).toLocaleString();
             document.getElementById('remainingStock').textContent = 
@@ -1518,7 +1518,7 @@
                     modalTitle.textContent = 'Modifier l\'enregistrement';
                 }
             } else {
-                // Réinitialiser le formulaire pour un nouvel enregistrement
+                 
                 recordForm.reset();
                 document.getElementById('date').value = new Date().toISOString().split('T')[0];
                 modalTitle.textContent = 'Nouvel enregistrement';
@@ -1559,11 +1559,11 @@
             
             try {
                 if (currentRecordId) {
-                    // Mettre à jour l'enregistrement existant
+                    
                     await recordsCollection.doc(currentRecordId).update(record);
                     showMessage("Enregistrement modifié avec succès!", "success");
                 } else {
-                    // Ajouter un nouvel enregistrement
+                    
                     await recordsCollection.add(record);
                     showMessage("Enregistrement ajouté avec succès!", "success");
                 }
@@ -1780,7 +1780,7 @@
             }, 3000);
         }
 
-        // Exposer les fonctions globales
+        
         window.openRecordModal = openRecordModal;
         window.editRecord = editRecord;
         window.showDeleteModal = showDeleteModal;
