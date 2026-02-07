@@ -934,14 +934,15 @@
                     <div class="table-wrapper">
                         <table class="records-table">
                             <thead>
-                                <tr>
-                                    <th>Début</th>
-                                    <th>Fin</th>
-                                    <th>Initial</th>
-                                    <th>Stock</th>
-                                    <th>Vendus</th>
-                                    <th>Actions</th>
-                                </tr>
+                               <tr>
+    <th>Début</th>
+    <th>Fin</th>
+    <th>Initial</th>
+    <th>Vendus</th>
+    <th>Perdus/Donnés</th>
+    <th>Stock Restant</th>
+    <th>Actions</th>
+</tr>
                             </thead>
                             <tbody id="recordsTableBody">
                              </tbody>
@@ -1196,18 +1197,18 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="newChickens" class="form-label">Nouveaux poulets</label>
-                    <input type="number" id="newChickens" class="form-input" min="0" placeholder="Optionnel">
+                    <label for="newChickens" class="form-label">Stock initial</label>
+                    <input type="number" id="newChickens" class="form-input" min="0" placeholder="Remplir ici">
                 </div>
                 
                 <div class="form-group">
                     <label for="initialStock" class="form-label">Stock initial</label>
-                    <input type="number" id="initialStock" class="form-input" min="0" placeholder="Optionnel">
+                    <input type="number" id="initialStock" class="form-input" min="0" placeholder="Saisir une deuxieme fois ">
                 </div>
             </div>
             
             <div class="price-categories">
-                <h3 style="margin-bottom: var(--space-lg);">Système de Prix Multiples</h3>
+                <h3 style="margin-bottom: var(--space-lg);">Prix Multiples</h3>
                 
                 <div class="price-category">
                     <h4 style="margin-bottom: var(--space-md);">Petits poulets</h4>
@@ -1252,17 +1253,7 @@
                 </div>
             </div>
             
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="growthRate" class="form-label">Taux de croissance (%)</label>
-                    <input type="number" id="growthRate" class="form-input" min="0" max="100" step="0.1" placeholder="Optionnel">
-                </div>
-                
-                <div class="form-group">
-                    <label for="lossRate" class="form-label">Taux de perte (%)</label>
-                    <input type="number" id="lossRate" class="form-input" min="0" max="100" step="0.1" placeholder="Optionnel">
-                </div>
-            </div>
+            
             
             <div class="form-group">
                 <label for="notes" class="form-label">Notes</label>
@@ -1751,41 +1742,48 @@
             emptyState.style.display = 'none';
             
             
-            filteredRecords.forEach(record => {
-                
-                const totalSold = (record.smallSold || 0) + (record.mediumSold || 0) + (record.largeSold || 0);
-                
-                 
-                const startDateFormatted = formatDate(record.startDate);
-                const endDateFormatted = record.endDate ? formatDate(record.endDate) : '-';
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${startDateFormatted}</td>
-                    <td>${endDateFormatted}</td>
-                    <td>${record.newChickens || 0}</td>
-                    <td>${record.initialStock || 0}</td>
-                    <td>${totalSold}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="action-btn-small view" data-id="${record.id}" title="Voir">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="action-btn-small update" data-id="${record.id}" title="Mettre à jour">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
-                            <button class="action-btn-small edit" data-id="${record.id}" title="Modifier">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="action-btn-small delete" data-id="${record.id}" title="Supprimer">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
-                
-                tbody.appendChild(row);
-            });
+           filteredRecords.forEach(record => {
+    
+    const totalSold = (record.smallSold || 0) + (record.mediumSold || 0) + (record.largeSold || 0);
+    const totalLostGiven = (record.lost || 0) + (record.given || 0);
+    
+    // Calcul du stock restant : Initial - Vendus - Perdus/Donnés
+    const initialStock = record.initialStock || 0;
+    const stockRestant = Math.max(0, initialStock - totalSold - totalLostGiven);
+    
+     
+    const startDateFormatted = formatDate(record.startDate);
+    const endDateFormatted = record.endDate ? formatDate(record.endDate) : '-';
+    
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>${startDateFormatted}</td>
+        <td>${endDateFormatted}</td>
+        <td>${record.newChickens || 0}</td>
+        <td>${totalSold}</td>
+        <td>${totalLostGiven}</td>
+        <td>${stockRestant}</td>
+        <td>
+            <div class="action-buttons">
+                <button class="action-btn-small view" data-id="${record.id}" title="Voir">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="action-btn-small update" data-id="${record.id}" title="Mettre à jour">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button class="action-btn-small edit" data-id="${record.id}" title="Modifier">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-btn-small delete" data-id="${record.id}" title="Supprimer">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </td>
+    `;
+    
+    tbody.appendChild(row);
+});
+            
             
             
             document.querySelectorAll('.action-btn-small.view').forEach(btn => {
@@ -1972,10 +1970,7 @@ function formatNumberForPDF(num) {
                         <div class="form-input" style="background: var(--light-gray);">${endDateFormatted}</div>
                     </div>
                     
-                    <div class="form-group">
-                        <label class="form-label">Nouveaux poulets</label>
-                        <div class="form-input" style="background: var(--light-gray);">${record.newChickens || 0}</div>
-                    </div>
+                    
                     
                     <div class="form-group">
                         <label class="form-label">Stock initial</label>
@@ -2012,15 +2007,7 @@ function formatNumberForPDF(num) {
                 </div>
                 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl);">
-                    <div class="form-group">
-                        <label class="form-label">Taux de croissance</label>
-                        <div class="form-input" style="background: var(--light-gray);">${record.growthRate || 0}%</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Taux de perte</label>
-                        <div class="form-input" style="background: var(--light-gray);">${record.lossRate || 0}%</div>
-                    </div>
+                     
                     
                     <div class="form-group">
                         <label class="form-label">Donnés gratuitement</label>
@@ -2737,9 +2724,9 @@ async function generatePDFDocument(records, options, periodName) {
         currentY += 10;
         
          
-        const tableData = [
-            ['Date', 'Nouveaux', 'Stock', 'Vendus', 'Petits', 'Moyens', 'Gros', 'CA (F CFA)']
-        ];
+       const tableData = [
+    ['Date', 'Nouveaux', 'Vendus', 'Perdus/Donnés', 'Stock Restant', 'CA (F CFA)']
+];
         
         records.forEach(record => {
             const totalSold = (record.smallSold || 0) + (record.mediumSold || 0) + (record.largeSold || 0);
@@ -2747,16 +2734,18 @@ async function generatePDFDocument(records, options, periodName) {
                                 (record.mediumSold || 0) * (record.mediumPrice || 0) + 
                                 (record.largeSold || 0) * (record.largePrice || 0);
             
-            tableData.push([
-                formatDate(record.startDate),
-                record.newChickens || 0,
-                record.initialStock || 0,
-                totalSold,
-                record.smallSold || 0,
-                record.mediumSold || 0,
-                record.largeSold || 0,
-                formatNumberForPDF(totalRevenue)
-            ]);
+           const totalLostGiven = (record.lost || 0) + (record.given || 0);
+const initialStock = record.initialStock || 0;
+const stockRestant = Math.max(0, initialStock - totalSold - totalLostGiven);
+
+tableData.push([
+    formatDate(record.startDate),
+    record.newChickens || 0,
+    totalSold,
+    totalLostGiven,
+    stockRestant,
+    formatNumberForPDF(totalRevenue)
+]);
         });
         
         doc.autoTable({
@@ -3968,7 +3957,7 @@ function drawSimpleEvolutionChart(doc, records, x, y) {
                                                      (recentRecords[index-1].mediumSold || 0) + 
                                                      (recentRecords[index-1].largeSold || 0)) / maxValue) * chartHeight;
                 
-                // Ligne stock (bleu)
+                //  
                 doc.setDrawColor(59, 130, 246);
                 doc.line(x - (chartWidth / (recentRecords.length - 1)), prevStockY, xPos, stockY);
                 
@@ -3977,7 +3966,7 @@ function drawSimpleEvolutionChart(doc, records, x, y) {
                 doc.line(x - (chartWidth / (recentRecords.length - 1)), prevSoldY, xPos, soldY);
             }
             
-            // Dates
+            
             if (index === 0 || index === recentRecords.length - 1) {
                 const date = new Date(record.startDate);
                 const dateStr = `${date.getDate()}/${date.getMonth() + 1}`;
@@ -3987,7 +3976,7 @@ function drawSimpleEvolutionChart(doc, records, x, y) {
             }
         });
         
-        // Légende
+        //  
         doc.setFontSize(9);
         doc.setTextColor(59, 130, 246);
         doc.text("● Stock", x + 10, y + chartHeight + 20);
