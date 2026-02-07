@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GESTION D.C.E</title>
+    <title>Poulailler Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
@@ -822,7 +822,7 @@
 <body>
      <div id="loginScreen" class="login-container">
         <div class="login-card">
-            <h1 class="login-title">D.C.E</h1>
+            <h1 class="login-title">Poulailler Pro</h1>
             <div class="code-input-container">
                 <input type="password" class="code-input" maxlength="1" data-index="0">
                 <input type="password" class="code-input" maxlength="1" data-index="1">
@@ -1089,7 +1089,7 @@
         
         <div class="option-item">
             <input type="checkbox" id="includeFooter" class="checkbox" checked>
-            <label for="includeFooter">Pied de page avec copyright</label>
+            <label for="includeFooter">Pied de page    </label>
         </div>
         
         <div class="option-item">
@@ -2513,23 +2513,33 @@ function generatePDFDocument(records, options, periodName) {
     const margin = 15;
     
     // 1. EN-TÊTE
-    if (options.includeHeader) {
-        // Logo (si disponible)
-        if (options.includeLogo) {
-            try {
-                // Vous devrez charger l'image du logo
-                // Pour l'instant, nous ajoutons un rectangle pour représenter le logo
-                doc.setFillColor(59, 130, 246);
-                doc.rect(margin, currentY, 20, 20, 'F');
-                doc.setTextColor(255, 255, 255);
-                doc.setFontSize(10);
-                doc.text("LP", margin + 10, currentY + 10, { align: 'center', baseline: 'middle' });
-            } catch (e) {
-                console.log("Logo non disponible, continuation sans logo");
-            }
+   if (options.includeHeader) {
+    // Log 
+    if (options.includeLogo) {
+        try {
+             
+            doc.addImage(
+                'https://i.postimg.cc/0QBKNcGj/photo-5782651308169956527-x.jpg',
+                'JPEG',
+                margin,      
+                currentY,    
+                25,          
+                25           
+            );
+            currentY += 30;  
+        } catch (e) {
+             
+            console.log("Logo non disponible");
+            doc.setFillColor(59, 130, 246);
+            doc.rect(margin, currentY, 25, 25, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(10);
+            doc.text("LP", margin + 12.5, currentY + 12.5, { align: 'center', baseline: 'middle' });
+            currentY += 30;
         }
+    }
         
-        // Titre  
+        // Ti re  
         doc.setTextColor(30, 41, 59);
         doc.setFontSize(24);
         doc.setFont("helvetica", "bold");
@@ -2965,12 +2975,12 @@ function generatePDFDocument(records, options, periodName) {
         periodCovered = `${formatDate(earliestDate.toISOString())} - ${formatDate(latestDate.toISOString())}`;
     }
     
-    return {
+   return {
         totalRecords: records.length,
         totalProduction: Math.max(0, totalProduction),
         totalStock: Math.round(totalStock),
-        totalValue: Math.round(totalValue),
-        totalRevenue: Math.round(totalRevenue),
+        totalValue: Math.round(totalValue).toString(), // Convertir en string
+        totalRevenue: Math.round(totalRevenue).toString(), // Convertir en string
         periodCovered
     };
 }
