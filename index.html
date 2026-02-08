@@ -940,37 +940,37 @@
                 <h2 class="section-title"><i class="fas fa-tachometer-alt"></i> Tableau de Bord</h2>
                 
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-egg"></i>
-                        </div>
-                        <div class="stat-value" id="productionCount">0</div>
-                        <div class="stat-label">Production restant (hors morts et don)</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-box"></i>
-                        </div>
-                        <div class="stat-value" id="stockCount">0</div>
-                        <div class="stat-label">Production Total</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-coins"></i>
-                        </div>
-                        <div class="stat-value" id="stockValue">0 F CFA</div>
-                        <div class="stat-label">Valeur du stock</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <div class="stat-value" id="revenueCount">0 F CFA</div>
-                        <div class="stat-label">Chiffre d'affaires réalisé</div>
-                    </div>
+                   <div class="stat-card">
+    <div class="stat-icon">
+        <i class="fas fa-egg"></i>
+    </div>
+    <div class="stat-value" id="productionCount">0</div>
+    <div class="stat-label">Stock total restant</div> <!-- Changé -->
+</div>
+
+<div class="stat-card">
+    <div class="stat-icon">
+        <i class="fas fa-box"></i>
+    </div>
+    <div class="stat-value" id="stockCount">0</div>
+    <div class="stat-label">Stock initial total</div> <!-- Changé -->
+</div>
+
+<div class="stat-card">
+    <div class="stat-icon">
+        <i class="fas fa-coins"></i>
+    </div>
+    <div class="stat-value" id="stockValue">0 F CFA</div>
+    <div class="stat-label">Valeur du stock restant</div> <!-- Changé -->
+</div>
+
+<div class="stat-card">
+    <div class="stat-icon">
+        <i class="fas fa-chart-line"></i>
+    </div>
+    <div class="stat-value" id="revenueCount">0 F CFA</div>
+    <div class="stat-label">Chiffre d'affaires total</div> <!-- Changé -->
+</div>
                 </div>
                 
                 <h3 class="section-title"><i class="fas fa-bolt"></i> Actions Rapides</h3>
@@ -1916,9 +1916,14 @@
             emptyState.style.display = 'none';
             
             
-           filteredRecords.forEach(record => {
+         filteredRecords.forEach(record => {
     
-    const totalSold = (record.smallSold || 0) + (record.mediumSold || 0) + (record.largeSold || 0);
+    // CALCUL AVEC LES 8 CATÉGORIES
+    const totalSold = (record.small1Sold || 0) + (record.small2Sold || 0) + 
+                     (record.medium1Sold || 0) + (record.medium2Sold || 0) + 
+                     (record.large1Sold || 0) + (record.large2Sold || 0) + 
+                     (record.xlarge1Sold || 0) + (record.xlarge2Sold || 0);
+    
     const totalLostGiven = (record.lost || 0) + (record.given || 0);
     
     // Calcul du stock restant : Initial - Vendus - Perdus/Donnés
@@ -2007,60 +2012,64 @@ function formatNumberForPDF(num) {
     return rounded.toString();
 }
          
-        function updateStatistics() {
-             
-            let totalProduction = 0;
-            let totalStock = 0;
-            let totalValue = 0;
-            let totalRevenue = 0;
-            
-            allRecords.forEach(record => {
-                 
-                const newChickens = record.newChickens || 0;
-                const lost = record.lost || 0;
-                totalProduction += newChickens - lost;
-                
-                
-                const initialStock = record.initialStock || 0;
-                const growthRate = record.growthRate || 0;
-                const adjustedStock = initialStock * (1 + growthRate/100);
-                totalStock += adjustedStock;
-                
-                 
-               const small1Price = record.small1Price || 0;
-const small2Price = record.small2Price || 0;
-const medium1Price = record.medium1Price || 0;
-const medium2Price = record.medium2Price || 0;
-const large1Price = record.large1Price || 0;
-const large2Price = record.large2Price || 0;
-const xlarge1Price = record.xlarge1Price || 0;
-const xlarge2Price = record.xlarge2Price || 0;
-const avgPrice = (small1Price + small2Price + medium1Price + medium2Price + 
-                 large1Price + large2Price + xlarge1Price + xlarge2Price) / 8;
-                totalValue += adjustedStock * avgPrice;
-                
-                
-               const small1Sold = record.small1Sold || 0;
-const small2Sold = record.small2Sold || 0;
-const medium1Sold = record.medium1Sold || 0;
-const medium2Sold = record.medium2Sold || 0;
-const large1Sold = record.large1Sold || 0;
-const large2Sold = record.large2Sold || 0;
-const xlarge1Sold = record.xlarge1Sold || 0;
-const xlarge2Sold = record.xlarge2Sold || 0;
-
-totalRevenue += (small1Sold * small1Price) + (small2Sold * small2Price) + 
-                (medium1Sold * medium1Price) + (medium2Sold * medium2Price) + 
-                (large1Sold * large1Price) + (large2Sold * large2Price) + 
-                (xlarge1Sold * xlarge1Price) + (xlarge2Sold * xlarge2Price);
-            });
-            
-             
-            document.getElementById('productionCount').textContent = Math.max(0, totalProduction).toLocaleString('fr-FR');
-            document.getElementById('stockCount').textContent = Math.round(totalStock).toLocaleString('fr-FR');
-            document.getElementById('stockValue').textContent = Math.round(totalValue).toLocaleString('fr-FR') + ' F CFA';
-            document.getElementById('revenueCount').textContent = Math.round(totalRevenue).toLocaleString('fr-FR') + ' F CFA';
-        }
+     function updateStatistics() {
+    // Calcul des statistiques
+    let totalProduction = 0;  // Devient "Stock total restant"
+    let totalStock = 0;       // Stock initial total
+    let totalValue = 0;       // Valeur du stock
+    let totalRevenue = 0;     // Chiffre d'affaires
+    
+    allRecords.forEach(record => {
+        // 1. Calcul du STOCK RESTANT pour chaque enregistrement
+        const initialStock = record.initialStock || 0;
+        const totalSold = (record.small1Sold || 0) + (record.small2Sold || 0) + 
+                         (record.medium1Sold || 0) + (record.medium2Sold || 0) + 
+                         (record.large1Sold || 0) + (record.large2Sold || 0) + 
+                         (record.xlarge1Sold || 0) + (record.xlarge2Sold || 0);
+        const totalLostGiven = (record.lost || 0) + (record.given || 0);
+        
+        // Stock restant = Initial - Vendus - (Perdus + Donnés)
+        const stockRestant = Math.max(0, initialStock - totalSold - totalLostGiven);
+        
+        // 2. Additionner le stock restant de TOUS les enregistrements
+        totalProduction += stockRestant;
+        
+        // 3. Stock initial total (pour information)
+        totalStock += initialStock;
+        
+        // 4. Calcul de la valeur du stock (avec les 8 catégories)
+        const small1Price = record.small1Price || 0;
+        const small2Price = record.small2Price || 0;
+        const medium1Price = record.medium1Price || 0;
+        const medium2Price = record.medium2Price || 0;
+        const large1Price = record.large1Price || 0;
+        const large2Price = record.large2Price || 0;
+        const xlarge1Price = record.xlarge1Price || 0;
+        const xlarge2Price = record.xlarge2Price || 0;
+        
+        // Prix moyen pondéré (ou prendre le prix moyen simple)
+        const avgPrice = (small1Price + small2Price + medium1Price + medium2Price + 
+                         large1Price + large2Price + xlarge1Price + xlarge2Price) / 8;
+        
+        totalValue += stockRestant * avgPrice;
+        
+        // 5. Calcul du chiffre d'affaires (avec les 8 catégories)
+        totalRevenue += (record.small1Sold || 0) * small1Price +
+                       (record.small2Sold || 0) * small2Price +
+                       (record.medium1Sold || 0) * medium1Price +
+                       (record.medium2Sold || 0) * medium2Price +
+                       (record.large1Sold || 0) * large1Price +
+                       (record.large2Sold || 0) * large2Price +
+                       (record.xlarge1Sold || 0) * xlarge1Price +
+                       (record.xlarge2Sold || 0) * xlarge2Price;
+    });
+    
+    // Mise à jour de l'affichage
+    document.getElementById('productionCount').textContent = Math.max(0, totalProduction).toLocaleString('fr-FR');
+    document.getElementById('stockCount').textContent = Math.round(totalStock).toLocaleString('fr-FR');
+    document.getElementById('stockValue').textContent = Math.round(totalValue).toLocaleString('fr-FR') + ' F CFA';
+    document.getElementById('revenueCount').textContent = Math.round(totalRevenue).toLocaleString('fr-FR') + ' F CFA';
+}
         
         
     function saveRecord() {
