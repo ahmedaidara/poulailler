@@ -996,7 +996,7 @@
     
     <div class="stat-card">
         <div class="stat-icon" style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(2, 132, 199, 0.1)); color: #0EA5E9;">
-            <i class="fas fa-box-open"></i>
+            <i class="fas fa-box-open"></i> 
         </div>
         <div class="stat-value" id="lastStockInitial">0</div>
         <div class="stat-label">Stock initial (dernière)</div>
@@ -2111,20 +2111,23 @@
         }
         
          
-        function showSection(sectionId) {
-            
-            document.querySelectorAll('.dashboard-section').forEach(section => {
-                section.style.display = 'none';
-            });
-            
-            
-            document.getElementById(sectionId + 'Section').style.display = 'block';
-            
-             
-            if (sectionId === 'records') {
-                loadRecords();
-            }
-        }
+      function showSection(sectionId) {
+    document.querySelectorAll('.dashboard-section').forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    document.getElementById(sectionId + 'Section').style.display = 'block';
+    
+    if (sectionId === 'records') {
+        loadRecords();
+    }
+    
+     if (sectionId === 'boutiques') {
+        loadBoutiqueStats();
+        loadInvoices('all');
+        initBoutiqueFilters();
+    }
+}
         
          
         function showModal(modalId) {
@@ -2182,7 +2185,90 @@
         });
 }
         
-         
+         // Fonction pour charger les statistiques boutique
+function loadBoutiqueStats() {
+    console.log('Chargement des stats boutique...');
+    
+    // Sacré Coeur 3
+    db.collection('invoices').where('boutique', '==', 'sacre-coeur')
+        .get()
+        .then(snapshot => {
+            const count = snapshot.size;
+            console.log(`Factures Sacré Coeur: ${count}`);
+            document.getElementById('statsSacreCoeur').textContent = count;
+            
+            // Dernière facture
+            if (count > 0) {
+                const lastInvoice = snapshot.docs[0].data();
+                let date;
+                
+                if (lastInvoice.date && lastInvoice.date.seconds) {
+                    date = new Date(lastInvoice.date.seconds * 1000);
+                } else if (lastInvoice.date) {
+                    date = new Date(lastInvoice.date);
+                } else {
+                    date = new Date();
+                }
+                
+                document.getElementById('lastInvoiceSacreCoeur').textContent = 
+                    `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+            }
+        })
+        .catch(error => {
+            console.error('Erreur chargement Sacré Coeur:', error);
+            document.getElementById('statsSacreCoeur').textContent = '0';
+        });
+    
+    // Keur Massar
+    db.collection('invoices').where('boutique', '==', 'keur-massar')
+        .get()
+        .then(snapshot => {
+            const count = snapshot.size;
+            console.log(`Factures Keur Massar: ${count}`);
+            document.getElementById('statsKeurMassar').textContent = count;
+            
+            if (count > 0) {
+                const lastInvoice = snapshot.docs[0].data();
+                let date;
+                
+                if (lastInvoice.date && lastInvoice.date.seconds) {
+                    date = new Date(lastInvoice.date.seconds * 1000);
+                } else if (lastInvoice.date) {
+                    date = new Date(lastInvoice.date);
+                } else {
+                    date = new Date();
+                }
+                
+                document.getElementById('lastInvoiceKeurMassar').textContent = 
+                    `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+            }
+        })
+        .catch(error => {
+            console.error('Erreur chargement Keur Massar:', error);
+            document.getElementById('statsKeurMassar').textContent = '0';
+        });
+    
+    // Total et CA
+    db.collection('invoices').get()
+        .then(snapshot => {
+            const total = snapshot.size;
+            console.log(`Total factures: ${total}`);
+            let totalCA = 0;
+            
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                totalCA += data.total || 0;
+            });
+            
+            document.getElementById('statsTotalBoutiques').textContent = total;
+            document.getElementById('totalCA').textContent = totalCA.toLocaleString('fr-FR') + ' F CFA';
+        })
+        .catch(error => {
+            console.error('Erreur chargement total:', error);
+            document.getElementById('statsTotalBoutiques').textContent = '0';
+        });
+}
+      
         function applyFilter(filterType) {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -5183,7 +5269,9 @@ function loadBoutiqueStats() {
 }
 
 // Charg 
-function loadInvoices(filter = 'all') {
+ function loadInvoices(filter = 'all') {
+    console.log('Chargement factures avec filtre:', filter);
+    
     let query = db.collection('invoices').orderBy('date', 'desc');
     
     if (filter !== 'all' && filter !== 'today' && filter !== 'week') {
@@ -5191,12 +5279,14 @@ function loadInvoices(filter = 'all') {
     }
     
     query.get().then(snapshot => {
+        console.log(`Nombre de factures trouvées: ${snapshot.size}`);
         const tbody = document.getElementById('invoicesTableBody');
         const emptyState = document.getElementById('emptyInvoices');
         
         tbody.innerHTML = '';
         
         if (snapshot.empty) {
+            console.log('Aucune facture trouvée');
             tbody.style.display = 'none';
             emptyState.style.display = 'block';
             return;
@@ -5207,9 +5297,18 @@ function loadInvoices(filter = 'all') {
         
         snapshot.forEach(doc => {
             const invoice = doc.data();
-            const date = new Date(invoice.date?.seconds * 1000 || invoice.date);
+            console.log('Facture:', invoice.invoiceNumber, invoice.boutique);
             
-            // Appliquer les filtres temporels
+            let date;
+            if (invoice.date && invoice.date.seconds) {
+                date = new Date(invoice.date.seconds * 1000);
+            } else if (invoice.date) {
+                date = new Date(invoice.date);
+            } else {
+                date = new Date();
+            }
+            
+            // Appl 
             if (filter === 'today') {
                 const today = new Date();
                 if (date.toDateString() !== today.toDateString()) return;
@@ -5232,7 +5331,7 @@ function loadInvoices(filter = 'all') {
                 <td>${formatDate(date)}</td>
                 <td>${invoice.client?.name || 'Non renseigné'}</td>
                 <td>${invoice.client?.phone || '--'}</td>
-                <td>${invoice.total?.toLocaleString('fr-FR') || 0} F CFA</td>
+                <td>${(invoice.total || 0).toLocaleString('fr-FR')} F CFA</td>
                 <td>
                     <div class="action-buttons">
                         <button class="action-btn-small view" onclick="viewInvoiceDetail('${doc.id}')">
@@ -5247,6 +5346,9 @@ function loadInvoices(filter = 'all') {
             
             tbody.appendChild(row);
         });
+    }).catch(error => {
+        console.error('Erreur chargement factures:', error);
+        showMessage('Erreur de chargement des factures', 'error');
     });
 }
 
