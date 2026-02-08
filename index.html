@@ -964,6 +964,9 @@
                 <button class="nav-btn active" data-section="dashboard">
                     <i class="fas fa-chart-line"></i> Tableau de Bord Général
                 </button>
+              <button class="nav-btn" data-section="boutiques">
+    <i class="fas fa-store"></i> Boutiques
+</button>
                 <button class="nav-btn" data-section="records">
                     <i class="fas fa-history"></i> Historique
                 </button>
@@ -1319,7 +1322,7 @@
                 <div class="table-container" style="max-width: 500px;">
                     <div class="form-grid" style="padding: var(--space-xl);">
                         <div class="form-group">
-                            <label for="newCode" class="form-label">Nouveau code (4-8 chiffres)</label>
+                            <label for="newCode" class="form-label">Nouveau code (4 chiffres)</label>
                             <input type="password" id="newCode" class="form-input" maxlength="8">
                         </div>
                         
@@ -1335,7 +1338,184 @@
                         </button>
                     </div>
                 </div>
+               <div class="table-container" style="max-width: 600px; margin-top: var(--space-xl);">
+    <h3 style="margin-bottom: var(--space-lg); color: var(--primary);">
+        <i class="fas fa-store"></i> Gestion des Boutiques
+    </h3>
+    
+    <!-- Boutique 1 : Sacré Coeur 3 -->
+    <div class="option-group" style="margin-bottom: var(--space-lg);">
+        <h4 style="margin-bottom: var(--space-md); display: flex; align-items: center; gap: var(--space-sm);">
+            <i class="fas fa-map-marker-alt" style="color: #3B82F6;"></i>
+            Boutique SACRÉ COEUR 3
+        </h4>
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="codeSacreCoeur" class="form-label">Code d'accès gérante</label>
+                <input type="password" id="codeSacreCoeur" class="form-input" value="8008">
+                <small style="color: var(--gray-text);">Code pour la gérante de Sacré Coeur 3</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="urlSacreCoeur" class="form-label">Lien boutique</label>
+                <div style="display: flex; gap: var(--space-sm);">
+                    <input type="text" id="urlSacreCoeur" class="form-input" 
+                           value="https://votre-site.com/gerante.html?boutique=sacre-coeur" readonly>
+                    <button onclick="copyToClipboard('urlSacreCoeur')" class="btn" style="background: var(--secondary); color: white;">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Boutique 2 : Keur Massar -->
+    <div class="option-group">
+        <h4 style="margin-bottom: var(--space-md); display: flex; align-items: center; gap: var(--space-sm);">
+            <i class="fas fa-map-marker-alt" style="color: #10B981;"></i>
+            Boutique KEUR MASSAR
+        </h4>
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="codeKeurMassar" class="form-label">Code d'accès gérante</label>
+                <input type="password" id="codeKeurMassar" class="form-input" value="1001">
+                <small style="color: var(--gray-text);">Code pour la gérante de Keur Massar</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="urlKeurMassar" class="form-label">Lien boutique</label>
+                <div style="display: flex; gap: var(--space-sm);">
+                    <input type="text" id="urlKeurMassar" class="form-input" 
+                           value="https://votre-site.com/gerante.html?boutique=keur-massar" readonly>
+                    <button onclick="copyToClipboard('urlKeurMassar')" class="btn" style="background: var(--secondary); color: white;">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-actions" style="margin-top: var(--space-xl);">
+        <button id="saveBoutiqueCodes" class="btn btn-primary">
+            <i class="fas fa-save"></i> Enregistrer les codes
+        </button>
+    </div>
+</div>
             </section>
+           <section id="boutiquesSection" class="dashboard-section" style="display: none;">
+    <h2 class="section-title"><i class="fas fa-store"></i> Gestion des Boutiques</h2>
+    
+    <!-- Boutiques Cards -->
+    <div class="stats-grid">
+        <!-- Boutique Sacré Coeur 3 -->
+        <div class="stat-card" onclick="selectBoutique('sacre-coeur')" 
+             style="cursor: pointer; border-top: 4px solid #3B82F6;">
+            <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3B82F6;">
+                <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="stat-value" id="statsSacreCoeur">0</div>
+            <div class="stat-label">Factures - Sacré Coeur 3</div>
+            <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
+                <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceSacreCoeur">--/--/----</span>
+            </div>
+        </div>
+        
+        <!-- Boutique Keur Massar -->
+        <div class="stat-card" onclick="selectBoutique('keur-massar')" 
+             style="cursor: pointer; border-top: 4px solid #10B981;">
+            <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10B981;">
+                <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="stat-value" id="statsKeurMassar">0</div>
+            <div class="stat-label">Factures - Keur Massar</div>
+            <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
+                <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceKeurMassar">--/--/----</span>
+            </div>
+        </div>
+        
+        <!-- Total des deux boutiques -->
+        <div class="stat-card" style="border-top: 4px solid #8B5CF6;">
+            <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8B5CF6;">
+                <i class="fas fa-chart-pie"></i>
+            </div>
+            <div class="stat-value" id="statsTotalBoutiques">0</div>
+            <div class="stat-label">Total factures toutes boutiques</div>
+            <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
+                <i class="fas fa-money-bill-wave"></i> CA total: <span id="totalCA">0 F CFA</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filtres -->
+    <div class="table-container" style="margin-top: var(--space-xl);">
+        <div class="table-header">
+            <div class="filters">
+                <button class="filter-btn active" data-boutique="all">Toutes boutiques</button>
+                <button class="filter-btn" data-boutique="sacre-coeur">Sacré Coeur 3</button>
+                <button class="filter-btn" data-boutique="keur-massar">Keur Massar</button>
+                <button class="filter-btn" data-boutique="today">Aujourd'hui</button>
+                <button class="filter-btn" data-boutique="week">Cette semaine</button>
+            </div>
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInvoice" class="search-input" placeholder="Rechercher facture...">
+            </div>
+        </div>
+        
+        <!-- Tableau des factures -->
+        <div class="table-wrapper">
+            <table class="records-table">
+                <thead>
+                    <tr>
+                        <th>N° Facture</th>
+                        <th>Boutique</th>
+                        <th>Date</th>
+                        <th>Client</th>
+                        <th>Téléphone</th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="invoicesTableBody">
+                    <!-- Les factures apparaîtront ici -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="emptyInvoices" class="empty-state" style="display: none;">
+            <i class="fas fa-file-invoice" style="font-size: 3rem; margin-bottom: var(--space-md); color: var(--light-gray);"></i>
+            <h3>Aucune facture trouvée</h3>
+            <p>Les factures des gérantes apparaîtront ici</p>
+        </div>
+    </div>
+    
+    <!-- Modal de détails de facture -->
+    <div id="invoiceDetailModal" class="modal-overlay">
+        <div class="modal" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-file-invoice"></i> Détails de la Facture</h2>
+                <button class="close-modal" onclick="hideModal('invoiceDetailModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="invoiceDetailContent">
+                <!-- Contenu dynamique -->
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="hideModal('invoiceDetailModal')">
+                    <i class="fas fa-times"></i> Fermer
+                </button>
+                <button id="printInvoiceBtn" class="btn btn-primary">
+                    <i class="fas fa-print"></i> Imprimer
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
         </main>
         
          <footer>
@@ -4919,6 +5099,312 @@ function drawSimpleEvolutionChart(doc, records, x, y) {
         console.error("Erreur dessin graphique évolution:", error);
     }
 }
+      
+      // Fonctions 
+function copyToClipboard(elementId) {
+    const element = document.getElementById(elementId);
+    element.select();
+    document.execCommand('copy');
+    showMessage('Lien copié!', 'success');
+}
+
+// Sauvega 
+document.getElementById('saveBoutiqueCodes').addEventListener('click', function() {
+    const codeSacréCoeur = document.getElementById('codeSacreCoeur').value;
+    const codeKeurMassar = document.getElementById('codeKeurMassar').value;
+    
+    // Validation
+    if (codeSacréCoeur.length < 4 || codeKeurMassar.length < 4) {
+        showMessage('Les codes doivent avoir au moins 4 chiffres', 'error');
+        return;
+    }
+    
+    // Sauve 
+    db.collection('poulailler_settings').doc('boutique_codes').set({
+        sacre_coeur: codeSacréCoeur,
+        keur_massar: codeKeurMassar,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(() => {
+        showMessage('Codes enregistrés avec succès!', 'success');
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        showMessage('Erreur lors de l\'enregistrement', 'error');
+    });
+});
+
+// Charger les stati 
+function loadBoutiqueStats() {
+    // Sacré Coeur 3
+    db.collection('invoices').where('boutique', '==', 'sacre-coeur')
+        .get()
+        .then(snapshot => {
+            const count = snapshot.size;
+            document.getElementById('statsSacreCoeur').textContent = count;
+            
+            // Dernière facture
+            if (count > 0) {
+                const lastInvoice = snapshot.docs[0].data();
+                const date = new Date(lastInvoice.date?.seconds * 1000 || lastInvoice.date);
+                document.getElementById('lastInvoiceSacreCoeur').textContent = 
+                    `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+            }
+        });
+    
+    // Keur Massar
+    db.collection('invoices').where('boutique', '==', 'keur-massar')
+        .get()
+        .then(snapshot => {
+            const count = snapshot.size;
+            document.getElementById('statsKeurMassar').textContent = count;
+            
+            if (count > 0) {
+                const lastInvoice = snapshot.docs[0].data();
+                const date = new Date(lastInvoice.date?.seconds * 1000 || lastInvoice.date);
+                document.getElementById('lastInvoiceKeurMassar').textContent = 
+                    `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+            }
+        });
+    
+    // Total et CA
+    db.collection('invoices').get()
+        .then(snapshot => {
+            const total = snapshot.size;
+            let totalCA = 0;
+            
+            snapshot.forEach(doc => {
+                totalCA += doc.data().total || 0;
+            });
+            
+            document.getElementById('statsTotalBoutiques').textContent = total;
+            document.getElementById('totalCA').textContent = totalCA.toLocaleString('fr-FR') + ' F CFA';
+        });
+}
+
+// Charg 
+function loadInvoices(filter = 'all') {
+    let query = db.collection('invoices').orderBy('date', 'desc');
+    
+    if (filter !== 'all' && filter !== 'today' && filter !== 'week') {
+        query = query.where('boutique', '==', filter);
+    }
+    
+    query.get().then(snapshot => {
+        const tbody = document.getElementById('invoicesTableBody');
+        const emptyState = document.getElementById('emptyInvoices');
+        
+        tbody.innerHTML = '';
+        
+        if (snapshot.empty) {
+            tbody.style.display = 'none';
+            emptyState.style.display = 'block';
+            return;
+        }
+        
+        tbody.style.display = 'table-row-group';
+        emptyState.style.display = 'none';
+        
+        snapshot.forEach(doc => {
+            const invoice = doc.data();
+            const date = new Date(invoice.date?.seconds * 1000 || invoice.date);
+            
+            // Appliquer les filtres temporels
+            if (filter === 'today') {
+                const today = new Date();
+                if (date.toDateString() !== today.toDateString()) return;
+            }
+            
+            if (filter === 'week') {
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                if (date < weekAgo) return;
+            }
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${invoice.invoiceNumber || 'N/A'}</td>
+                <td>
+                    <span class="boutique-badge ${invoice.boutique === 'sacre-coeur' ? 'badge-sacre-coeur' : 'badge-keur-massar'}">
+                        ${invoice.boutique === 'sacre-coeur' ? 'Sacré Coeur 3' : 'Keur Massar'}
+                    </span>
+                </td>
+                <td>${formatDate(date)}</td>
+                <td>${invoice.client?.name || 'Non renseigné'}</td>
+                <td>${invoice.client?.phone || '--'}</td>
+                <td>${invoice.total?.toLocaleString('fr-FR') || 0} F CFA</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="action-btn-small view" onclick="viewInvoiceDetail('${doc.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn-small delete" onclick="deleteInvoice('${doc.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+    });
+}
+
+// Voir le 
+function viewInvoiceDetail(invoiceId) {
+    db.collection('invoices').doc(invoiceId).get()
+        .then(doc => {
+            if (!doc.exists) return;
+            
+            const invoice = doc.data();
+            const date = new Date(invoice.date?.seconds * 1000 || invoice.date);
+            
+            let content = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-xl); margin-bottom: var(--space-xl);">
+                    <div>
+                        <h4 style="margin-bottom: var(--space-md);">Informations Facture</h4>
+                        <p><strong>N°:</strong> ${invoice.invoiceNumber || 'N/A'}</p>
+                        <p><strong>Date:</strong> ${formatDate(date)}</p>
+                        <p><strong>Heure:</strong> ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}</p>
+                        <p><strong>Boutique:</strong> ${invoice.boutique === 'sacre-coeur' ? 'Sacré Coeur 3' : 'Keur Massar'}</p>
+                    </div>
+                    
+                    <div>
+                        <h4 style="margin-bottom: var(--space-md);">Informations Client</h4>
+                        <p><strong>Nom:</strong> ${invoice.client?.name || 'Non renseigné'}</p>
+                        <p><strong>Téléphone:</strong> ${invoice.client?.phone || '--'}</p>
+                        <p><strong>Adresse:</strong> ${invoice.client?.address || '--'}</p>
+                    </div>
+                </div>
+                
+                <h4 style="margin-bottom: var(--space-md);">Détail des Articles</h4>
+                <div style="background: var(--light-gray); padding: var(--space-lg); border-radius: var(--radius-lg);">
+            `;
+            
+            if (invoice.items && invoice.items.length > 0) {
+                content += `
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #ddd;">
+                                <th style="padding: var(--space-sm); text-align: left;">Article</th>
+                                <th style="padding: var(--space-sm); text-align: center;">Quantité</th>
+                                <th style="padding: var(--space-sm); text-align: right;">Prix unitaire</th>
+                                <th style="padding: var(--space-sm); text-align: right;">Sous-total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                invoice.items.forEach(item => {
+                    content += `
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: var(--space-sm);">
+                                ${item.name}<br>
+                                <small style="color: var(--gray-text);">${item.weight}</small>
+                            </td>
+                            <td style="padding: var(--space-sm); text-align: center;">${item.quantity}</td>
+                            <td style="padding: var(--space-sm); text-align: right;">${item.price?.toLocaleString('fr-FR')} F CFA</td>
+                            <td style="padding: var(--space-sm); text-align: right; font-weight: bold;">
+                                ${item.subtotal?.toLocaleString('fr-FR')} F CFA
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                content += `
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" style="padding: var(--space-sm); text-align: right; font-weight: bold;">
+                                    TOTAL TTC:
+                                </td>
+                                <td style="padding: var(--space-sm); text-align: right; font-size: 1.2rem; color: var(--primary);">
+                                    ${invoice.total?.toLocaleString('fr-FR')} F CFA
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                `;
+            } else {
+                content += `<p style="text-align: center; color: var(--gray-text);">Aucun détail disponible</p>`;
+            }
+            
+            content += `</div>`;
+            
+            document.getElementById('invoiceDetailContent').innerHTML = content;
+            showModal('invoiceDetailModal');
+        });
+}
+
+// Sup 
+function deleteInvoice(invoiceId) {
+    if (confirm('Voulez-vous vraiment supprimer cette facture ?')) {
+        db.collection('invoices').doc(invoiceId).delete()
+            .then(() => {
+                showMessage('Facture supprimée', 'success');
+                loadInvoices();
+                loadBoutiqueStats();
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                showMessage('Erreur lors de la suppression', 'error');
+            });
+    }
+}
+
+// Sélection 
+function selectBoutique(boutique) {
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`[data-boutique="${boutique}"]`).classList.add('active');
+    loadInvoices(boutique);
+}
+
+// Initia 
+function initBoutiqueFilters() {
+    document.querySelectorAll('[data-boutique]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const filter = this.getAttribute('data-boutique');
+            document.querySelectorAll('[data-boutique]').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            loadInvoices(filter);
+        });
+    });
+    
+    // Rec 
+    document.getElementById('searchInvoice').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#invoicesTableBody tr');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+}
+
+ const style = document.createElement('style');
+style.textContent = `
+    .boutique-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+    
+    .badge-sacre-coeur {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3B82F6;
+        border: 1px solid #3B82F6;
+    }
+    
+    .badge-keur-massar {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10B981;
+        border: 1px solid #10B981;
+    }
+`;
+document.head.appendChild(style);
       // Développer par AHMED SAID IDDA AIDARA
     </script>
 </body>
