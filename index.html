@@ -872,7 +872,7 @@
                             <i class="fas fa-egg"></i>
                         </div>
                         <div class="stat-value" id="productionCount">0</div>
-                        <div class="stat-label">Stock disponible</div>
+                        <div class="stat-label">Production restant (hors morts et don)</div>
                     </div>
                     
                     <div class="stat-card">
@@ -880,7 +880,7 @@
                             <i class="fas fa-box"></i>
                         </div>
                         <div class="stat-value" id="stockCount">0</div>
-                        <div class="stat-label">Production</div>
+                        <div class="stat-label">Production Total</div>
                     </div>
                     
                     <div class="stat-card">
@@ -2614,16 +2614,16 @@ async function generatePDFDocument(records, options, periodName) {
         const col1 = margin;
         const col2 = pageWidth / 2;
         
-        doc.text(`Nombre d'enregistrements: ${stats.totalRecords}`, col1, currentY);
+        doc.text(`Nombre de production: ${stats.totalRecords}`, col1, currentY);
         doc.text(`Période couverte: ${stats.periodCovered}`, col2, currentY);
         currentY += 7;
         
-        doc.text(`Poulets en production: ${stats.totalProduction}`, col1, currentY);
-        doc.text(`Stock disponible: ${stats.totalStock}`, col2, currentY);
+        doc.text(`Production restant (hors morts et don): ${stats.totalProduction}`, col1, currentY);
+        doc.text(`Quantités de Production Total: ${stats.totalStock}`, col2, currentY);
         currentY += 7;
         
         doc.text(`Valeur du stock: ${stats.totalValue.toLocaleString('fr-FR')} F CFA`, col1, currentY);
-        doc.text(`Chiffre d'affaires: ${stats.totalRevenue.toLocaleString('fr-FR')} F CFA`, col2, currentY);
+        doc.text(`Chiffre d'affaires réalisé: ${stats.totalRevenue.toLocaleString('fr-FR')} F CFA`, col2, currentY);
         currentY += 15;
     }
     
@@ -2642,7 +2642,7 @@ async function generatePDFDocument(records, options, periodName) {
         
         // Table tistiques
         const tableData = [
-            ['Métrique', 'Valeur', 'Pourcentage'],
+            ['Métrique', 'Quantités', 'Pourcentage'],
             ['Poulets vendus', stats.totalSold, '100%'],
             ['Petits poulets vendus', stats.smallSold, `${stats.percentSmall.toFixed(1)}%`],
             ['Poulets moyens vendus', stats.mediumSold, `${stats.percentMedium.toFixed(1)}%`],
@@ -2932,7 +2932,8 @@ tableData.push([
             doc.text(`Total des poulets donnés gratuitement: ${lossData.totalGiven}`, margin, currentY);
             currentY += 7;
             
-            doc.text(`Impact financier estimé: ${lossData.estimatedLoss.toLocaleString('fr-FR')} F CFA`, margin, currentY);
+            
+doc.text(`Impact financier estimé: ${Math.round(lossData.estimatedLoss)} F CFA`, margin, currentY);
             currentY += 15;
         }
     }
