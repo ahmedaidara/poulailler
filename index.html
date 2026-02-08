@@ -2109,9 +2109,14 @@ const xlarge2Quantity = parseInt(document.getElementById('xlarge2Quantity').valu
                   (record.medium1Sold || 0) + (record.medium2Sold || 0) + 
                   (record.large1Sold || 0) + (record.large2Sold || 0) + 
                   (record.xlarge1Sold || 0) + (record.xlarge2Sold || 0);
-            const totalRevenue = (record.smallSold || 0) * (record.smallPrice || 0) + 
-                                (record.mediumSold || 0) * (record.mediumPrice || 0) + 
-                                (record.largeSold || 0) * (record.largePrice || 0);
+           const totalRevenue = (record.small1Sold || 0) * (record.small1Price || 0) + 
+                    (record.small2Sold || 0) * (record.small2Price || 0) + 
+                    (record.medium1Sold || 0) * (record.medium1Price || 0) + 
+                    (record.medium2Sold || 0) * (record.medium2Price || 0) + 
+                    (record.large1Sold || 0) * (record.large1Price || 0) + 
+                    (record.large2Sold || 0) * (record.large2Price || 0) + 
+                    (record.xlarge1Sold || 0) * (record.xlarge1Price || 0) + 
+                    (record.xlarge2Sold || 0) * (record.xlarge2Price || 0);
             
             
             const startDateFormatted = formatDate(record.startDate);
@@ -2993,15 +2998,20 @@ async function generatePDFDocument(records, options, periodName) {
         // Table tistiques
         const tableData = [
             ['Métrique', 'Quantités', 'Pourcentage'],
-            ['Poulets vendus', stats.totalSold, '100%'],
-            ['Petits poulets vendus', stats.smallSold, `${stats.percentSmall.toFixed(1)}%`],
-            ['Poulets moyens vendus', stats.mediumSold, `${stats.percentMedium.toFixed(1)}%`],
-            ['Gros poulets vendus', stats.largeSold, `${stats.percentLarge.toFixed(1)}%`],
-            ['Donnés gratuitement', stats.totalGiven, '-'],
-            ['Perdus (morts)', stats.totalLost, '-'],
-            ['Nouveaux poulets ajoutés', stats.totalNewChickens, '-'],
-            ['Stock initial moyen', stats.avgInitialStock.toFixed(0), '-']
-        ];
+            ['Poulets vendus (total)', stats.totalSold, '100%'],
+    ['Très petits (1.0-1.2 kg)', stats.cat1Sold, `${stats.percentCat1.toFixed(1)}%`],
+    ['Petits (1.3-1.5 kg)', stats.cat2Sold, `${stats.percentCat2.toFixed(1)}%`],
+    ['Moyens-petits (1.6-1.8 kg)', stats.cat3Sold, `${stats.percentCat3.toFixed(1)}%`],
+    ['Moyens (1.9-2.1 kg)', stats.cat4Sold, `${stats.percentCat4.toFixed(1)}%`],
+    ['Moyens-grands (2.2-2.4 kg)', stats.cat5Sold, `${stats.percentCat5.toFixed(1)}%`],
+    ['Grands (2.5-2.7 kg)', stats.cat6Sold, `${stats.percentCat6.toFixed(1)}%`],
+    ['Très grands (2.8-3.0 kg)', stats.cat7Sold, `${stats.percentCat7.toFixed(1)}%`],
+    ['Géants (3.1+ kg)', stats.cat8Sold, `${stats.percentCat8.toFixed(1)}%`],
+    ['Donnés gratuitement', stats.totalGiven, '-'],
+    ['Perdus (morts)', stats.totalLost, '-'],
+    ['Production Total', stats.totalNewChickens, '-'],
+    ['Stock initial moyen', stats.avgInitialStock.toFixed(0), '-']
+];
         
         doc.autoTable({
             startY: currentY,
@@ -3472,34 +3482,42 @@ totalRevenue += (small1Sold * small1Price) + (small2Sold * small2Price) +
 
 function calculateDetailedStatistics(records) {
     let totalSold = 0;
-    let smallSold = 0;
-    let mediumSold = 0;
-    let largeSold = 0;
+    let cat1Sold = 0, cat2Sold = 0, cat3Sold = 0, cat4Sold = 0;
+    let cat5Sold = 0, cat6Sold = 0, cat7Sold = 0, cat8Sold = 0;
     let totalGiven = 0;
     let totalLost = 0;
     let totalNewChickens = 0;
     let totalInitialStock = 0;
     
     records.forEach(record => {
-        smallSold += record.smallSold || 0;
-        mediumSold += record.mediumSold || 0;
-        largeSold += record.largeSold || 0;
+        cat1Sold += record.small1Sold || 0;
+        cat2Sold += record.small2Sold || 0;
+        cat3Sold += record.medium1Sold || 0;
+        cat4Sold += record.medium2Sold || 0;
+        cat5Sold += record.large1Sold || 0;
+        cat6Sold += record.large2Sold || 0;
+        cat7Sold += record.xlarge1Sold || 0;
+        cat8Sold += record.xlarge2Sold || 0;
+        
         totalGiven += record.given || 0;
         totalLost += record.lost || 0;
         totalNewChickens += record.newChickens || 0;
         totalInitialStock += record.initialStock || 0;
     });
     
-    totalSold = smallSold + mediumSold + largeSold;
+    totalSold = cat1Sold + cat2Sold + cat3Sold + cat4Sold + cat5Sold + cat6Sold + cat7Sold + cat8Sold;
     
     return {
         totalSold,
-        smallSold,
-        mediumSold,
-        largeSold,
-        percentSmall: totalSold > 0 ? (smallSold / totalSold) * 100 : 0,
-        percentMedium: totalSold > 0 ? (mediumSold / totalSold) * 100 : 0,
-        percentLarge: totalSold > 0 ? (largeSold / totalSold) * 100 : 0,
+        cat1Sold, cat2Sold, cat3Sold, cat4Sold, cat5Sold, cat6Sold, cat7Sold, cat8Sold,
+        percentCat1: totalSold > 0 ? (cat1Sold / totalSold) * 100 : 0,
+        percentCat2: totalSold > 0 ? (cat2Sold / totalSold) * 100 : 0,
+        percentCat3: totalSold > 0 ? (cat3Sold / totalSold) * 100 : 0,
+        percentCat4: totalSold > 0 ? (cat4Sold / totalSold) * 100 : 0,
+        percentCat5: totalSold > 0 ? (cat5Sold / totalSold) * 100 : 0,
+        percentCat6: totalSold > 0 ? (cat6Sold / totalSold) * 100 : 0,
+        percentCat7: totalSold > 0 ? (cat7Sold / totalSold) * 100 : 0,
+        percentCat8: totalSold > 0 ? (cat8Sold / totalSold) * 100 : 0,
         totalGiven,
         totalLost,
         totalNewChickens,
@@ -3509,32 +3527,67 @@ function calculateDetailedStatistics(records) {
 
 function calculateCategoryDetails(records) {
     const categories = [
-        { name: 'Petits poulets', quantity: 0, sold: 0, price: 0, totalValue: 0 },
-        { name: 'Poulets moyens', quantity: 0, sold: 0, price: 0, totalValue: 0 },
-        { name: 'Gros poulets', quantity: 0, sold: 0, price: 0, totalValue: 0 }
+        { name: 'Très petits (1.0-1.2 kg)', quantity: 0, sold: 0, price: 0, totalValue: 0 },
+        { name: 'Petits (1.3-1.5 kg)', quantity: 0, sold: 0, price: 0, totalValue: 0 },
+        { name: 'Moyens-petits (1.6-1.8 kg)', quantity: 0, sold: 0, price: 0, totalValue: 0 },
+        { name: 'Moyens (1.9-2.1 kg)', quantity: 0, sold: 0, price: 0, totalValue: 0 },
+        { name: 'Moyens-grands (2.2-2.4 kg)', quantity: 0, sold: 0, price: 0, totalValue: 0 },
+        { name: 'Grands (2.5-2.7 kg)', quantity: 0, sold: 0, price: 0, totalValue: 0 },
+        { name: 'Très grands (2.8-3.0 kg)', quantity: 0, sold: 0, price: 0, totalValue: 0 },
+        { name: 'Géants (3.1+ kg)', quantity: 0, sold: 0, price: 0, totalValue: 0 }
     ];
     
     records.forEach(record => {
-        // Petits poulets
-        categories[0].quantity += record.smallQuantity || 0;
-        categories[0].sold += record.smallSold || 0;
-        categories[0].price += record.smallPrice || 0;
-        categories[0].totalValue += (record.smallSold || 0) * (record.smallPrice || 0);
+        // Catégorie 1
+        categories[0].quantity += record.small1Quantity || 0;
+        categories[0].sold += record.small1Sold || 0;
+        categories[0].price += record.small1Price || 0;
+        categories[0].totalValue += (record.small1Sold || 0) * (record.small1Price || 0);
         
-        //   moyens
-        categories[1].quantity += record.mediumQuantity || 0;
-        categories[1].sold += record.mediumSold || 0;
-        categories[1].price += record.mediumPrice || 0;
-        categories[1].totalValue += (record.mediumSold || 0) * (record.mediumPrice || 0);
+        // Catégorie 2
+        categories[1].quantity += record.small2Quantity || 0;
+        categories[1].sold += record.small2Sold || 0;
+        categories[1].price += record.small2Price || 0;
+        categories[1].totalValue += (record.small2Sold || 0) * (record.small2Price || 0);
         
-        //   poulets
-        categories[2].quantity += record.largeQuantity || 0;
-        categories[2].sold += record.largeSold || 0;
-        categories[2].price += record.largePrice || 0;
-        categories[2].totalValue += (record.largeSold || 0) * (record.largePrice || 0);
+        // Catégorie 3
+        categories[2].quantity += record.medium1Quantity || 0;
+        categories[2].sold += record.medium1Sold || 0;
+        categories[2].price += record.medium1Price || 0;
+        categories[2].totalValue += (record.medium1Sold || 0) * (record.medium1Price || 0);
+        
+        // Caté  4
+        categories[3].quantity += record.medium2Quantity || 0;
+        categories[3].sold += record.medium2Sold || 0;
+        categories[3].price += record.medium2Price || 0;
+        categories[3].totalValue += (record.medium2Sold || 0) * (record.medium2Price || 0);
+        
+        // Cat  5
+        categories[4].quantity += record.large1Quantity || 0;
+        categories[4].sold += record.large1Sold || 0;
+        categories[4].price += record.large1Price || 0;
+        categories[4].totalValue += (record.large1Sold || 0) * (record.large1Price || 0);
+        
+        // Ca  6
+        categories[5].quantity += record.large2Quantity || 0;
+        categories[5].sold += record.large2Sold || 0;
+        categories[5].price += record.large2Price || 0;
+        categories[5].totalValue += (record.large2Sold || 0) * (record.large2Price || 0);
+        
+        // Catég  7
+        categories[6].quantity += record.xlarge1Quantity || 0;
+        categories[6].sold += record.xlarge1Sold || 0;
+        categories[6].price += record.xlarge1Price || 0;
+        categories[6].totalValue += (record.xlarge1Sold || 0) * (record.xlarge1Price || 0);
+        
+        // Cat  8
+        categories[7].quantity += record.xlarge2Quantity || 0;
+        categories[7].sold += record.xlarge2Sold || 0;
+        categories[7].price += record.xlarge2Price || 0;
+        categories[7].totalValue += (record.xlarge2Sold || 0) * (record.xlarge2Price || 0);
     });
     
-    // Calculer  
+    // Calcu prix moyens
     categories.forEach(cat => {
         cat.avgPrice = records.length > 0 ? cat.price / records.length : 0;
     });
@@ -3589,29 +3642,59 @@ function calculateGrowthStats(records) {
 
 function getSalesDetails(records) {
     const details = [
-        { category: 'Petits poulets', quantity: 0, sold: 0, price: 0, totalValue: 0 },
-        { category: 'Poulets moyens', quantity: 0, sold: 0, price: 0, totalValue: 0 },
-        { category: 'Gros poulets', quantity: 0, sold: 0, price: 0, totalValue: 0 }
+        { category: 'Très petits (1.0-1.2 kg)', quantity: 0, sold: 0, price: 0, totalValue: 0 },
+        { category: 'Petits (1.3-1.5 kg)', quantity: 0, sold: 0, price: 0, totalValue: 0 },
+        { category: 'Moyens-petits (1.6-1.8 kg)', quantity: 0, sold: 0, price: 0, totalValue: 0 },
+        { category: 'Moyens (1.9-2.1 kg)', quantity: 0, sold: 0, price: 0, totalValue: 0 },
+        { category: 'Moyens-grands (2.2-2.4 kg)', quantity: 0, sold: 0, price: 0, totalValue: 0 },
+        { category: 'Grands (2.5-2.7 kg)', quantity: 0, sold: 0, price: 0, totalValue: 0 },
+        { category: 'Très grands (2.8-3.0 kg)', quantity: 0, sold: 0, price: 0, totalValue: 0 },
+        { category: 'Géants (3.1+ kg)', quantity: 0, sold: 0, price: 0, totalValue: 0 }
     ];
     
     records.forEach(record => {
-        details[0].quantity += record.smallQuantity || 0;
-        details[0].sold += record.smallSold || 0;
-        details[0].price += record.smallPrice || 0;
-        details[0].totalValue += (record.smallSold || 0) * (record.smallPrice || 0);
+        details[0].quantity += record.small1Quantity || 0;
+        details[0].sold += record.small1Sold || 0;
+        details[0].price += record.small1Price || 0;
+        details[0].totalValue += (record.small1Sold || 0) * (record.small1Price || 0);
         
-        details[1].quantity += record.mediumQuantity || 0;
-        details[1].sold += record.mediumSold || 0;
-        details[1].price += record.mediumPrice || 0;
-        details[1].totalValue += (record.mediumSold || 0) * (record.mediumPrice || 0);
+        details[1].quantity += record.small2Quantity || 0;
+        details[1].sold += record.small2Sold || 0;
+        details[1].price += record.small2Price || 0;
+        details[1].totalValue += (record.small2Sold || 0) * (record.small2Price || 0);
         
-        details[2].quantity += record.largeQuantity || 0;
-        details[2].sold += record.largeSold || 0;
-        details[2].price += record.largePrice || 0;
-        details[2].totalValue += (record.largeSold || 0) * (record.largePrice || 0);
+        details[2].quantity += record.medium1Quantity || 0;
+        details[2].sold += record.medium1Sold || 0;
+        details[2].price += record.medium1Price || 0;
+        details[2].totalValue += (record.medium1Sold || 0) * (record.medium1Price || 0);
+        
+        details[3].quantity += record.medium2Quantity || 0;
+        details[3].sold += record.medium2Sold || 0;
+        details[3].price += record.medium2Price || 0;
+        details[3].totalValue += (record.medium2Sold || 0) * (record.medium2Price || 0);
+        
+        details[4].quantity += record.large1Quantity || 0;
+        details[4].sold += record.large1Sold || 0;
+        details[4].price += record.large1Price || 0;
+        details[4].totalValue += (record.large1Sold || 0) * (record.large1Price || 0);
+        
+        details[5].quantity += record.large2Quantity || 0;
+        details[5].sold += record.large2Sold || 0;
+        details[5].price += record.large2Price || 0;
+        details[5].totalValue += (record.large2Sold || 0) * (record.large2Price || 0);
+        
+        details[6].quantity += record.xlarge1Quantity || 0;
+        details[6].sold += record.xlarge1Sold || 0;
+        details[6].price += record.xlarge1Price || 0;
+        details[6].totalValue += (record.xlarge1Sold || 0) * (record.xlarge1Price || 0);
+        
+        details[7].quantity += record.xlarge2Quantity || 0;
+        details[7].sold += record.xlarge2Sold || 0;
+        details[7].price += record.xlarge2Price || 0;
+        details[7].totalValue += (record.xlarge2Sold || 0) * (record.xlarge2Price || 0);
     });
     
-     
+    // Calculer le prix moyens
     details.forEach(detail => {
         detail.percentSold = detail.quantity > 0 ? (detail.sold / detail.quantity) * 100 : 0;
         detail.price = records.length > 0 ? detail.price / records.length : 0;
@@ -3763,13 +3846,22 @@ const cat6 = records.reduce((sum, r) => sum + (r.large2Sold || 0), 0);
 const cat7 = records.reduce((sum, r) => sum + (r.xlarge1Sold || 0), 0);
 const cat8 = records.reduce((sum, r) => sum + (r.xlarge2Sold || 0), 0);
             
-            const salesCanvas = await createSimpleChart(
-                'bar',
-                [smallSold, mediumSold, largeSold],
-                ['Petits', 'Moyens', 'Gros'],
-                ['rgba(59, 130, 246, 0.8)', 'rgba(16, 185, 129, 0.8)', 'rgba(245, 158, 11, 0.8)'],
-                'Ventes par catégorie'
-            );
+           const salesCanvas = await createSimpleChart(
+    'bar',
+    [cat1, cat2, cat3, cat4, cat5, cat6, cat7, cat8],
+    ['Très P', 'Petits', 'Moy-P', 'Moyens', 'Moy-G', 'Grands', 'Très G', 'Géants'],
+    [
+        'rgba(59, 130, 246, 0.8)',    // Bleu
+        'rgba(16, 185, 129, 0.8)',    // Vert
+        'rgba(245, 158, 11, 0.8)',    // Orange
+        'rgba(139, 92, 246, 0.8)',    // Violet
+        'rgba(239, 68, 68, 0.8)',     // Rouge
+        'rgba(14, 165, 233, 0.8)',    // Bleu ciel
+        'rgba(20, 184, 166, 0.8)',    // Turqu 
+        'rgba(251, 191, 36, 0.8)'     // Jaune
+    ],
+    'Ventes par catégorie (8 niveaux)'
+);
             
             if (salesCanvas) {
                 charts.push({
@@ -3812,18 +3904,32 @@ const cat8 = records.reduce((sum, r) => sum + (r.xlarge2Sold || 0), 0);
         
         // 3. Grap 
         if (options.chartRevenue) {
-            const smallRevenue = records.reduce((sum, r) => sum + ((r.smallSold || 0) * (r.smallPrice || 0)), 0);
-            const mediumRevenue = records.reduce((sum, r) => sum + ((r.mediumSold || 0) * (r.mediumPrice || 0)), 0);
-            const largeRevenue = records.reduce((sum, r) => sum + ((r.largeSold || 0) * (r.largePrice || 0)), 0);
+            const rev1 = records.reduce((sum, r) => sum + ((r.small1Sold || 0) * (r.small1Price || 0)), 0);
+const rev2 = records.reduce((sum, r) => sum + ((r.small2Sold || 0) * (r.small2Price || 0)), 0);
+const rev3 = records.reduce((sum, r) => sum + ((r.medium1Sold || 0) * (r.medium1Price || 0)), 0);
+const rev4 = records.reduce((sum, r) => sum + ((r.medium2Sold || 0) * (r.medium2Price || 0)), 0);
+const rev5 = records.reduce((sum, r) => sum + ((r.large1Sold || 0) * (r.large1Price || 0)), 0);
+const rev6 = records.reduce((sum, r) => sum + ((r.large2Sold || 0) * (r.large2Price || 0)), 0);
+const rev7 = records.reduce((sum, r) => sum + ((r.xlarge1Sold || 0) * (r.xlarge1Price || 0)), 0);
+const rev8 = records.reduce((sum, r) => sum + ((r.xlarge2Sold || 0) * (r.xlarge2Price || 0)), 0);
             
             if (smallRevenue > 0 || mediumRevenue > 0 || largeRevenue > 0) {
-                const revenueCanvas = await createSimpleChart(
-                    'doughnut',
-                    [smallRevenue, mediumRevenue, largeRevenue],
-                    ['Petits', 'Moyens', 'Gros'],
-                    ['rgba(59, 130, 246, 0.8)', 'rgba(16, 185, 129, 0.8)', 'rgba(245, 158, 11, 0.8)'],
-                    'Répartition du chiffre d\'affaires'
-                );
+               const revenueCanvas = await createSimpleChart(
+    'doughnut',
+    [rev1, rev2, rev3, rev4, rev5, rev6, rev7, rev8],
+    ['Très P', 'Petits', 'Moy-P', 'Moyens', 'Moy-G', 'Grands', 'Très G', 'Géants'],
+    [
+        'rgba(59, 130, 246, 0.8)',    // Bleu
+        'rgba(16, 185, 129, 0.8)',    // Vert
+        'rgba(245, 158, 11, 0.8)',    // Orange
+        'rgba(139, 92, 246, 0.8)',    // Violet
+        'rgba(239, 68, 68, 0.8)',     // Rouge
+        'rgba(14, 165, 233, 0.8)',    // Bleu ciel
+        'rgba(20, 184, 166, 0.8)',    // Turquoise
+        'rgba(251, 191, 36, 0.8)'     // Jaune
+    ],
+    'Répartition du CA (8 catégories)'
+);
                 
                 if (revenueCanvas) {
                     charts.push({
