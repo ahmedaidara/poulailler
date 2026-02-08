@@ -819,6 +819,37 @@
     background-position: right 12px center;
     padding-right: 40px;
 }
+      
+      
+.price-categories {
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.price-category {
+    margin-bottom: 12px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border-left: 4px solid #3B82F6;
+}
+
+.price-category:nth-child(2) { border-left-color: #10B981; }
+.price-category:nth-child(3) { border-left-color: #F59E0B; }
+.price-category:nth-child(4) { border-left-color: #8B5CF6; }
+.price-category:nth-child(5) { border-left-color: #EF4444; }
+.price-category:nth-child(6) { border-left-color: #06B6D4; }
+.price-category:nth-child(7) { border-left-color: #84CC16; }
+.price-category:nth-child(8) { border-left-color: #F97316; }
+
+.price-category h4 {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
     </style>
 </head>
 <body>
@@ -1207,51 +1238,121 @@
                 </div>
             </div>
             
-            <div class="price-categories">
-                <h3 style="margin-bottom: var(--space-lg);">Prix Multiples</h3>
-                
-                <div class="price-category">
-                    <h4 style="margin-bottom: var(--space-md);">Petits poulets</h4>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="smallPrice" class="form-label">Prix (F CFA)</label>
-                            <input type="number" id="smallPrice" class="form-input" min="0" value="1500">
-                        </div>
-                        <div class="form-group">
-                            <label for="smallQuantity" class="form-label">Quantité</label>
-                            <input type="number" id="smallQuantity" class="form-input" min="0" value="0">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="price-category">
-                    <h4 style="margin-bottom: var(--space-md);">Poulets moyens</h4>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="mediumPrice" class="form-label">Prix (F CFA)</label>
-                            <input type="number" id="mediumPrice" class="form-input" min="0" value="2500">
-                        </div>
-                        <div class="form-group">
-                            <label for="mediumQuantity" class="form-label">Quantité</label>
-                            <input type="number" id="mediumQuantity" class="form-input" min="0" value="0">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="price-category">
-                    <h4 style="margin-bottom: var(--space-md);">Gros poulets</h4>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="largePrice" class="form-label">Prix (F CFA)</label>
-                            <input type="number" id="largePrice" class="form-input" min="0" value="3500">
-                        </div>
-                        <div class="form-group">
-                            <label for="largeQuantity" class="form-label">Quantité</label>
-                            <input type="number" id="largeQuantity" class="form-input" min="0" value="0">
-                        </div>
-                    </div>
-                </div>
+           <div class="price-categories">
+    <h3 style="margin-bottom: var(--space-lg);">  8 Catégories selon le poids</h3>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Très petits (1.0-1.2 kg)</h4>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="small1Price" class="form-label">Prix (F CFA)</label>
+                <input type="number" id="small1Price" class="form-input" min="0" value="2000">
             </div>
+            <div class="form-group">
+                <label for="small1Quantity" class="form-label">Quantité</label>
+                <input type="number" id="small1Quantity" class="form-input" min="0" value="0">
+            </div>
+        </div>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Petits (1.3-1.5 kg)</h4>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="small2Price" class="form-label">Prix (F CFA)</label>
+                <input type="number" id="small2Price" class="form-input" min="0" value="2500">
+            </div>
+            <div class="form-group">
+                <label for="small2Quantity" class="form-label">Quantité</label>
+                <input type="number" id="small2Quantity" class="form-input" min="0" value="0">
+            </div>
+        </div>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Moyens-petits (1.6-1.8 kg)</h4>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="medium1Price" class="form-label">Prix (F CFA)</label>
+                <input type="number" id="medium1Price" class="form-input" min="0" value="3000">
+            </div>
+            <div class="form-group">
+                <label for="medium1Quantity" class="form-label">Quantité</label>
+                <input type="number" id="medium1Quantity" class="form-input" min="0" value="0">
+            </div>
+        </div>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Moyens (1.9-2.1 kg)</h4>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="medium2Price" class="form-label">Prix (F CFA)</label>
+                <input type="number" id="medium2Price" class="form-input" min="0" value="3300">
+            </div>
+            <div class="form-group">
+                <label for="medium2Quantity" class="form-label">Quantité</label>
+                <input type="number" id="medium2Quantity" class="form-input" min="0" value="0">
+            </div>
+        </div>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Moyens-grands (2.2-2.4 kg)</h4>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="large1Price" class="form-label">Prix (F CFA)</label>
+                <input type="number" id="large1Price" class="form-input" min="0" value="3500">
+            </div>
+            <div class="form-group">
+                <label for="large1Quantity" class="form-label">Quantité</label>
+                <input type="number" id="large1Quantity" class="form-input" min="0" value="0">
+            </div>
+        </div>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Grands (2.5-2.7 kg)</h4>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="large2Price" class="form-label">Prix (F CFA)</label>
+                <input type="number" id="large2Price" class="form-input" min="0" value="3700">
+            </div>
+            <div class="form-group">
+                <label for="large2Quantity" class="form-label">Quantité</label>
+                <input type="number" id="large2Quantity" class="form-input" min="0" value="0">
+            </div>
+        </div>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Très grands (2.8-3.0 kg)</h4>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="xlarge1Price" class="form-label">Prix (F CFA)</label>
+                <input type="number" id="xlarge1Price" class="form-input" min="0" value="4000">
+            </div>
+            <div class="form-group">
+                <label for="xlarge1Quantity" class="form-label">Quantité</label>
+                <input type="number" id="xlarge1Quantity" class="form-input" min="0" value="0">
+            </div>
+        </div>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Géants (3.1+ kg)</h4>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="xlarge2Price" class="form-label">Prix (F CFA)</label>
+                <input type="number" id="xlarge2Price" class="form-input" min="0" value="4500">
+            </div>
+            <div class="form-group">
+                <label for="xlarge2Quantity" class="form-label">Quantité</label>
+                <input type="number" id="xlarge2Quantity" class="form-input" min="0" value="0">
+            </div>
+        </div>
+    </div>
+</div>
             
              <div class="form-grid">
                 <div class="form-group">
@@ -1310,36 +1411,63 @@
                 </button>
             </div>
             
-            <div id="updateModalContent">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="updateSmallSold" class="form-label">Petits poulets vendus</label>
-                        <input type="number" id="updateSmallSold" class="form-input" min="0" value="0">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="updateMediumSold" class="form-label">Moyens poulets vendus</label>
-                        <input type="number" id="updateMediumSold" class="form-input" min="0" value="0">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="updateLargeSold" class="form-label">Gros poulets vendus</label>
-                        <input type="number" id="updateLargeSold" class="form-input" min="0" value="0">
-                    </div>
-                </div>
-                
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="updateGiven" class="form-label">Donnés gratuitement</label>
-                        <input type="number" id="updateGiven" class="form-input" min="0" value="0">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="updateLost" class="form-label">Perdus (morts)</label>
-                        <input type="number" id="updateLost" class="form-input" min="0" value="0">
-                    </div>
-                </div>
-            </div>
+           <div id="updateModalContent">
+    <div class="form-grid">
+        <div class="form-group">
+            <label for="updateSmall1Sold" class="form-label">Très petits vendus 2000 </label>
+            <input type="number" id="updateSmall1Sold" class="form-input" min="0" value="0">
+        </div>
+        
+        <div class="form-group">
+            <label for="updateSmall2Sold" class="form-label">Petits vendus 2500</label>
+            <input type="number" id="updateSmall2Sold" class="form-input" min="0" value="0">
+        </div>
+        
+        <div class="form-group">
+            <label for="updateMedium1Sold" class="form-label">Moyens-petits vendus 3000</label>
+            <input type="number" id="updateMedium1Sold" class="form-input" min="0" value="0">
+        </div>
+        
+        <div class="form-group">
+            <label for="updateMedium2Sold" class="form-label">Moyens vendus 3300</label>
+            <input type="number" id="updateMedium2Sold" class="form-input" min="0" value="0">
+        </div>
+    </div>
+    
+    <div class="form-grid">
+        <div class="form-group">
+            <label for="updateLarge1Sold" class="form-label">Moyens-grands vendus 3500</label>
+            <input type="number" id="updateLarge1Sold" class="form-input" min="0" value="0">
+        </div>
+        
+        <div class="form-group">
+            <label for="updateLarge2Sold" class="form-label">Grands vendus 3700</label>
+            <input type="number" id="updateLarge2Sold" class="form-input" min="0" value="0">
+        </div>
+        
+        <div class="form-group">
+            <label for="updateXLarge1Sold" class="form-label">Très grands vendus 4000</label>
+            <input type="number" id="updateXLarge1Sold" class="form-input" min="0" value="0">
+        </div>
+        
+        <div class="form-group">
+            <label for="updateXLarge2Sold" class="form-label">Géants vendus 4500</label>
+            <input type="number" id="updateXLarge2Sold" class="form-input" min="0" value="0">
+        </div>
+    </div>
+    
+    <div class="form-grid">
+        <div class="form-group">
+            <label for="updateGiven" class="form-label">Donnés gratuitement</label>
+            <input type="number" id="updateGiven" class="form-input" min="0" value="0">
+        </div>
+        
+        <div class="form-group">
+            <label for="updateLost" class="form-label">Perdus (morts)</label>
+            <input type="number" id="updateLost" class="form-input" min="0" value="0">
+        </div>
+    </div>
+</div>
             
             <div class="modal-actions">
                 <button id="cancelUpdateBtn" class="btn btn-secondary">
@@ -1857,17 +1985,32 @@ function formatNumberForPDF(num) {
                 totalStock += adjustedStock;
                 
                  
-                const smallPrice = record.smallPrice || 0;
-                const mediumPrice = record.mediumPrice || 0;
-                const largePrice = record.largePrice || 0;
-                const avgPrice = (smallPrice + mediumPrice + largePrice) / 3;
+               const small1Price = record.small1Price || 0;
+const small2Price = record.small2Price || 0;
+const medium1Price = record.medium1Price || 0;
+const medium2Price = record.medium2Price || 0;
+const large1Price = record.large1Price || 0;
+const large2Price = record.large2Price || 0;
+const xlarge1Price = record.xlarge1Price || 0;
+const xlarge2Price = record.xlarge2Price || 0;
+const avgPrice = (small1Price + small2Price + medium1Price + medium2Price + 
+                 large1Price + large2Price + xlarge1Price + xlarge2Price) / 8;
                 totalValue += adjustedStock * avgPrice;
                 
                 
-                const smallSold = record.smallSold || 0;
-                const mediumSold = record.mediumSold || 0;
-                const largeSold = record.largeSold || 0;
-                totalRevenue += (smallSold * smallPrice) + (mediumSold * mediumPrice) + (largeSold * largePrice);
+               const small1Sold = record.small1Sold || 0;
+const small2Sold = record.small2Sold || 0;
+const medium1Sold = record.medium1Sold || 0;
+const medium2Sold = record.medium2Sold || 0;
+const large1Sold = record.large1Sold || 0;
+const large2Sold = record.large2Sold || 0;
+const xlarge1Sold = record.xlarge1Sold || 0;
+const xlarge2Sold = record.xlarge2Sold || 0;
+
+totalRevenue += (small1Sold * small1Price) + (small2Sold * small2Price) + 
+                (medium1Sold * medium1Price) + (medium2Sold * medium2Price) + 
+                (large1Sold * large1Price) + (large2Sold * large2Price) + 
+                (xlarge1Sold * xlarge1Price) + (xlarge2Sold * xlarge2Price);
             });
             
              
@@ -1879,51 +2022,71 @@ function formatNumberForPDF(num) {
         
         
     function saveRecord() {
-    // 1. Récupérer les valeurs du formulaire d'enregistrement
+    // 1. Ré 
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value || null;
     const newChickens = parseInt(document.getElementById('newChickens').value) || 0;
     const initialStock = parseInt(document.getElementById('initialStock').value) || 0;
-    const smallPrice = parseInt(document.getElementById('smallPrice').value) || 0;
-    const smallQuantity = parseInt(document.getElementById('smallQuantity').value) || 0;
-    const mediumPrice = parseInt(document.getElementById('mediumPrice').value) || 0;
-    const mediumQuantity = parseInt(document.getElementById('mediumQuantity').value) || 0;
-    const largePrice = parseInt(document.getElementById('largePrice').value) || 0;
-    const largeQuantity = parseInt(document.getElementById('largeQuantity').value) || 0;
+   // 
+const small1Price = parseInt(document.getElementById('small1Price').value) || 0;
+const small1Quantity = parseInt(document.getElementById('small1Quantity').value) || 0;
+
+const small2Price = parseInt(document.getElementById('small2Price').value) || 0;
+const small2Quantity = parseInt(document.getElementById('small2Quantity').value) || 0;
+
+const medium1Price = parseInt(document.getElementById('medium1Price').value) || 0;
+const medium1Quantity = parseInt(document.getElementById('medium1Quantity').value) || 0;
+
+const medium2Price = parseInt(document.getElementById('medium2Price').value) || 0;
+const medium2Quantity = parseInt(document.getElementById('medium2Quantity').value) || 0;
+
+const large1Price = parseInt(document.getElementById('large1Price').value) || 0;
+const large1Quantity = parseInt(document.getElementById('large1Quantity').value) || 0;
+
+const large2Price = parseInt(document.getElementById('large2Price').value) || 0;
+const large2Quantity = parseInt(document.getElementById('large2Quantity').value) || 0;
+
+const xlarge1Price = parseInt(document.getElementById('xlarge1Price').value) || 0;
+const xlarge1Quantity = parseInt(document.getElementById('xlarge1Quantity').value) || 0;
+
+const xlarge2Price = parseInt(document.getElementById('xlarge2Price').value) || 0;
+const xlarge2Quantity = parseInt(document.getElementById('xlarge2Quantity').value) || 0;
     const growthRate = parseFloat(document.getElementById('growthRate').value) || 0;
     const lossRate = parseFloat(document.getElementById('lossRate').value) || 0;
     const notes = document.getElementById('notes').value;
     
-    // 2. Validation basique
+    // 2. Vali 
     if (!startDate) {
         showMessage('La date de début est obligatoire', 'error');
         return;
     }
     
-    // 3. Créer l'objet
-    const record = {
-        startDate,
-        endDate,
-        newChickens,
-        initialStock,
-        smallPrice,
-        smallQuantity,
-        smallSold: 0,
-        mediumPrice,
-        mediumQuantity,
-        mediumSold: 0,
-        largePrice,
-        largeQuantity,
-        largeSold: 0,
-        growthRate,
-        lossRate,
-        given: 0,
-        lost: 0,
-        notes,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
+    // 3. Créer l'obj 
+   const record = {
+    startDate,
+    endDate,
+    newChickens,
+    initialStock,
     
-    // 4. Sauvegarder
+    // 8 catég s
+    small1Price, small1Quantity, small1Sold: 0,
+    small2Price, small2Quantity, small2Sold: 0,
+    medium1Price, medium1Quantity, medium1Sold: 0,
+    medium2Price, medium2Quantity, medium2Sold: 0,
+    large1Price, large1Quantity, large1Sold: 0,
+    large2Price, large2Quantity, large2Sold: 0,
+    xlarge1Price, xlarge1Quantity, xlarge1Sold: 0,
+    xlarge2Price, xlarge2Quantity, xlarge2Sold: 0,
+    
+    growthRate,
+    lossRate,
+    given: 0,
+    lost: 0,
+    notes,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+};
+    
+    // 4. Sauveg 
     db.collection('poulailler_records').add(record)
         .then(() => {
             showMessage('Enregistrement ajouté avec succès!', 'success');
@@ -1942,7 +2105,10 @@ function formatNumberForPDF(num) {
             if (!record) return;
             
              
-            const totalSold = (record.smallSold || 0) + (record.mediumSold || 0) + (record.largeSold || 0);
+            const totalSold = (record.small1Sold || 0) + (record.small2Sold || 0) + 
+                  (record.medium1Sold || 0) + (record.medium2Sold || 0) + 
+                  (record.large1Sold || 0) + (record.large2Sold || 0) + 
+                  (record.xlarge1Sold || 0) + (record.xlarge2Sold || 0);
             const totalRevenue = (record.smallSold || 0) * (record.smallPrice || 0) + 
                                 (record.mediumSold || 0) * (record.mediumPrice || 0) + 
                                 (record.largeSold || 0) * (record.largePrice || 0);
@@ -1972,33 +2138,73 @@ function formatNumberForPDF(num) {
                     </div>
                 </div>
                 
-                <h3 style="margin-bottom: var(--space-lg);">Ventes par catégorie</h3>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl);">
-                    <div class="price-category">
-                        <h4 style="margin-bottom: var(--space-md);">Petits poulets</h4>
-                        <p>Quantité: ${record.smallQuantity || 0}</p>
-                        <p>Vendus: ${record.smallSold || 0}</p>
-                        <p>Prix: ${record.smallPrice || 0} F CFA</p>
-                        <p>Total: ${(record.smallSold || 0) * (record.smallPrice || 0)} F CFA</p>
-                    </div>
-                    
-                    <div class="price-category">
-                        <h4 style="margin-bottom: var(--space-md);">Poulets moyens</h4>
-                        <p>Quantité: ${record.mediumQuantity || 0}</p>
-                        <p>Vendus: ${record.mediumSold || 0}</p>
-                        <p>Prix: ${record.mediumPrice || 0} F CFA</p>
-                        <p>Total: ${(record.mediumSold || 0) * (record.mediumPrice || 0)} F CFA</p>
-                    </div>
-                    
-                    <div class="price-category">
-                        <h4 style="margin-bottom: var(--space-md);">Gros poulets</h4>
-                        <p>Quantité: ${record.largeQuantity || 0}</p>
-                        <p>Vendus: ${record.largeSold || 0}</p>
-                        <p>Prix: ${record.largePrice || 0} F CFA</p>
-                        <p>Total: ${(record.largeSold || 0) * (record.largePrice || 0)} F CFA</p>
-                    </div>
-                </div>
+              <h3 style="margin-bottom: var(--space-lg);">Ventes par catégorie (8 niveaux)</h3>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl);">
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Très petits (1.0-1.2 kg)</h4>
+        <p>Quantité: ${record.small1Quantity || 0}</p>
+        <p>Vendus: ${record.small1Sold || 0}</p>
+        <p>Prix: ${record.small1Price || 0} F CFA</p>
+        <p>Total: ${(record.small1Sold || 0) * (record.small1Price || 0)} F CFA</p>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Petits (1.3-1.5 kg)</h4>
+        <p>Quantité: ${record.small2Quantity || 0}</p>
+        <p>Vendus: ${record.small2Sold || 0}</p>
+        <p>Prix: ${record.small2Price || 0} F CFA</p>
+        <p>Total: ${(record.small2Sold || 0) * (record.small2Price || 0)} F CFA</p>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Moyens-petits (1.6-1.8 kg)</h4>
+        <p>Quantité: ${record.medium1Quantity || 0}</p>
+        <p>Vendus: ${record.medium1Sold || 0}</p>
+        <p>Prix: ${record.medium1Price || 0} F CFA</p>
+        <p>Total: ${(record.medium1Sold || 0) * (record.medium1Price || 0)} F CFA</p>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Moyens (1.9-2.1 kg)</h4>
+        <p>Quantité: ${record.medium2Quantity || 0}</p>
+        <p>Vendus: ${record.medium2Sold || 0}</p>
+        <p>Prix: ${record.medium2Price || 0} F CFA</p>
+        <p>Total: ${(record.medium2Sold || 0) * (record.medium2Price || 0)} F CFA</p>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Moyens-grands (2.2-2.4 kg)</h4>
+        <p>Quantité: ${record.large1Quantity || 0}</p>
+        <p>Vendus: ${record.large1Sold || 0}</p>
+        <p>Prix: ${record.large1Price || 0} F CFA</p>
+        <p>Total: ${(record.large1Sold || 0) * (record.large1Price || 0)} F CFA</p>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Grands (2.5-2.7 kg)</h4>
+        <p>Quantité: ${record.large2Quantity || 0}</p>
+        <p>Vendus: ${record.large2Sold || 0}</p>
+        <p>Prix: ${record.large2Price || 0} F CFA</p>
+        <p>Total: ${(record.large2Sold || 0) * (record.large2Price || 0)} F CFA</p>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Très grands (2.8-3.0 kg)</h4>
+        <p>Quantité: ${record.xlarge1Quantity || 0}</p>
+        <p>Vendus: ${record.xlarge1Sold || 0}</p>
+        <p>Prix: ${record.xlarge1Price || 0} F CFA</p>
+        <p>Total: ${(record.xlarge1Sold || 0) * (record.xlarge1Price || 0)} F CFA</p>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Géants (3.1+ kg)</h4>
+        <p>Quantité: ${record.xlarge2Quantity || 0}</p>
+        <p>Vendus: ${record.xlarge2Sold || 0}</p>
+        <p>Prix: ${record.xlarge2Price || 0} F CFA</p>
+        <p>Total: ${(record.xlarge2Sold || 0) * (record.xlarge2Price || 0)} F CFA</p>
+    </div>
+</div>
                 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl);">
                      
@@ -2036,9 +2242,14 @@ function formatNumberForPDF(num) {
             if (!currentRecordToUpdate) return;
             
              
-            document.getElementById('updateSmallSold').value = currentRecordToUpdate.smallSold || 0;
-            document.getElementById('updateMediumSold').value = currentRecordToUpdate.mediumSold || 0;
-            document.getElementById('updateLargeSold').value = currentRecordToUpdate.largeSold || 0;
+            document.getElementById('updateSmall1Sold').value = currentRecordToUpdate.small1Sold || 0;
+document.getElementById('updateSmall2Sold').value = currentRecordToUpdate.small2Sold || 0;
+document.getElementById('updateMedium1Sold').value = currentRecordToUpdate.medium1Sold || 0;
+document.getElementById('updateMedium2Sold').value = currentRecordToUpdate.medium2Sold || 0;
+document.getElementById('updateLarge1Sold').value = currentRecordToUpdate.large1Sold || 0;
+document.getElementById('updateLarge2Sold').value = currentRecordToUpdate.large2Sold || 0;
+document.getElementById('updateXLarge1Sold').value = currentRecordToUpdate.xlarge1Sold || 0;
+document.getElementById('updateXLarge2Sold').value = currentRecordToUpdate.xlarge2Sold || 0;
             document.getElementById('updateGiven').value = currentRecordToUpdate.given || 0;
             document.getElementById('updateLost').value = currentRecordToUpdate.lost || 0;
             
@@ -2050,37 +2261,65 @@ function formatNumberForPDF(num) {
             if (!currentRecordToUpdate) return;
             
              
-            const smallSold = parseInt(document.getElementById('updateSmallSold').value) || 0;
-            const mediumSold = parseInt(document.getElementById('updateMediumSold').value) || 0;
-            const largeSold = parseInt(document.getElementById('updateLargeSold').value) || 0;
+           const small1Sold = parseInt(document.getElementById('updateSmall1Sold').value) || 0;
+const small2Sold = parseInt(document.getElementById('updateSmall2Sold').value) || 0;
+const medium1Sold = parseInt(document.getElementById('updateMedium1Sold').value) || 0;
+const medium2Sold = parseInt(document.getElementById('updateMedium2Sold').value) || 0;
+const large1Sold = parseInt(document.getElementById('updateLarge1Sold').value) || 0;
+const large2Sold = parseInt(document.getElementById('updateLarge2Sold').value) || 0;
+const xlarge1Sold = parseInt(document.getElementById('updateXLarge1Sold').value) || 0;
+const xlarge2Sold = parseInt(document.getElementById('updateXLarge2Sold').value) || 0;
             const given = parseInt(document.getElementById('updateGiven').value) || 0;
             const lost = parseInt(document.getElementById('updateLost').value) || 0;
             
              
-            if (smallSold > currentRecordToUpdate.smallQuantity) {
-                showMessage('Le nombre de petits poulets vendus ne peut pas dépasser la quantité disponible', 'error');
-                return;
-            }
-            
-            if (mediumSold > currentRecordToUpdate.mediumQuantity) {
-                showMessage('Le nombre de poulets moyens vendus ne peut pas dépasser la quantité disponible', 'error');
-                return;
-            }
-            
-            if (largeSold > currentRecordToUpdate.largeQuantity) {
-                showMessage('Le nombre de gros poulets vendus ne peut pas dépasser la quantité disponible', 'error');
-                return;
-            }
+           if (small1Sold > currentRecordToUpdate.small1Quantity) {
+    showMessage('Le nombre de très petits poulets vendus ne peut pas dépasser la quantité disponible', 'error');
+    return;
+}
+if (small2Sold > currentRecordToUpdate.small2Quantity) {
+    showMessage('Le nombre de petits poulets vendus ne peut pas dépasser la quantité disponible', 'error');
+    return;
+}
+if (medium1Sold > currentRecordToUpdate.medium1Quantity) {
+    showMessage('Le nombre de moyens-petits poulets vendus ne peut pas dépasser la quantité disponible', 'error');
+    return;
+}
+if (medium2Sold > currentRecordToUpdate.medium2Quantity) {
+    showMessage('Le nombre de moyens poulets vendus ne peut pas dépasser la quantité disponible', 'error');
+    return;
+}
+if (large1Sold > currentRecordToUpdate.large1Quantity) {
+    showMessage('Le nombre de moyens-grands poulets vendus ne peut pas dépasser la quantité disponible', 'error');
+    return;
+}
+if (large2Sold > currentRecordToUpdate.large2Quantity) {
+    showMessage('Le nombre de grands poulets vendus ne peut pas dépasser la quantité disponible', 'error');
+    return;
+}
+if (xlarge1Sold > currentRecordToUpdate.xlarge1Quantity) {
+    showMessage('Le nombre de très grands poulets vendus ne peut pas dépasser la quantité disponible', 'error');
+    return;
+}
+if (xlarge2Sold > currentRecordToUpdate.xlarge2Quantity) {
+    showMessage('Le nombre de géants poulets vendus ne peut pas dépasser la quantité disponible', 'error');
+    return;
+}
             
              
             db.collection('poulailler_records').doc(currentRecordToUpdate.id).update({
-                smallSold,
-                mediumSold,
-                largeSold,
-                given,
-                lost,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            })
+    small1Sold,
+    small2Sold,
+    medium1Sold,
+    medium2Sold,
+    large1Sold,
+    large2Sold,
+    xlarge1Sold,
+    xlarge2Sold,
+    given,
+    lost,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+})
             .then(() => {
                 showMessage('Ventes mises à jour avec succès!', 'success');
                 hideModal('updateModal');
@@ -2122,56 +2361,126 @@ function formatNumberForPDF(num) {
                         </div>
                         
                         <div class="form-group">
-                            <label for="editInitialStock" class="form-label">Stock initial</label>
+                            <label for="editInitialStock" class="form-label">Répéter</label>
                             <input type="number" id="editInitialStock" class="form-input" value="${currentRecordToEdit.initialStock || 0}" min="0">
                         </div>
                     </div>
                     
-                    <div class="price-categories">
-                        <h3 style="margin-bottom: var(--space-lg);">Système de Prix Multiples</h3>
-                        
-                        <div class="price-category">
-                            <h4 style="margin-bottom: var(--space-md);">Petits poulets</h4>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="editSmallPrice" class="form-label">Prix (F CFA)</label>
-                                    <input type="number" id="editSmallPrice" class="form-input" value="${currentRecordToEdit.smallPrice || 1500}" min="0">
-                                </div>
-                                <div class="form-group">
-                                    <label for="editSmallQuantity" class="form-label">Quantité</label>
-                                    <input type="number" id="editSmallQuantity" class="form-input" value="${currentRecordToEdit.smallQuantity || 0}" min="0">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="price-category">
-                            <h4 style="margin-bottom: var(--space-md);">Poulets moyens</h4>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="editMediumPrice" class="form-label">Prix (F CFA)</label>
-                                    <input type="number" id="editMediumPrice" class="form-input" value="${currentRecordToEdit.mediumPrice || 2500}" min="0">
-                                </div>
-                                <div class="form-group">
-                                    <label for="editMediumQuantity" class="form-label">Quantité</label>
-                                    <input type="number" id="editMediumQuantity" class="form-input" value="${currentRecordToEdit.mediumQuantity || 0}" min="0">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="price-category">
-                            <h4 style="margin-bottom: var(--space-md);">Gros poulets</h4>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="editLargePrice" class="form-label">Prix (F CFA)</label>
-                                    <input type="number" id="editLargePrice" class="form-input" value="${currentRecordToEdit.largePrice || 3500}" min="0">
-                                </div>
-                                <div class="form-group">
-                                    <label for="editLargeQuantity" class="form-label">Quantité</label>
-                                    <input type="number" id="editLargeQuantity" class="form-input" value="${currentRecordToEdit.largeQuantity || 0}" min="0">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                  <div class="price-categories">
+    <h3 style="margin-bottom: var(--space-lg);"> 8 Catégories selon le poids</h3>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Très petits (1.0-1.2 kg)</h4>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="editSmall1Price" class="form-label">Prix (F CFA)</label>
+                <input type="number" id="editSmall1Price" class="form-input" value="${currentRecordToEdit.small1Price || 2000}" min="0">
+            </div>
+            <div class="form-group">
+                <label for="editSmall1Quantity" class="form-label">Quantité</label>
+                <input type="number" id="editSmall1Quantity" class="form-input" value="${currentRecordToEdit.small1Quantity || 0}" min="0">
+            </div>
+        </div>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Petits (1.3-1.5 kg)</h4>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="editSmall2Price" class="form-label">Prix (F CFA)</label>
+                <input type="number" id="editSmall2Price" class="form-input" value="${currentRecordToEdit.small2Price || 2500}" min="0">
+            </div>
+            <div class="form-group">
+                <label for="editSmall2Quantity" class="form-label">Quantité</label>
+                <input type="number" id="editSmall2Quantity" class="form-input" value="${currentRecordToEdit.small2Quantity || 0}" min="0">
+            </div>
+        </div>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Moyens-petits (1.6-1.8 kg)</h4>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="editMedium1Price" class="form-label">Prix (F CFA)</label>
+                <input type="number" id="editMedium1Price" class="form-input" value="${currentRecordToEdit.medium1Price || 3000}" min="0">
+            </div>
+            <div class="form-group">
+                <label for="editMedium1Quantity" class="form-label">Quantité</label>
+                <input type="number" id="editMedium1Quantity" class="form-input" value="${currentRecordToEdit.medium1Quantity || 0}" min="0">
+            </div>
+        </div>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Moyens (1.9-2.1 kg)</h4>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="editMedium2Price" class="form-label">Prix (F CFA)</label>
+                <input type="number" id="editMedium2Price" class="form-input" value="${currentRecordToEdit.medium2Price || 3300}" min="0">
+            </div>
+            <div class="form-group">
+                <label for="editMedium2Quantity" class="form-label">Quantité</label>
+                <input type="number" id="editMedium2Quantity" class="form-input" value="${currentRecordToEdit.medium2Quantity || 0}" min="0">
+            </div>
+        </div>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Moyens-grands (2.2-2.4 kg)</h4>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="editLarge1Price" class="form-label">Prix (F CFA)</label>
+                <input type="number" id="editLarge1Price" class="form-input" value="${currentRecordToEdit.large1Price || 3500}" min="0">
+            </div>
+            <div class="form-group">
+                <label for="editLarge1Quantity" class="form-label">Quantité</label>
+                <input type="number" id="editLarge1Quantity" class="form-input" value="${currentRecordToEdit.large1Quantity || 0}" min="0">
+            </div>
+        </div>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Grands (2.5-2.7 kg)</h4>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="editLarge2Price" class="form-label">Prix (F CFA)</label>
+                <input type="number" id="editLarge2Price" class="form-input" value="${currentRecordToEdit.large2Price || 3700}" min="0">
+            </div>
+            <div class="form-group">
+                <label for="editLarge2Quantity" class="form-label">Quantité</label>
+                <input type="number" id="editLarge2Quantity" class="form-input" value="${currentRecordToEdit.large2Quantity || 0}" min="0">
+            </div>
+        </div>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Très grands (2.8-3.0 kg)</h4>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="editXLarge1Price" class="form-label">Prix (F CFA)</label>
+                <input type="number" id="editXLarge1Price" class="form-input" value="${currentRecordToEdit.xlarge1Price || 4000}" min="0">
+            </div>
+            <div class="form-group">
+                <label for="editXLarge1Quantity" class="form-label">Quantité</label>
+                <input type="number" id="editXLarge1Quantity" class="form-input" value="${currentRecordToEdit.xlarge1Quantity || 0}" min="0">
+            </div>
+        </div>
+    </div>
+    
+    <div class="price-category">
+        <h4 style="margin-bottom: var(--space-md);">  Géants (3.1+ kg)</h4>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="editXLarge2Price" class="form-label">Prix (F CFA)</label>
+                <input type="number" id="editXLarge2Price" class="form-input" value="${currentRecordToEdit.xlarge2Price || 4500}" min="0">
+            </div>
+            <div class="form-group">
+                <label for="editXLarge2Quantity" class="form-label">Quantité</label>
+                <input type="number" id="editXLarge2Quantity" class="form-input" value="${currentRecordToEdit.xlarge2Quantity || 0}" min="0">
+            </div>
+        </div>
+    </div>
+</div>
                     
                     <div class="form-grid">
                         <div class="form-group">
@@ -2219,12 +2528,30 @@ function formatNumberForPDF(num) {
             const endDate = document.getElementById('editEndDate').value || null;
             const newChickens = parseInt(document.getElementById('editNewChickens').value) || 0;
             const initialStock = parseInt(document.getElementById('editInitialStock').value) || 0;
-            const smallPrice = parseInt(document.getElementById('editSmallPrice').value) || 0;
-            const smallQuantity = parseInt(document.getElementById('editSmallQuantity').value) || 0;
-            const mediumPrice = parseInt(document.getElementById('editMediumPrice').value) || 0;
-            const mediumQuantity = parseInt(document.getElementById('editMediumQuantity').value) || 0;
-            const largePrice = parseInt(document.getElementById('editLargePrice').value) || 0;
-            const largeQuantity = parseInt(document.getElementById('editLargeQuantity').value) || 0;
+            // 8 catégories
+const small1Price = parseInt(document.getElementById('editSmall1Price').value) || 0;
+const small1Quantity = parseInt(document.getElementById('editSmall1Quantity').value) || 0;
+
+const small2Price = parseInt(document.getElementById('editSmall2Price').value) || 0;
+const small2Quantity = parseInt(document.getElementById('editSmall2Quantity').value) || 0;
+
+const medium1Price = parseInt(document.getElementById('editMedium1Price').value) || 0;
+const medium1Quantity = parseInt(document.getElementById('editMedium1Quantity').value) || 0;
+
+const medium2Price = parseInt(document.getElementById('editMedium2Price').value) || 0;
+const medium2Quantity = parseInt(document.getElementById('editMedium2Quantity').value) || 0;
+
+const large1Price = parseInt(document.getElementById('editLarge1Price').value) || 0;
+const large1Quantity = parseInt(document.getElementById('editLarge1Quantity').value) || 0;
+
+const large2Price = parseInt(document.getElementById('editLarge2Price').value) || 0;
+const large2Quantity = parseInt(document.getElementById('editLarge2Quantity').value) || 0;
+
+const xlarge1Price = parseInt(document.getElementById('editXLarge1Price').value) || 0;
+const xlarge1Quantity = parseInt(document.getElementById('editXLarge1Quantity').value) || 0;
+
+const xlarge2Price = parseInt(document.getElementById('editXLarge2Price').value) || 0;
+const xlarge2Quantity = parseInt(document.getElementById('editXLarge2Quantity').value) || 0;
             const growthRate = parseFloat(document.getElementById('editGrowthRate').value) || 0;
             const lossRate = parseFloat(document.getElementById('editLossRate').value) || 0;
             const notes = document.getElementById('editNotes').value;
@@ -2236,38 +2563,61 @@ function formatNumberForPDF(num) {
             }
             
              
-            if (smallQuantity < currentRecordToEdit.smallSold) {
-                showMessage('La nouvelle quantité de petits poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
-                return;
-            }
-            
-            if (mediumQuantity < currentRecordToEdit.mediumSold) {
-                showMessage('La nouvelle quantité de poulets moyens ne peut pas être inférieure au nombre déjà vendu', 'error');
-                return;
-            }
-            
-            if (largeQuantity < currentRecordToEdit.largeSold) {
-                showMessage('La nouvelle quantité de gros poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
-                return;
-            }
+           if (small1Quantity < currentRecordToEdit.small1Sold) {
+    showMessage('La nouvelle quantité de très petits poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
+    return;
+}
+if (small2Quantity < currentRecordToEdit.small2Sold) {
+    showMessage('La nouvelle quantité de petits poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
+    return;
+}
+if (medium1Quantity < currentRecordToEdit.medium1Sold) {
+    showMessage('La nouvelle quantité de moyens-petits poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
+    return;
+}
+if (medium2Quantity < currentRecordToEdit.medium2Sold) {
+    showMessage('La nouvelle quantité de moyens poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
+    return;
+}
+if (large1Quantity < currentRecordToEdit.large1Sold) {
+    showMessage('La nouvelle quantité de moyens-grands poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
+    return;
+}
+if (large2Quantity < currentRecordToEdit.large2Sold) {
+    showMessage('La nouvelle quantité de grands poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
+    return;
+}
+if (xlarge1Quantity < currentRecordToEdit.xlarge1Sold) {
+    showMessage('La nouvelle quantité de très grands poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
+    return;
+}
+if (xlarge2Quantity < currentRecordToEdit.xlarge2Sold) {
+    showMessage('La nouvelle quantité de géants poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
+    return;
+}
             
             
             db.collection('poulailler_records').doc(currentRecordToEdit.id).update({
-                startDate,
-                endDate,
-                newChickens,
-                initialStock,
-                smallPrice,
-                smallQuantity,
-                mediumPrice,
-                mediumQuantity,
-                largePrice,
-                largeQuantity,
-                growthRate,
-                lossRate,
-                notes,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            })
+    startDate,
+    endDate,
+    newChickens,
+    initialStock,
+    
+    // 8 catégories
+    small1Price, small1Quantity,
+    small2Price, small2Quantity,
+    medium1Price, medium1Quantity,
+    medium2Price, medium2Quantity,
+    large1Price, large1Quantity,
+    large2Price, large2Quantity,
+    xlarge1Price, xlarge1Quantity,
+    xlarge2Price, xlarge2Quantity,
+    
+    growthRate,
+    lossRate,
+    notes,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+})
             .then(() => {
                 showMessage('Enregistrement modifié avec succès!', 'success');
                 hideModal('editModal');
@@ -2725,9 +3075,14 @@ async function generatePDFDocument(records, options, periodName) {
         
         records.forEach(record => {
             const totalSold = (record.smallSold || 0) + (record.mediumSold || 0) + (record.largeSold || 0);
-            const totalRevenue = (record.smallSold || 0) * (record.smallPrice || 0) + 
-                                (record.mediumSold || 0) * (record.mediumPrice || 0) + 
-                                (record.largeSold || 0) * (record.largePrice || 0);
+           const totalRevenue = (record.small1Sold || 0) * (record.small1Price || 0) + 
+                    (record.small2Sold || 0) * (record.small2Price || 0) + 
+                    (record.medium1Sold || 0) * (record.medium1Price || 0) + 
+                    (record.medium2Sold || 0) * (record.medium2Price || 0) + 
+                    (record.large1Sold || 0) * (record.large1Price || 0) + 
+                    (record.large2Sold || 0) * (record.large2Price || 0) + 
+                    (record.xlarge1Sold || 0) * (record.xlarge1Price || 0) + 
+                    (record.xlarge2Sold || 0) * (record.xlarge2Price || 0);
             
            const totalLostGiven = (record.lost || 0) + (record.given || 0);
 const initialStock = record.initialStock || 0;
@@ -3065,16 +3420,31 @@ if (options.includeCharts) {
         const adjustedStock = initialStock * (1 + growthRate/100);
         totalStock += adjustedStock;
         
-        const smallPrice = record.smallPrice || 0;
-        const mediumPrice = record.mediumPrice || 0;
-        const largePrice = record.largePrice || 0;
-        const avgPrice = (smallPrice + mediumPrice + largePrice) / 3;
+       const small1Price = record.small1Price || 0;
+const small2Price = record.small2Price || 0;
+const medium1Price = record.medium1Price || 0;
+const medium2Price = record.medium2Price || 0;
+const large1Price = record.large1Price || 0;
+const large2Price = record.large2Price || 0;
+const xlarge1Price = record.xlarge1Price || 0;
+const xlarge2Price = record.xlarge2Price || 0;
+const avgPrice = (small1Price + small2Price + medium1Price + medium2Price + 
+                 large1Price + large2Price + xlarge1Price + xlarge2Price) / 8;
         totalValue += adjustedStock * avgPrice;
         
-        const smallSold = record.smallSold || 0;
-        const mediumSold = record.mediumSold || 0;
-        const largeSold = record.largeSold || 0;
-        totalRevenue += (smallSold * smallPrice) + (mediumSold * mediumPrice) + (largeSold * largePrice);
+        const small1Sold = record.small1Sold || 0;
+const small2Sold = record.small2Sold || 0;
+const medium1Sold = record.medium1Sold || 0;
+const medium2Sold = record.medium2Sold || 0;
+const large1Sold = record.large1Sold || 0;
+const large2Sold = record.large2Sold || 0;
+const xlarge1Sold = record.xlarge1Sold || 0;
+const xlarge2Sold = record.xlarge2Sold || 0;
+
+totalRevenue += (small1Sold * small1Price) + (small2Sold * small2Price) + 
+                (medium1Sold * medium1Price) + (medium2Sold * medium2Price) + 
+                (large1Sold * large1Price) + (large2Sold * large2Price) + 
+                (xlarge1Sold * xlarge1Price) + (xlarge2Sold * xlarge2Price);
     });
     
      
@@ -3179,7 +3549,10 @@ function analyzeStockEvolution(records) {
         const initialStock = record.initialStock || 0;
         const growthRate = record.growthRate || 0;
         const adjustedStock = initialStock * (1 + growthRate/100);
-        const avgPrice = ((record.smallPrice || 0) + (record.mediumPrice || 0) + (record.largePrice || 0)) / 3;
+        const avgPrice = ((record.small1Price || 0) + (record.small2Price || 0) + 
+                  (record.medium1Price || 0) + (record.medium2Price || 0) + 
+                  (record.large1Price || 0) + (record.large2Price || 0) + 
+                  (record.xlarge1Price || 0) + (record.xlarge2Price || 0)) / 8;
         const estimatedValue = adjustedStock * avgPrice;
         
         analysis.push({
@@ -3381,9 +3754,14 @@ async function generateChartsForPDF(records, options) {
     try {
         // 1. Gra 
         if (options.chartSales) {
-            const smallSold = records.reduce((sum, r) => sum + (r.smallSold || 0), 0);
-            const mediumSold = records.reduce((sum, r) => sum + (r.mediumSold || 0), 0);
-            const largeSold = records.reduce((sum, r) => sum + (r.largeSold || 0), 0);
+           const cat1 = records.reduce((sum, r) => sum + (r.small1Sold || 0), 0);
+const cat2 = records.reduce((sum, r) => sum + (r.small2Sold || 0), 0);
+const cat3 = records.reduce((sum, r) => sum + (r.medium1Sold || 0), 0);
+const cat4 = records.reduce((sum, r) => sum + (r.medium2Sold || 0), 0);
+const cat5 = records.reduce((sum, r) => sum + (r.large1Sold || 0), 0);
+const cat6 = records.reduce((sum, r) => sum + (r.large2Sold || 0), 0);
+const cat7 = records.reduce((sum, r) => sum + (r.xlarge1Sold || 0), 0);
+const cat8 = records.reduce((sum, r) => sum + (r.xlarge2Sold || 0), 0);
             
             const salesCanvas = await createSimpleChart(
                 'bar',
@@ -3509,7 +3887,7 @@ function createSalesChart(records) {
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Petits', 'Moyens', 'Gros'],
+                    labels: ['Très P', 'Petits', 'Moy-P', 'Moyens', 'Moy-G', 'Grands', 'Très G', 'Géants'],
                     datasets: [{
                         label: 'Poulets vendus',
                         data: [smallSold, mediumSold, largeSold],
