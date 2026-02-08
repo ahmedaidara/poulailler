@@ -1361,7 +1361,7 @@
                 <label for="urlSacreCoeur" class="form-label">Lien boutique</label>
                 <div style="display: flex; gap: var(--space-sm);">
                     <input type="text" id="urlSacreCoeur" class="form-input" 
-                           value="https://votre-site.com/gerante.html?boutique=sacre-coeur" readonly>
+                           value="RIEN METTRE ICI" readonly>
                     <button onclick="copyToClipboard('urlSacreCoeur')" class="btn" style="background: var(--secondary); color: white;">
                         <i class="fas fa-copy"></i>
                     </button>
@@ -1388,7 +1388,7 @@
                 <label for="urlKeurMassar" class="form-label">Lien boutique</label>
                 <div style="display: flex; gap: var(--space-sm);">
                     <input type="text" id="urlKeurMassar" class="form-input" 
-                           value="https://votre-site.com/gerante.html?boutique=keur-massar" readonly>
+                           value="RIEN METTRE" readonly>
                     <button onclick="copyToClipboard('urlKeurMassar')" class="btn" style="background: var(--secondary); color: white;">
                         <i class="fas fa-copy"></i>
                     </button>
@@ -2567,72 +2567,83 @@ function formatNumberForPDF(num) {
 }
       
         
-    function saveRecord() {
-    // 1. Ré 
+  function saveRecord() {
+    // Récupérer les valeurs
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value || null;
     const newChickens = parseInt(document.getElementById('newChickens').value) || 0;
     const initialStock = parseInt(document.getElementById('initialStock').value) || 0;
-   // 
-const small1Price = parseInt(document.getElementById('small1Price').value) || 0;
-const small1Quantity = parseInt(document.getElementById('small1Quantity').value) || 0;
-
-const small2Price = parseInt(document.getElementById('small2Price').value) || 0;
-const small2Quantity = parseInt(document.getElementById('small2Quantity').value) || 0;
-
-const medium1Price = parseInt(document.getElementById('medium1Price').value) || 0;
-const medium1Quantity = parseInt(document.getElementById('medium1Quantity').value) || 0;
-
-const medium2Price = parseInt(document.getElementById('medium2Price').value) || 0;
-const medium2Quantity = parseInt(document.getElementById('medium2Quantity').value) || 0;
-
-const large1Price = parseInt(document.getElementById('large1Price').value) || 0;
-const large1Quantity = parseInt(document.getElementById('large1Quantity').value) || 0;
-
-const large2Price = parseInt(document.getElementById('large2Price').value) || 0;
-const large2Quantity = parseInt(document.getElementById('large2Quantity').value) || 0;
-
-const xlarge1Price = parseInt(document.getElementById('xlarge1Price').value) || 0;
-const xlarge1Quantity = parseInt(document.getElementById('xlarge1Quantity').value) || 0;
-
-const xlarge2Price = parseInt(document.getElementById('xlarge2Price').value) || 0;
-const xlarge2Quantity = parseInt(document.getElementById('xlarge2Quantity').value) || 0;
+    
+    // 8 catégories
+    const small1Price = parseInt(document.getElementById('small1Price').value) || 0;
+    const small1Quantity = parseInt(document.getElementById('small1Quantity').value) || 0;
+    
+    const small2Price = parseInt(document.getElementById('small2Price').value) || 0;
+    const small2Quantity = parseInt(document.getElementById('small2Quantity').value) || 0;
+    
+    const medium1Price = parseInt(document.getElementById('medium1Price').value) || 0;
+    const medium1Quantity = parseInt(document.getElementById('medium1Quantity').value) || 0;
+    
+    const medium2Price = parseInt(document.getElementById('medium2Price').value) || 0;
+    const medium2Quantity = parseInt(document.getElementById('medium2Quantity').value) || 0;
+    
+    const large1Price = parseInt(document.getElementById('large1Price').value) || 0;
+    const large1Quantity = parseInt(document.getElementById('large1Quantity').value) || 0;
+    
+    const large2Price = parseInt(document.getElementById('large2Price').value) || 0;
+    const large2Quantity = parseInt(document.getElementById('large2Quantity').value) || 0;
+    
+    const xlarge1Price = parseInt(document.getElementById('xlarge1Price').value) || 0;
+    const xlarge1Quantity = parseInt(document.getElementById('xlarge1Quantity').value) || 0;
+    
+    const xlarge2Price = parseInt(document.getElementById('xlarge2Price').value) || 0;
+    const xlarge2Quantity = parseInt(document.getElementById('xlarge2Quantity').value) || 0;
+    
     const growthRate = parseFloat(document.getElementById('growthRate').value) || 0;
     const lossRate = parseFloat(document.getElementById('lossRate').value) || 0;
     const notes = document.getElementById('notes').value;
     
-    // 2. Vali 
-    if (!startDate) {
-        showMessage('La date de début est obligatoire', 'error');
-        return;
-    }
+    // ============ AJOUTEZ CES 2 LIGNES ============
+    const stock_disponible = {
+        cat1: small1Quantity,
+        cat2: small2Quantity,
+        cat3: medium1Quantity,
+        cat4: medium2Quantity,
+        cat5: large1Quantity,
+        cat6: large2Quantity,
+        cat7: xlarge1Quantity,
+        cat8: xlarge2Quantity
+    };
+    // ==============================================
     
-    // 3. Créer l'obj 
-   const record = {
-    startDate,
-    endDate,
-    newChickens,
-    initialStock,
+     const record = {
+        startDate,
+        endDate,
+        newChickens,
+        initialStock,
+        
+        // 8 catégories
+        small1Price, small1Quantity, small1Sold: 0,
+        small2Price, small2Quantity, small2Sold: 0,
+        medium1Price, medium1Quantity, medium1Sold: 0,
+        medium2Price, medium2Quantity, medium2Sold: 0,
+        large1Price, large1Quantity, large1Sold: 0,
+        large2Price, large2Quantity, large2Sold: 0,
+        xlarge1Price, xlarge1Quantity, xlarge1Sold: 0,
+        xlarge2Price, xlarge2Quantity, xlarge2Sold: 0,
+        
+         stock_disponible,  // Stock disponible par catégorie
+        // =============================================
+        
+        growthRate,
+        lossRate,
+        given: 0,
+        lost: 0,
+        notes,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
     
-    // 8 catég s
-    small1Price, small1Quantity, small1Sold: 0,
-    small2Price, small2Quantity, small2Sold: 0,
-    medium1Price, medium1Quantity, medium1Sold: 0,
-    medium2Price, medium2Quantity, medium2Sold: 0,
-    large1Price, large1Quantity, large1Sold: 0,
-    large2Price, large2Quantity, large2Sold: 0,
-    xlarge1Price, xlarge1Quantity, xlarge1Sold: 0,
-    xlarge2Price, xlarge2Quantity, xlarge2Sold: 0,
-    
-    growthRate,
-    lossRate,
-    given: 0,
-    lost: 0,
-    notes,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-};
-    
-    // 4. Sauveg 
+    // Sauvegarder
     db.collection('poulailler_records').add(record)
         .then(() => {
             showMessage('Enregistrement ajouté avec succès!', 'success');
@@ -2783,6 +2794,144 @@ const xlarge2Quantity = parseInt(document.getElementById('xlarge2Quantity').valu
                 </div>
             `;
             
+        content += `
+    <div style="background: #f0f9ff; padding: var(--space-lg); border-radius: var(--radius-lg); margin-top: var(--space-xl);">
+        <h4 style="margin-bottom: var(--space-md); color: #0369a1;">
+            <i class="fas fa-boxes-stacked"></i> Stock Disponible pour Vente
+        </h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-md);">
+`;
+
+// Liste des catégories avec leurs noms et clés
+const categoriesInfo = [
+    { id: 1, name: 'Très petits (1-1.1 kg)', quantityKey: 'small1Quantity', soldKey: 'small1Sold', priceKey: 'small1Price', catKey: 'cat1' },
+    { id: 2, name: 'Petits (1.2 kg)', quantityKey: 'small2Quantity', soldKey: 'small2Sold', priceKey: 'small2Price', catKey: 'cat2' },
+    { id: 3, name: 'Moyens-petits (1.3-1.4 kg)', quantityKey: 'medium1Quantity', soldKey: 'medium1Sold', priceKey: 'medium1Price', catKey: 'cat3' },
+    { id: 4, name: 'Moyens (1.5-1.6 kg)', quantityKey: 'medium2Quantity', soldKey: 'medium2Sold', priceKey: 'medium2Price', catKey: 'cat4' },
+    { id: 5, name: 'Moyens-grands (1.7-1.9 kg)', quantityKey: 'large1Quantity', soldKey: 'large1Sold', priceKey: 'large1Price', catKey: 'cat5' },
+    { id: 6, name: 'Grands (2 kg)', quantityKey: 'large2Quantity', soldKey: 'large2Sold', priceKey: 'large2Price', catKey: 'cat6' },
+    { id: 7, name: 'Très grands (2.1-2.3 kg)', quantityKey: 'xlarge1Quantity', soldKey: 'xlarge1Sold', priceKey: 'xlarge1Price', catKey: 'cat7' },
+    { id: 8, name: 'Géants (+2.4 kg)', quantityKey: 'xlarge2Quantity', soldKey: 'xlarge2Sold', priceKey: 'xlarge2Price', catKey: 'cat8' }
+];
+
+// Pour chaque catégorie, calculer le stock disponible
+categoriesInfo.forEach(cat => {
+    // 1. Quantité initiale (priorité à stock_disponible, sinon aux champs individuels)
+    let quantiteInitiale = 0;
+    
+    if (record.stock_disponible && record.stock_disponible[cat.catKey]) {
+        // Utiliser stock_disponible si disponible
+        quantiteInitiale = record.stock_disponible[cat.catKey];
+    } else if (record[cat.quantityKey]) {
+        // Sinon utiliser le champ quantité
+        quantiteInitiale = record[cat.quantityKey] || 0;
+    }
+    
+    // 2. Nombre déjà vendu
+    const dejaVendu = record[cat.soldKey] || 0;
+    
+    // 3. Stock restant
+    const stockRestant = Math.max(0, quantiteInitiale - dejaVendu);
+    
+    // 4. Prix
+    const prix = record[cat.priceKey] || 0;
+    const valeurStock = stockRestant * prix;
+    
+    content += `
+        <div style="background: white; padding: var(--space-md); border-radius: var(--radius-md); border: 1px solid #e0e0e0;">
+            <div style="font-weight: bold; font-size: 0.9rem; margin-bottom: 8px;">${cat.name}</div>
+            
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <small style="color: #666;">Initial:</small>
+                <small style="font-weight: bold;">${quantiteInitiale}</small>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <small style="color: #666;">Déjà vendu:</small>
+                <small style="color: #ef4444;">${dejaVendu}</small>
+            </div>
+            
+            <div style="border-top: 1px solid #e0e0e0; padding-top: 5px; margin-top: 5px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <small style="color: #666;">Disponible:</small>
+                    <div style="font-weight: bold; color: ${stockRestant > 0 ? '#10b981' : '#ef4444'};">
+                        ${stockRestant}
+                    </div>
+                </div>
+                
+                <div style="margin-top: 5px; font-size: 0.8rem; color: #3b82f6; text-align: right;">
+                    ≈ ${valeurStock.toLocaleString('fr-FR')} F CFA
+                </div>
+            </div>
+        </div>
+    `;
+});
+
+content += `
+        </div>
+    </div>
+`;
+          
+          db.collection('invoices')
+    .where('productionId', '==', recordId)
+    .get()
+    .then(snapshot => {
+        let facturesHTML = '';
+        
+        if (snapshot.empty) {
+            facturesHTML = `<p style="color: var(--gray-text); text-align: center;">Aucune facture pour cette production</p>`;
+        } else {
+            facturesHTML = `<div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                    <thead>
+                        <tr style="background: var(--light-gray);">
+                            <th style="padding: 8px; text-align: left;">N° Facture</th>
+                            <th style="padding: 8px; text-align: left;">Date</th>
+                            <th style="padding: 8px; text-align: left;">Boutique</th>
+                            <th style="padding: 8px; text-align: right;">Montant</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+            
+            let totalVentes = 0;
+            
+            snapshot.forEach(doc => {
+                const facture = doc.data();
+                const date = new Date(facture.date?.seconds * 1000 || facture.date);
+                
+                facturesHTML += `
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 8px;">${facture.invoiceNumber || 'N/A'}</td>
+                        <td style="padding: 8px;">${formatDate(date)}</td>
+                        <td style="padding: 8px;">${facture.boutiqueName || ''}</td>
+                        <td style="padding: 8px; text-align: right; font-weight: bold;">
+                            ${(facture.total || 0).toLocaleString('fr-FR')} F CFA
+                        </td>
+                    </tr>
+                `;
+                
+                totalVentes += facture.total || 0;
+            });
+            
+            facturesHTML += `</tbody></table>`;
+            
+            // Résumé
+            facturesHTML += `
+                <div style="margin-top: 15px; padding: 10px; background: #f0f9ff; border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span><strong>${snapshot.size} facture(s)</strong></span>
+                        <span><strong>Total ventes:</strong> ${totalVentes.toLocaleString('fr-FR')} F CFA</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Insérer dans le contenu
+        document.getElementById('viewModalContent').innerHTML += facturesHTML;
+        
+    }).catch(error => {
+        console.error('Erreur chargement factures:', error);
+    });
             document.getElementById('viewModalContent').innerHTML = content;
             showModal('viewModal');
         }
