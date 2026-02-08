@@ -719,60 +719,102 @@
             margin-top: var(--space-xl);
         }
         
-         @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                gap: var(--space-md);
-            }
-            
-            .nav-links {
-                width: 100%;
-                justify-content: center;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .quick-actions {
-                grid-template-columns: 1fr;
-            }
-            
-            .table-header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .filters {
-                justify-content: center;
-            }
-            
-            .search-container {
-                width: 100%;
-            }
-            
-            .form-grid, .form-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .modal {
-                padding: var(--space-lg);
-            }
-            
-            .modal-actions {
-                flex-direction: column;
-            }
-            
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-            
-            .action-buttons {
-                justify-content: center;
-            }
-        }
+    @media (max-width: 768px) {
+    header {
+        display: grid;
+        grid-template-columns: 50px 1fr;
+        grid-template-areas: "logo nav";
+        padding: 10px;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    .logo-container {
+        grid-area: logo;
+        width: 100%;
+    }
+    
+    .logo {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .app-title {
+        display: none;
+    }
+    
+    .nav-links {
+        grid-area: nav;
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        overflow-x: auto;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
+    }
+    
+    .nav-links::-webkit-scrollbar {
+        display: none; /* Chrome/Safari */
+    }
+    
+    .nav-btn {
+        flex-shrink: 0;
+        width: 45px;
+        height: 45px;
+        padding: 0;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 0;
+    }
+    
+    .nav-btn i {
+        font-size: 1rem;
+    }
+    
+    .nav-btn span {
+        font-size: 0.6rem;
+        margin-top: 2px;
+    }
+}
         
+      @media (max-width: 480px) {
+    header {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+    
+    .logo-container {
+        min-width: 40px; /* Juste pour le logo */
+    }
+    
+    .logo {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .nav-links {
+        gap: 4px;
+    }
+    
+    .nav-btn {
+        padding: 4px 6px;
+        min-width: 48px;
+        height: 36px;
+        border-radius: 8px;
+    }
+    
+    .nav-btn i {
+        font-size: 0.8rem;
+    }
+    
+    /* Option: cacher complètement le texte */
+    .nav-btn span {
+        display: none;
+    }
+}
         @media (max-width: 480px) {
             .nav-links {
                 flex-direction: column;
