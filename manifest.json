@@ -1,0 +1,23 @@
+{
+  "name": "DAKAR CHICKEN EXPRESS",
+  "short_name": "DCE",
+  "description": "Gestion de poulailler ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#3B82F6",
+  "theme_color": "#3B82F6",
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/0QBKNcGj/photo-5782651308169956527-x.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.postimg.cc/0QBKNcGj/photo-5782651308169956527-x.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
