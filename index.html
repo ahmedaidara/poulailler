@@ -2165,59 +2165,74 @@ function formatNumberForPDF(num) {
     return rounded.toString();
 }
          
-     function updateStatistics() {
-    // Calcul des statistiques
+   function updateStatistics() {
     let totalProduction = 0;   
     let totalStock = 0;        
     let totalValue = 0;        
     let totalRevenue = 0;      
     
     allRecords.forEach(record => {
-        // 1. Calcul du S 
+        // 1.  
         const initialStock = record.initialStock || 0;
+        
+        // T 
         const totalSold = (record.small1Sold || 0) + (record.small2Sold || 0) + 
                          (record.medium1Sold || 0) + (record.medium2Sold || 0) + 
                          (record.large1Sold || 0) + (record.large2Sold || 0) + 
                          (record.xlarge1Sold || 0) + (record.xlarge2Sold || 0);
+        
         const totalLostGiven = (record.lost || 0) + (record.given || 0);
         
-        // Stock r 
+         
         const stockRestant = Math.max(0, initialStock - totalSold - totalLostGiven);
         
-        // 2. Addit 
+        // 2. Accumuler les  
         totalProduction += stockRestant;
         
-        // 3. Stock 
+        // 3. Stock initial total
         totalStock += initialStock;
         
-        // 4. Calcul d 
-        const small1Price = record.small1Price || 0;
-        const small2Price = record.small2Price || 0;
-        const medium1Price = record.medium1Price || 0;
-        const medium2Price = record.medium2Price || 0;
-        const large1Price = record.large1Price || 0;
-        const large2Price = record.large2Price || 0;
-        const xlarge1Price = record.xlarge1Price || 0;
-        const xlarge2Price = record.xlarge2Price || 0;
+         
+       
+        let totalQuantite = 0;
+        let totalPrix = 0;
         
-        // Prix moy 
-        const avgPrice = (small1Price + small2Price + medium1Price + medium2Price + 
-                         large1Price + large2Price + xlarge1Price + xlarge2Price) / 8;
+        // Caté 
+        const cat1Dispo = Math.max(0, (record.small1Quantity || 0) - (record.small1Sold || 0));
+        const cat2Dispo = Math.max(0, (record.small2Quantity || 0) - (record.small2Sold || 0));
+        const cat3Dispo = Math.max(0, (record.medium1Quantity || 0) - (record.medium1Sold || 0));
+        const cat4Dispo = Math.max(0, (record.medium2Quantity || 0) - (record.medium2Sold || 0));
+        const cat5Dispo = Math.max(0, (record.large1Quantity || 0) - (record.large1Sold || 0));
+        const cat6Dispo = Math.max(0, (record.large2Quantity || 0) - (record.large2Sold || 0));
+        const cat7Dispo = Math.max(0, (record.xlarge1Quantity || 0) - (record.xlarge1Sold || 0));
+        const cat8Dispo = Math.max(0, (record.xlarge2Quantity || 0) - (record.xlarge2Sold || 0));
         
-        totalValue += stockRestant * avgPrice;
+        // Calculer  
+        if (stockRestant > 0) {
+            totalPrix = (cat1Dispo * (record.small1Price || 0)) +
+                       (cat2Dispo * (record.small2Price || 0)) +
+                       (cat3Dispo * (record.medium1Price || 0)) +
+                       (cat4Dispo * (record.medium2Price || 0)) +
+                       (cat5Dispo * (record.large1Price || 0)) +
+                       (cat6Dispo * (record.large2Price || 0)) +
+                       (cat7Dispo * (record.xlarge1Price || 0)) +
+                       (cat8Dispo * (record.xlarge2Price || 0));
+            
+            totalValue += totalPrix;  
+        }
         
-        // 5. Calcu 
-        totalRevenue += (record.small1Sold || 0) * small1Price +
-                       (record.small2Sold || 0) * small2Price +
-                       (record.medium1Sold || 0) * medium1Price +
-                       (record.medium2Sold || 0) * medium2Price +
-                       (record.large1Sold || 0) * large1Price +
-                       (record.large2Sold || 0) * large2Price +
-                       (record.xlarge1Sold || 0) * xlarge1Price +
-                       (record.xlarge2Sold || 0) * xlarge2Price;
+        // 5. Calcul du CHIFFRE D'AFFAIRES
+        totalRevenue += (record.small1Sold || 0) * (record.small1Price || 0) +
+                       (record.small2Sold || 0) * (record.small2Price || 0) +
+                       (record.medium1Sold || 0) * (record.medium1Price || 0) +
+                       (record.medium2Sold || 0) * (record.medium2Price || 0) +
+                       (record.large1Sold || 0) * (record.large1Price || 0) +
+                       (record.large2Sold || 0) * (record.large2Price || 0) +
+                       (record.xlarge1Sold || 0) * (record.xlarge1Price || 0) +
+                       (record.xlarge2Sold || 0) * (record.xlarge2Price || 0);
     });
     
-    // Mise à jo 
+    // Mise à j 
     document.getElementById('productionCount').textContent = Math.max(0, totalProduction).toLocaleString('fr-FR');
     document.getElementById('stockCount').textContent = Math.round(totalStock).toLocaleString('fr-FR');
     document.getElementById('stockValue').textContent = Math.round(totalValue).toLocaleString('fr-FR') + ' F CFA';
@@ -3234,16 +3249,16 @@ async function generatePDFDocument(records, options, periodName) {
         const col1 = margin;
         const col2 = pageWidth / 2;
         
-        doc.text(`Nombre de production: ${stats.totalRecords}`, col1, currentY);
-        doc.text(`Période couverte: ${stats.periodCovered}`, col2, currentY);
-        currentY += 7;
-        
-        doc.text(`Production restant (hors morts et don): ${stats.totalProduction}`, col1, currentY);
-        doc.text(`Quantités de Production Total: ${stats.totalStock}`, col2, currentY);
-        currentY += 7;
-        
-        doc.text(`Valeur du stock: ${stats.totalValue.toLocaleString('fr-FR')} F CFA`, col1, currentY);
-        doc.text(`Chiffre d'affaires réalisé: ${stats.totalRevenue.toLocaleString('fr-FR')} F CFA`, col2, currentY);
+        doc.text(`Nombre d'enregistrements: ${stats.totalRecords}`, col1, currentY);
+doc.text(`Période: ${stats.periodCovered}`, col2, currentY);
+currentY += 7;
+
+doc.text(`Stock total restant: ${stats.totalProduction}`, col1, currentY);
+doc.text(`Stock initial total: ${stats.totalStock}`, col2, currentY);
+currentY += 7;
+
+doc.text(`Valeur du stock restant: ${stats.totalValue.toLocaleString('fr-FR')} F CFA`, col1, currentY);
+doc.text(`Chiffre d'affaires total: ${stats.totalRevenue.toLocaleString('fr-FR')} F CFA`, col2, currentY);
         currentY += 15;
     }
     
@@ -3679,68 +3694,84 @@ if (options.includeCharts) {
     showMessage('PDF généré avec succès et téléchargement lancé!', 'success');
 }
 
- function calculateStatisticsForPDF(records) {
-    let totalProduction = 0;
-    let totalStock = 0;
-    let totalValue = 0;
-    let totalRevenue = 0;
+function calculateStatisticsForPDF(records) {
+    // CALCULER EXACTEMENT COMME LE TABLEAU DE BORD
+    let totalProduction = 0;   // Stock total restant
+    let totalStock = 0;        // Stock initial total
+    let totalValue = 0;        // Valeur du stock restant
+    let totalRevenue = 0;      // Chiffre d'affaires total
     
     records.forEach(record => {
-        const newChickens = record.newChickens || 0;
-        const lost = record.lost || 0;
-        totalProduction += newChickens - lost;
-        
+        // 1. Calcul du STOCK RESTANT (comme dans updateStatistics())
         const initialStock = record.initialStock || 0;
-        const growthRate = record.growthRate || 0;
-        const adjustedStock = initialStock * (1 + growthRate/100);
-        totalStock += adjustedStock;
         
-       const small1Price = record.small1Price || 0;
-const small2Price = record.small2Price || 0;
-const medium1Price = record.medium1Price || 0;
-const medium2Price = record.medium2Price || 0;
-const large1Price = record.large1Price || 0;
-const large2Price = record.large2Price || 0;
-const xlarge1Price = record.xlarge1Price || 0;
-const xlarge2Price = record.xlarge2Price || 0;
-const avgPrice = (small1Price + small2Price + medium1Price + medium2Price + 
-                 large1Price + large2Price + xlarge1Price + xlarge2Price) / 8;
-        totalValue += adjustedStock * avgPrice;
+        // TOTAL VENDUS (8 catégories)
+        const totalSold = (record.small1Sold || 0) + (record.small2Sold || 0) + 
+                         (record.medium1Sold || 0) + (record.medium2Sold || 0) + 
+                         (record.large1Sold || 0) + (record.large2Sold || 0) + 
+                         (record.xlarge1Sold || 0) + (record.xlarge2Sold || 0);
         
-        const small1Sold = record.small1Sold || 0;
-const small2Sold = record.small2Sold || 0;
-const medium1Sold = record.medium1Sold || 0;
-const medium2Sold = record.medium2Sold || 0;
-const large1Sold = record.large1Sold || 0;
-const large2Sold = record.large2Sold || 0;
-const xlarge1Sold = record.xlarge1Sold || 0;
-const xlarge2Sold = record.xlarge2Sold || 0;
-
-totalRevenue += (small1Sold * small1Price) + (small2Sold * small2Price) + 
-                (medium1Sold * medium1Price) + (medium2Sold * medium2Price) + 
-                (large1Sold * large1Price) + (large2Sold * large2Price) + 
-                (xlarge1Sold * xlarge1Price) + (xlarge2Sold * xlarge2Price);
+        const totalLostGiven = (record.lost || 0) + (record.given || 0);
+        
+        // Stock restant = initial - vendus - perdus/donnés
+        const stockRestant = Math.max(0, initialStock - totalSold - totalLostGiven);
+        
+        // 2. Stock total restant
+        totalProduction += stockRestant;
+        
+        // 3. Stock initial total
+        totalStock += initialStock;
+        
+        // 4. VALEUR du stock restant (calcul EXACT comme tableau de bord)
+        // Calculer la valeur des poulets RESTANTS (non vendus)
+        const cat1Restant = Math.max(0, (record.small1Quantity || 0) - (record.small1Sold || 0));
+        const cat2Restant = Math.max(0, (record.small2Quantity || 0) - (record.small2Sold || 0));
+        const cat3Restant = Math.max(0, (record.medium1Quantity || 0) - (record.medium1Sold || 0));
+        const cat4Restant = Math.max(0, (record.medium2Quantity || 0) - (record.medium2Sold || 0));
+        const cat5Restant = Math.max(0, (record.large1Quantity || 0) - (record.large1Sold || 0));
+        const cat6Restant = Math.max(0, (record.large2Quantity || 0) - (record.large2Sold || 0));
+        const cat7Restant = Math.max(0, (record.xlarge1Quantity || 0) - (record.xlarge1Sold || 0));
+        const cat8Restant = Math.max(0, (record.xlarge2Quantity || 0) - (record.xlarge2Sold || 0));
+        
+        // Valeur = (quantité restante × prix) pour chaque catégorie
+        const valueRestant = (cat1Restant * (record.small1Price || 0)) +
+                           (cat2Restant * (record.small2Price || 0)) +
+                           (cat3Restant * (record.medium1Price || 0)) +
+                           (cat4Restant * (record.medium2Price || 0)) +
+                           (cat5Restant * (record.large1Price || 0)) +
+                           (cat6Restant * (record.large2Price || 0)) +
+                           (cat7Restant * (record.xlarge1Price || 0)) +
+                           (cat8Restant * (record.xlarge2Price || 0));
+        
+        totalValue += valueRestant;
+        
+        // 5. CHIFFRE D'AFFAIRES (valeur des poulets VENDUS)
+        totalRevenue += (record.small1Sold || 0) * (record.small1Price || 0) +
+                       (record.small2Sold || 0) * (record.small2Price || 0) +
+                       (record.medium1Sold || 0) * (record.medium1Price || 0) +
+                       (record.medium2Sold || 0) * (record.medium2Price || 0) +
+                       (record.large1Sold || 0) * (record.large1Price || 0) +
+                       (record.large2Sold || 0) * (record.large2Price || 0) +
+                       (record.xlarge1Sold || 0) * (record.xlarge1Price || 0) +
+                       (record.xlarge2Sold || 0) * (record.xlarge2Price || 0);
     });
     
-     
+    // Période couverte
     const startDates = records.map(r => new Date(r.startDate));
-    const endDates = records.filter(r => r.endDate).map(r => new Date(r.endDate));
-    
     const earliestDate = startDates.length > 0 ? new Date(Math.min(...startDates)) : null;
-    const latestDate = endDates.length > 0 ? new Date(Math.max(...endDates)) : 
-                      startDates.length > 0 ? new Date(Math.max(...startDates)) : null;
+    const latestDate = startDates.length > 0 ? new Date(Math.max(...startDates)) : null;
     
     let periodCovered = 'N/A';
     if (earliestDate && latestDate) {
         periodCovered = `${formatDate(earliestDate.toISOString())} - ${formatDate(latestDate.toISOString())}`;
     }
     
-   return {
+    return {
         totalRecords: records.length,
-        totalProduction: Math.max(0, totalProduction),
-        totalStock: Math.round(totalStock),
-        totalValue: Math.round(totalValue).toString(),  
-        totalRevenue: Math.round(totalRevenue).toString(),  
+        totalProduction: Math.max(0, totalProduction),      // = 70
+        totalStock: Math.round(totalStock),                 // = 100
+        totalValue: Math.round(totalValue),                 // = 255 000
+        totalRevenue: Math.round(totalRevenue),             // = 20 000
         periodCovered
     };
 }
