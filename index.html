@@ -933,6 +933,26 @@
     font-size: 0.7rem;
     font-weight: 600;
 }
+      
+      .boutique-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-sacre-coeur {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3B82F6;
+    border: 1px solid #3B82F6;
+}
+
+.badge-keur-massar {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+    border: 1px solid #10B981;
+}
     </style>
 </head>
 <body>
@@ -1457,6 +1477,49 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+             
+             <!-- Tableau de bord des stocks attribués -->
+<div class="table-container" style="margin-top: var(--space-2xl);">
+    <div class="table-header">
+        <h3 style="margin: 0;">
+            <i class="fas fa-chart-bar"></i> Stocks Attribués - Vue d'ensemble
+        </h3>
+        <div class="filters">
+            <button class="filter-btn active" data-stock-filter="all">Tous</button>
+            <button class="filter-btn" data-stock-filter="active">Actifs</button>
+            <button class="filter-btn" data-stock-filter="completed">Terminés</button>
+            <button class="filter-btn" data-stock-filter="sacre-coeur">Sacré Coeur</button>
+            <button class="filter-btn" data-stock-filter="keur-massar">Keur Massar</button>
+        </div>
+    </div>
+    
+    <div class="table-wrapper">
+        <table class="records-table">
+            <thead>
+                <tr>
+                    <th>Boutique</th>
+                    <th>Date attribution</th>
+                    <th>Production</th>
+                    <th>Attribué</th>
+                    <th>Vendu</th>
+                    <th>Restant</th>
+                    <th>% Vendu</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="attributedStocksTableBody">
+                <!-- Rempli dynamiquement -->
+            </tbody>
+        </table>
+    </div>
+    
+    <div id="emptyStocksState" class="empty-state" style="display: none;">
+        <i class="fas fa-box-open" style="font-size: 3rem; margin-bottom: var(--space-md); color: var(--light-gray);"></i>
+        <h3>Aucun stock attribué</h3>
+        <p>Distribuez d'abord du stock aux boutiques</p>
     </div>
 </div>
     <!-- Boutiques Cards -->
@@ -6814,9 +6877,380 @@ document.addEventListener('DOMContentLoaded', function() {
     // Attendre un peu avant d'initialiser
     setTimeout(initializeCollections, 2000);
 });
+      
+      // ==============================================
+// GESTION DU TABLEAU DE BORD DES STOCKS ATTRIBUÉS
+// ==============================================
+
+function loadAttributedStocksDashboard(filter = 'all') {
+    console.log("Chargement stocks avec filtre:", filter);
+    
+    let query = db.collection('stocks_attribues');
+    
+    // Appliquer les filtres
+    if (filter === 'active') {
+        query = query.where('remaining', '>', 0);
+    } else if (filter === 'completed') {
+        query = query.where('remaining', '==', 0);
+    } else if (filter === 'sacre-coeur') {
+        query = query.where('boutique', '==', 'sacre-coeur');
+    } else if (filter === 'keur-massar') {
+        query = query.where('boutique', '==', 'keur-massar');
+    }
+    
+    query.orderBy('date', 'desc').get()
+        .then(snapshot => {
+            const tbody = document.getElementById('attributedStocksTableBody');
+            const emptyState = document.getElementById('emptyStocksState');
+            
+            tbody.innerHTML = '';
+            
+            if (snapshot.empty) {
+                tbody.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            tbody.style.display = 'table-row-group';
+            emptyState.style.display = 'none';
+            
+            // Pour chaque stock attribué
+            snapshot.forEach(doc => {
+                const stock = doc.data();
+                const date = new Date(stock.date);
+                const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
+                
+                const total = stock.total || 0;
+                const sold = stock.totalSold || 0;
+                const remaining = stock.remaining || total;
+                const percentSold = total > 0 ? Math.round((sold / total) * 100) : 0;
+                
+                // Charger les infos de la production
+                let productionInfo = 'N/A';
+                if (stock.productionId) {
+                    db.collection('poulailler_records').doc(stock.productionId).get()
+                        .then(prodDoc => {
+                            if (prodDoc.exists) {
+                                const prodData = prodDoc.data();
+                                const prodDate = new Date(prodData.startDate);
+                                const prodDateStr = `${prodDate.getDate()}/${prodDate.getMonth()+1}`;
+                                productionInfo = `Prod. ${prodDateStr}`;
+                                
+                                // Mettre à jour la cellule
+                                const cell = document.getElementById(`prod-${doc.id}`);
+                                if (cell) cell.textContent = productionInfo;
+                            }
+                        });
+                }
+                
+                // Déterminer le status
+                let statusText = 'Actif';
+                let statusColor = '#10B981';
+                if (remaining === 0) {
+                    statusText = 'Terminé';
+                    statusColor = '#6B7280';
+                } else if (remaining < total * 0.3) {
+                    statusText = 'Faible';
+                    statusColor = '#F59E0B';
+                }
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <span class="boutique-badge ${stock.boutique === 'sacre-coeur' ? 'badge-sacre-coeur' : 'badge-keur-massar'}">
+                            ${stock.boutiqueName || stock.boutique}
+                        </span>
+                    </td>
+                    <td>${dateStr}</td>
+                    <td id="prod-${doc.id}">${productionInfo}</td>
+                    <td><strong>${total}</strong></td>
+                    <td style="color: ${sold > 0 ? '#EF4444' : '#6B7280'}">${sold}</td>
+                    <td><strong style="color: ${remaining > 0 ? '#10B981' : '#EF4444'}">${remaining}</strong></td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 60px; height: 6px; background: #E5E7EB; border-radius: 3px; overflow: hidden;">
+                                <div style="width: ${percentSold}%; height: 100%; background: ${percentSold > 80 ? '#EF4444' : percentSold > 50 ? '#F59E0B' : '#10B981'};"></div>
+                            </div>
+                            <span>${percentSold}%</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span style="display: inline-block; padding: 4px 12px; border-radius: 20px; background: ${statusColor}20; color: ${statusColor}; font-size: 0.85rem; font-weight: 600;">
+                            ${statusText}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn-small view" onclick="viewStockDetails('${doc.id}')" title="Voir détails">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn-small delete" onclick="showDeleteStockModal('${doc.id}', '${stock.boutiqueName}')" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+        }).catch(error => {
+            console.error('Erreur chargement stocks:', error);
+            showMessage('Erreur de chargement', 'error');
+        });
+}
+
+// Voir les détails d'un stock
+function viewStockDetails(stockId) {
+    db.collection('stocks_attribues').doc(stockId).get()
+        .then(doc => {
+            if (!doc.exists) return;
+            
+            const stock = doc.data();
+            let content = `
+                <div style="max-width: 600px;">
+                    <h3 style="margin-bottom: 20px; color: var(--dark-text);">
+                        <i class="fas fa-box"></i> Détails du Stock
+                    </h3>
+                    
+                    <div style="background: var(--light-gray); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                            <div>
+                                <strong>Boutique:</strong><br>
+                                ${stock.boutiqueName || stock.boutique}
+                            </div>
+                            <div>
+                                <strong>Date attribution:</strong><br>
+                                ${formatDate(stock.date)}
+                            </div>
+                            <div>
+                                <strong>Total attribué:</strong><br>
+                                ${stock.total || 0} poulets
+                            </div>
+                            <div>
+                                <strong>Restant:</strong><br>
+                                <span style="color: ${stock.remaining > 0 ? '#10B981' : '#EF4444'}; font-weight: bold;">
+                                    ${stock.remaining || 0} poulets
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin-bottom: 15px;">Détail par catégorie</h4>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+            `;
+            
+            // Les 8 catégories
+            const categories = [
+                { id: '1', name: 'Très petits' },
+                { id: '2', name: 'Petits' },
+                { id: '3', name: 'Moyens-petits' },
+                { id: '4', name: 'Moyens' },
+                { id: '5', name: 'Moyens-grands' },
+                { id: '6', name: 'Grands' },
+                { id: '7', name: 'Très grands' },
+                { id: '8', name: 'Géants' }
+            ];
+            
+            categories.forEach(cat => {
+                const attribue = stock.categories?.[cat.id] || 0;
+                const vendu = stock.soldByCategory?.[cat.id] || 0;
+                const restant = attribue - vendu;
+                
+                if (attribue > 0) {
+                    content += `
+                        <div style="background: white; padding: 10px; border-radius: 8px; border: 1px solid #E5E7EB;">
+                            <div style="font-weight: bold; margin-bottom: 5px;">${cat.name}</div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span>Attribué: ${attribue}</span>
+                                <span style="color: ${vendu > 0 ? '#EF4444' : '#6B7280'}">Vendu: ${vendu}</span>
+                                <span style="color: ${restant > 0 ? '#10B981' : '#EF4444'}; font-weight: bold;">Restant: ${restant}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            content += `
+                    </div>
+                </div>
+            `;
+            
+            // Afficher dans une modal
+            const modal = document.createElement('div');
+            modal.id = 'stockDetailsModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+                padding: 20px;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 15px; padding: 25px; width: 100%; max-width: 700px; max-height: 80vh; overflow-y: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="margin: 0; color: var(--dark-text);">Détails du Stock</h3>
+                        <button onclick="document.getElementById('stockDetailsModal').remove()"
+                                style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--gray-text);">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    ${content}
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button onclick="document.getElementById('stockDetailsModal').remove()"
+                                style="background: var(--primary); color: white; border: none; padding: 10px 30px; border-radius: 8px; cursor: pointer;">
+                            Fermer
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+        }).catch(error => {
+            console.error('Erreur:', error);
+            showMessage('Erreur de chargement', 'error');
+        });
+}
+
+// Modal de suppression de stock
+function showDeleteStockModal(stockId, boutiqueName) {
+    currentStockToDelete = stockId;
+    
+    const modal = document.createElement('div');
+    modal.id = 'deleteStockModal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 20px;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: white; border-radius: 15px; padding: 30px; width: 100%; max-width: 500px;">
+            <div style="text-align: center; margin-bottom: 25px;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #EF4444; margin-bottom: 15px;"></i>
+                <h3 style="margin: 0 0 10px 0; color: var(--dark-text);">Supprimer le stock</h3>
+                <p style="color: var(--gray-text);">Êtes-vous sûr de vouloir supprimer le stock attribué à <strong>${boutiqueName}</strong> ?</p>
+                <p style="color: #EF4444; font-size: 0.9rem; margin-top: 10px;">
+                    <i class="fas fa-info-circle"></i> Cette action est irréversible.
+                </p>
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Confirmez en écrivant "SUPPRIMER"</label>
+                <input type="text" id="confirmDeleteStockInput" class="form-input" 
+                       placeholder="Écrivez SUPPRIMER" style="width: 100%;">
+            </div>
+            
+            <div style="display: flex; gap: 15px; justify-content: flex-end;">
+                <button onclick="document.getElementById('deleteStockModal').remove()"
+                        style="background: var(--light-gray); color: var(--dark-text); border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer;">
+                    Annuler
+                </button>
+                <button id="confirmDeleteStockBtn" 
+                        style="background: #EF4444; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; opacity: 0.5;" disabled>
+                    <i class="fas fa-trash"></i> Supprimer
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Validation de la confirmation
+    const confirmInput = document.getElementById('confirmDeleteStockInput');
+    const confirmBtn = document.getElementById('confirmDeleteStockBtn');
+    
+    confirmInput.addEventListener('input', function() {
+        const isCorrect = this.value.toUpperCase() === 'SUPPRIMER';
+        confirmBtn.disabled = !isCorrect;
+        confirmBtn.style.opacity = isCorrect ? '1' : '0.5';
+    });
+    
+    // Confirmation
+    confirmBtn.addEventListener('click', function() {
+        if (!confirmBtn.disabled) {
+            deleteStock(stockId);
+        }
+    });
+    
+    // Fermer avec Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            modal.remove();
+        }
+    });
+}
+
+// Supprimer un stock
+function deleteStock(stockId) {
+    db.collection('stocks_attribues').doc(stockId).delete()
+        .then(() => {
+            showMessage('Stock supprimé avec succès', 'success');
+            document.getElementById('deleteStockModal').remove();
+            loadAttributedStocksDashboard(); // Recharger le tableau
+        })
+        .catch(error => {
+            console.error('Erreur suppression:', error);
+            showMessage('Erreur lors de la suppression', 'error');
+        });
+}
+
+// Initialiser les filtres
+function initStockDashboardFilters() {
+    document.querySelectorAll('[data-stock-filter]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const filter = this.getAttribute('data-stock-filter');
+            
+            // Mettre à jour l'état actif
+            document.querySelectorAll('[data-stock-filter]').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            loadAttributedStocksDashboard(filter);
+        });
+    });
+}
+
+// Charger automatiquement quand on va sur la page boutiques
+function showSection(sectionId) {
+    document.querySelectorAll('.dashboard-section').forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    document.getElementById(sectionId + 'Section').style.display = 'block';
+    
+    if (sectionId === 'records') {
+        loadRecords();
+    }
+    
+    if (sectionId === 'boutiques') {
+        loadBoutiqueStats();
+        loadInvoices('all');
+        initBoutiqueFilters();
+        loadAttributedStocksDashboard(); // AJOUTEZ CETTE LIGNE
+        initStockDashboardFilters(); // AJOUTEZ CETTE LIGNE
+    }
+}
       // Développer par AHMED SAID IDDA AIDARA
     </script>
 </body>
  </html>
+
+
 
   
