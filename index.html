@@ -976,6 +976,9 @@
                 <button class="nav-btn" data-section="settings">
                     <i class="fas fa-cog"></i> Paramètres
                 </button>
+              <button class="nav-btn" data-section="stats">
+    <i class="fas fa-chart-pie"></i> Statistiques
+</button>
             </div>
         </header>
         
@@ -1311,7 +1314,7 @@
                 <label for="urlSacreCoeur" class="form-label">Lien boutique</label>
                 <div style="display: flex; gap: var(--space-sm);">
                     <input type="text" id="urlSacreCoeur" class="form-input" 
-                           value="https://votre-site.com/gerante.html?boutique=sacre-coeur" readonly>
+                           value=" https://ahmedaidara.github.io/boutiqueschicken" readonly>
                     <button onclick="copyToClipboard('urlSacreCoeur')" class="btn" style="background: var(--secondary); color: white;">
                         <i class="fas fa-copy"></i>
                     </button>
@@ -1338,7 +1341,7 @@
                 <label for="urlKeurMassar" class="form-label">Lien boutique</label>
                 <div style="display: flex; gap: var(--space-sm);">
                     <input type="text" id="urlKeurMassar" class="form-input" 
-                           value="https://votre-site.com/gerante.html?boutique=keur-massar" readonly>
+                           value=" https://ahmedaidara.github.io/boutiqueschicken" readonly>
                     <button onclick="copyToClipboard('urlKeurMassar')" class="btn" style="background: var(--secondary); color: white;">
                         <i class="fas fa-copy"></i>
                     </button>
@@ -1356,7 +1359,106 @@
             </section>
            <section id="boutiquesSection" class="dashboard-section" style="display: none;">
     <h2 class="section-title"><i class="fas fa-store"></i> Gestion des Boutiques</h2>
+    <!-- Section Distribution des Stocks -->
+<div class="table-container" style="margin-top: var(--space-xl);">
+    <h3 style="margin-bottom: var(--space-lg); color: var(--primary);">
+        <i class="fas fa-truck-loading"></i> Distribution des Stocks aux Boutiques
+    </h3>
     
+    <div style="background: var(--light-gray); padding: var(--space-lg); border-radius: var(--radius-lg); margin-bottom: var(--space-lg);">
+        <h4 style="margin-bottom: var(--space-md);">Sélectionner une Production</h4>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="selectProductionDist" class="form-label">Production</label>
+                <select id="selectProductionDist" class="form-input">
+                    <option value="">-- Choisir une production --</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="stockTotalDispo" class="form-label">Stock disponible total</label>
+                <input type="text" id="stockTotalDispo" class="form-input" readonly value="0">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Formulaire de distribution -->
+    <div id="distributionForm" style="display: none;">
+        <div class="price-categories">
+            <h4 style="margin-bottom: var(--space-lg);">Répartir les stocks par catégorie</h4>
+            
+            <!-- Les 8 catégories -->
+            <div id="distributionCategories">
+                <!-- Rempli dynamiquement par JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Boutiques à distribuer -->
+        <div style="margin-top: var(--space-xl);">
+            <h4 style="margin-bottom: var(--space-md);">Distribution par Boutique</h4>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-lg);">
+                <!-- Sacré Coeur 3 -->
+                <div class="price-category" style="border-left: 4px solid #3B82F6;">
+                    <h4 style="margin-bottom: var(--space-md); display: flex; align-items: center; gap: var(--space-sm);">
+                        <i class="fas fa-store" style="color: #3B82F6;"></i>
+                        Sacré Coeur 3
+                    </h4>
+                    <div id="distributionSacreCoeur">
+                        <!-- Rempli dynamiquement -->
+                    </div>
+                    <div style="margin-top: var(--space-md);">
+                        <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                            <span>Total attribué :</span>
+                            <span id="totalSacreCoeur">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Keur Massar -->
+                <div class="price-category" style="border-left: 4px solid #10B981;">
+                    <h4 style="margin-bottom: var(--space-md); display: flex; align-items: center; gap: var(--space-sm);">
+                        <i class="fas fa-store" style="color: #10B981;"></i>
+                        Keur Massar
+                    </h4>
+                    <div id="distributionKeurMassar">
+                        <!-- Rempli dynamiquement -->
+                    </div>
+                    <div style="margin-top: var(--space-md);">
+                        <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                            <span>Total attribué :</span>
+                            <span id="totalKeurMassar">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Total et validation -->
+            <div style="margin-top: var(--space-xl); padding: var(--space-lg); background: #f0f9ff; border-radius: var(--radius-lg);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+                    <div>
+                        <strong>Stock total disponible :</strong> <span id="globalStockTotal">0</span>
+                    </div>
+                    <div>
+                        <strong>Total distribué :</strong> <span id="totalDistributed">0</span>
+                    </div>
+                    <div style="color: var(--danger);">
+                        <strong>Reste à distribuer :</strong> <span id="remainingToDistribute">0</span>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button id="cancelDistributionBtn" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                    <button id="saveDistributionBtn" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Enregistrer la Distribution
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
     <!-- Boutiques Cards -->
     <div class="stats-grid">
         <!-- Boutique Sacré Coeur 3 -->
@@ -1465,6 +1567,233 @@
             </div>
         </div>
     </div>
+</section>
+           <!-- Section Statistiques et Dépenses -->
+<section id="statsSection" class="dashboard-section" style="display: none;">
+    <h2 class="section-title"><i class="fas fa-chart-pie"></i> Statistiques et Dépenses</h2>
+    
+    <!-- Filtres -->
+    <div class="table-container" style="margin-bottom: var(--space-xl);">
+        <div class="table-header">
+            <div class="filters">
+                <button class="filter-btn active" data-period="month">Ce mois</button>
+                <button class="filter-btn" data-period="last-month">Mois dernier</button>
+                <button class="filter-btn" data-period="year">Cette année</button>
+                <button class="filter-btn" data-period="all">Tout</button>
+                <button class="filter-btn" data-period="custom">Période personnalisée</button>
+            </div>
+            
+            <div class="filters">
+                <button class="filter-btn active" data-boutique="all">Toutes boutiques</button>
+                <button class="filter-btn" data-boutique="sacre-coeur">Sacré Coeur 3</button>
+                <button class="filter-btn" data-boutique="keur-massar">Keur Massar</button>
+            </div>
+        </div>
+        
+        <!-- Période personnalisée (cachée par défaut) -->
+        <div id="customPeriodStats" style="display: none; padding: var(--space-lg); background: var(--light-gray); border-radius: var(--radius-md); margin-top: var(--space-md);">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="customStartDateStats" class="form-label">Date de début</label>
+                    <input type="date" id="customStartDateStats" class="form-input">
+                </div>
+               
+                <div class="form-group">
+                    <label for="customEndDateStats" class="form-label">Date de fin</label>
+                    <input type="date" id="customEndDateStats" class="form-input">
+                </div>
+                
+                <div class="form-group" style="align-self: flex-end;">
+                    <button id="applyCustomPeriodBtn" class="btn btn-primary">
+                        <i class="fas fa-check"></i> Appliquer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistiques principales -->
+    <div class="stats-grid" style="margin-bottom: var(--space-xl);">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <div class="stat-value" id="totalRevenueStats">0 F CFA</div>
+            <div class="stat-label">Chiffre d'affaires total</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-receipt"></i>
+            </div>
+            <div class="stat-value" id="totalInvoicesStats">0</div>
+            <div class="stat-label">Nombre de factures</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-value" id="avgInvoiceStats">0 F CFA</div>
+            <div class="stat-label">Panier moyen</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-box"></i>
+            </div>
+            <div class="stat-value" id="totalChickensSoldStats">0</div>
+            <div class="stat-label">Poulets vendus</div>
+        </div>
+    </div>
+    
+    <!-- Répartition par boutique -->
+    <div class="table-container" style="margin-bottom: var(--space-xl);">
+        <h3 style="margin-bottom: var(--space-lg);">
+            <i class="fas fa-store"></i> Répartition par Boutique
+        </h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-lg);">
+            <!-- Sacré Coeur -->
+            <div class="price-category" style="border-left: 4px solid #3B82F6;">
+                <h4 style="margin-bottom: var(--space-md);">
+                    <i class="fas fa-store" style="color: #3B82F6;"></i> Sacré Coeur 3
+                </h4>
+                <div id="statsSacreCoeurDetail">
+                    <div style="text-align: center; padding: var(--space-lg); color: var(--gray-text);">
+                        <i class="fas fa-spinner fa-spin"></i> Chargement...
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Keur Massar -->
+            <div class="price-category" style="border-left: 4px solid #10B981;">
+                <h4 style="margin-bottom: var(--space-md);">
+                    <i class="fas fa-store" style="color: #10B981;"></i> Keur Massar
+                </h4>
+                <div id="statsKeurMassarDetail">
+                    <div style="text-align: center; padding: var(--space-lg); color: var(--gray-text);">
+                        <i class="fas fa-spinner fa-spin"></i> Chargement...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gestion des Dépenses -->
+    <div class="table-container">
+        <div class="table-header">
+            <h3 style="margin: 0;">
+                <i class="fas fa-file-invoice-dollar"></i> Gestion des Dépenses
+            </h3>
+            <button id="addExpenseBtn" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Ajouter une Dépense
+            </button>
+        </div>
+        
+        <!-- Formulaire d'ajout de dépense -->
+        <div id="expenseForm" style="display: none; padding: var(--space-lg); background: var(--light-gray); border-radius: var(--radius-md); margin-bottom: var(--space-lg);">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="expenseDate" class="form-label">Date</label>
+                    <input type="date" id="expenseDate" class="form-input" value="${new Date().toISOString().split('T')[0]}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="expenseNature" class="form-label">Nature de la dépense</label>
+                    <select id="expenseNature" class="form-input">
+                        <option value="salaire">Salaire</option>
+                        <option value="nourriture">Nourriture poulets</option>
+                        <option value="transport">Transport</option>
+                        <option value="electricite">Électricité</option>
+                        <option value="eau">Eau</option>
+                        <option value="maintenance">Maintenance</option>
+                        <option value="fourniture">Fournitures bureau</option>
+                        <option value="autre">Autre</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="expenseDescription" class="form-label">Description</label>
+                    <input type="text" id="expenseDescription" class="form-input" placeholder="Ex: Salaire mois de Janvier">
+                </div>
+                
+                <div class="form-group">
+                    <label for="expenseAmount" class="form-label">Montant (F CFA)</label>
+                    <input type="number" id="expenseAmount" class="form-input" min="0" placeholder="Ex: 50000">
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button id="cancelExpenseBtn" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button id="saveExpenseBtn" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </div>
+        
+        <!-- Liste des dépenses -->
+        <div class="table-wrapper">
+            <table class="records-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Nature</th>
+                        <th>Description</th>
+                        <th>Montant</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="expensesTableBody">
+                    <!-- Rempli dynamiquement -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Total des dépenses -->
+        <div style="padding: var(--space-lg); background: #fef2f2; border-radius: var(--radius-md); margin-top: var(--space-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4 style="margin: 0; color: var(--danger);">
+                        <i class="fas fa-money-bill-wave"></i> Total des Dépenses
+                    </h4>
+                    <p style="margin: 5px 0 0 0; color: var(--gray-text); font-size: 0.9rem;">
+                        Période sélectionnée
+                    </p>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 2rem; font-weight: bold; color: var(--danger);" id="totalExpenses">
+                        0 F CFA
+                    </div>
+                    <div style="font-size: 0.9rem; color: var(--gray-text);">
+                        <span id="expensesCount">0</span> dépenses
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bénéfice net -->
+            <div style="margin-top: var(--space-lg); padding: var(--space-md); background: white; border-radius: var(--radius-md);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-weight: bold; color: var(--dark-text);">
+                        <i class="fas fa-calculator"></i> BÉNÉFICE NET
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--secondary);" id="netProfit">
+                            0 F CFA
+                        </div>
+                        <div style="font-size: 0.9rem; color: var(--gray-text);">
+                            CA - Dépenses
+                        </div>
+                    </div>
+                </div>
+            </div>
+          
+        </div>
+    </div>
+  
+  
 </section>
         </main>
         
@@ -1871,7 +2200,10 @@
         let currentRecordToEdit = null;
         let allRecords = [];
         let filteredRecords = [];
-        
+        let currentStatsPeriod = 'month';
+let currentStatsBoutique = 'all';
+let currentStatsStartDate = null;
+let currentStatsEndDate = null;
          document.addEventListener('DOMContentLoaded', function() {
              setupCodeInputs();
             
@@ -2072,6 +2404,11 @@
         loadRecords();
     }
     
+        if (sectionId === 'stats') {
+    loadStats();
+    loadExpenses();
+}
+        
      if (sectionId === 'boutiques') {
         loadBoutiqueStats();
         loadInvoices('all');
@@ -5376,7 +5713,23 @@ function loadBoutiqueStats() {
     if (filter !== 'all' && filter !== 'today' && filter !== 'week') {
         query = query.where('boutique', '==', filter);
     }
+   
+    if (filter === 'today') {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
     
+    query = query.where('date', '>=', today)
+                 .where('date', '<', tomorrow);
+}
+
+if (filter === 'week') {
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    
+    query = query.where('date', '>=', weekAgo);
+}
     query.get().then(snapshot => {
         console.log(`Nombre de factures trouvées: ${snapshot.size}`);
         const tbody = document.getElementById('invoicesTableBody');
@@ -5606,6 +5959,833 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+      
+      
+      // ==============================================
+// GESTION DE LA DISTRIBUTION DES STOCKS
+// ==============================================
+
+// Variables globales pour la distribution
+let currentProductionForDistribution = null;
+let distributionData = {
+    sacreCoeur: {},
+    keurMassar: {}
+};
+
+// Charger les productions pour distribution
+function loadProductionsForDistribution() {
+    const select = document.getElementById('selectProductionDist');
+    select.innerHTML = '<option value="">-- Choisir une production --</option>';
+    
+    db.collection('poulailler_records')
+        .orderBy('startDate', 'desc')
+        .limit(20)
+        .get()
+        .then(snapshot => {
+            snapshot.forEach(doc => {
+                const production = doc.data();
+                const date = new Date(production.startDate);
+                const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
+                
+                // Calculer le stock disponible réel
+                const stockInitial = production.initialStock || 0;
+                const totalSold = (production.small1Sold || 0) + (production.small2Sold || 0) +
+                                 (production.medium1Sold || 0) + (production.medium2Sold || 0) +
+                                 (production.large1Sold || 0) + (production.large2Sold || 0) +
+                                 (production.xlarge1Sold || 0) + (production.xlarge2Sold || 0);
+                const totalLostGiven = (production.lost || 0) + (production.given || 0);
+                const stockRestant = Math.max(0, stockInitial - totalSold - totalLostGiven);
+                
+                // Vérifier si déjà distribué
+                const option = document.createElement('option');
+                option.value = doc.id;
+                option.textContent = `Production du ${dateStr} - ${stockRestant} poulets restants`;
+                
+                // Stocker les données dans l'option
+                option.dataset.production = JSON.stringify({
+                    id: doc.id,
+                    data: production,
+                    stockRestant: stockRestant
+                });
+                
+                select.appendChild(option);
+            });
+        });
+}
+
+// Initialiser la distribution
+function initDistribution() {
+    loadProductionsForDistribution();
+    
+    // Événement de sélection de production
+    document.getElementById('selectProductionDist').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        
+        if (selectedOption.value) {
+            currentProductionForDistribution = JSON.parse(selectedOption.dataset.production);
+            document.getElementById('stockTotalDispo').value = currentProductionForDistribution.stockRestant;
+            document.getElementById('distributionForm').style.display = 'block';
+            setupDistributionForm();
+        } else {
+            document.getElementById('distributionForm').style.display = 'none';
+            currentProductionForDistribution = null;
+        }
+    });
+    
+    // Bouton annuler
+    document.getElementById('cancelDistributionBtn').addEventListener('click', function() {
+        resetDistributionForm();
+    });
+    
+    // Bouton sauvegarder
+    document.getElementById('saveDistributionBtn').addEventListener('click', saveDistribution);
+}
+
+// Configurer le formulaire de distribution
+function setupDistributionForm() {
+    if (!currentProductionForDistribution) return;
+    
+    const production = currentProductionForDistribution.data;
+    
+    // Les 8 catégories
+    const categories = [
+        { id: 1, name: 'Très petits (1-1.1 kg)', qtyField: 'small1Quantity', soldField: 'small1Sold' },
+        { id: 2, name: 'Petits (1.2 kg)', qtyField: 'small2Quantity', soldField: 'small2Sold' },
+        { id: 3, name: 'Moyens-petits (1.3-1.4 kg)', qtyField: 'medium1Quantity', soldField: 'medium1Sold' },
+        { id: 4, name: 'Moyens (1.5-1.6 kg)', qtyField: 'medium2Quantity', soldField: 'medium2Sold' },
+        { id: 5, name: 'Moyens-grands (1.7-1.9 kg)', qtyField: 'large1Quantity', soldField: 'large1Sold' },
+        { id: 6, name: 'Grands (2 kg)', qtyField: 'large2Quantity', soldField: 'large2Sold' },
+        { id: 7, name: 'Très grands (2.1-2.3 kg)', qtyField: 'xlarge1Quantity', soldField: 'xlarge1Sold' },
+        { id: 8, name: 'Géants (+2.4 kg)', qtyField: 'xlarge2Quantity', soldField: 'xlarge2Sold' }
+    ];
+    
+    // Afficher les catégories disponibles
+    let categoriesHTML = '';
+    let sacreCoeurHTML = '';
+    let keurMassarHTML = '';
+    
+    categories.forEach(cat => {
+        const stockInitial = production[cat.qtyField] || 0;
+        const dejaVendu = production[cat.soldField] || 0;
+        const disponible = Math.max(0, stockInitial - dejaVendu);
+        
+        // Stocker la disponibilité
+        distributionData.categories = distributionData.categories || {};
+        distributionData.categories[cat.id] = disponible;
+        
+        // HTML pour la disponibilité
+        categoriesHTML += `
+            <div style="margin-bottom: var(--space-md); padding: var(--space-md); background: white; border-radius: var(--radius-md);">
+                <div style="display: flex; justify-content: space-between; margin-bottom: var(--space-sm);">
+                    <strong>${cat.name}</strong>
+                    <span style="color: ${disponible > 0 ? 'var(--secondary)' : 'var(--danger)'};">${disponible} disponibles</span>
+                </div>
+            </div>
+        `;
+        
+        // Input pour Sacré Coeur
+        sacreCoeurHTML += `
+            <div class="form-group" style="margin-bottom: var(--space-sm);">
+                <label style="font-size: 0.9rem;">${cat.name}</label>
+                <input type="number" 
+                       class="form-input distribution-input" 
+                       data-category="${cat.id}" 
+                       data-boutique="sacreCoeur"
+                       min="0" 
+                       max="${disponible}"
+                       value="0"
+                       style="padding: var(--space-sm);">
+            </div>
+        `;
+        
+        // Input pour Keur Massar
+        keurMassarHTML += `
+            <div class="form-group" style="margin-bottom: var(--space-sm);">
+                <label style="font-size: 0.9rem;">${cat.name}</label>
+                <input type="number" 
+                       class="form-input distribution-input" 
+                       data-category="${cat.id}" 
+                       data-boutique="keurMassar"
+                       min="0" 
+                       max="${disponible}"
+                       value="0"
+                       style="padding: var(--space-sm);">
+            </div>
+        `;
+    });
+    
+    document.getElementById('distributionCategories').innerHTML = categoriesHTML;
+    document.getElementById('distributionSacreCoeur').innerHTML = sacreCoeurHTML;
+    document.getElementById('distributionKeurMassar').innerHTML = keurMassarHTML;
+    
+    // Mettre à jour les totaux
+    updateDistributionTotals();
+    
+    // Événements sur les inputs
+    document.querySelectorAll('.distribution-input').forEach(input => {
+        input.addEventListener('input', updateDistributionTotals);
+    });
+}
+
+// Mettre à jour les totaux de distribution
+function updateDistributionTotals() {
+    let totalSacreCoeur = 0;
+    let totalKeurMassar = 0;
+    
+    // Compter Sacré Coeur
+    document.querySelectorAll('.distribution-input[data-boutique="sacreCoeur"]').forEach(input => {
+        totalSacreCoeur += parseInt(input.value) || 0;
+    });
+    
+    // Compter Keur Massar
+    document.querySelectorAll('.distribution-input[data-boutique="keurMassar"]').forEach(input => {
+        totalKeurMassar += parseInt(input.value) || 0;
+    });
+    
+    // Mettre à jour l'affichage
+    document.getElementById('totalSacreCoeur').textContent = totalSacreCoeur;
+    document.getElementById('totalKeurMassar').textContent = totalKeurMassar;
+    
+    const totalDistributed = totalSacreCoeur + totalKeurMassar;
+    const stockTotal = currentProductionForDistribution.stockRestant;
+    const remaining = stockTotal - totalDistributed;
+    
+    document.getElementById('globalStockTotal').textContent = stockTotal;
+    document.getElementById('totalDistributed').textContent = totalDistributed;
+    document.getElementById('remainingToDistribute').textContent = remaining;
+    
+    // Colorer en rouge si dépassement
+    if (remaining < 0) {
+        document.getElementById('remainingToDistribute').style.color = 'var(--danger)';
+        document.getElementById('saveDistributionBtn').disabled = true;
+    } else {
+        document.getElementById('remainingToDistribute').style.color = remaining > 0 ? 'var(--warning)' : 'var(--secondary)';
+        document.getElementById('saveDistributionBtn').disabled = false;
+    }
+}
+
+// REPLACEZ la fonction saveDistribution() par celle-ci :
+
+function saveDistribution() {
+    if (!currentProductionForDistribution) return;
+    
+    const distribution = {
+        productionId: currentProductionForDistribution.id,
+        productionDate: currentProductionForDistribution.data.startDate,
+        date: new Date().toISOString(),
+        sacreCoeur: {},
+        keurMassar: {},
+        totalDistributed: 0,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    // Récupérer les quantités pour Sacré Coeur
+    let totalSacreCoeur = 0;
+    document.querySelectorAll('.distribution-input[data-boutique="sacreCoeur"]').forEach(input => {
+        const categoryId = input.getAttribute('data-category');
+        const quantity = parseInt(input.value) || 0;
+        if (quantity > 0) {
+            distribution.sacreCoeur[categoryId] = quantity;
+            totalSacreCoeur += quantity;
+        }
+    });
+    
+    // Récupérer les quantités pour Keur Massar
+    let totalKeurMassar = 0;
+    document.querySelectorAll('.distribution-input[data-boutique="keurMassar"]').forEach(input => {
+        const categoryId = input.getAttribute('data-category');
+        const quantity = parseInt(input.value) || 0;
+        if (quantity > 0) {
+            distribution.keurMassar[categoryId] = quantity;
+            totalKeurMassar += quantity;
+        }
+    });
+    
+    distribution.totalDistributed = totalSacreCoeur + totalKeurMassar;
+    
+    // Vérifier qu'on a distribué quelque chose
+    if (distribution.totalDistributed === 0) {
+        showMessage('Veuillez distribuer au moins un poulet', 'error');
+        return;
+    }
+    
+    // Vérifier qu'on ne dépasse pas le stock disponible
+    const stockRestant = currentProductionForDistribution.stockRestant;
+    if (distribution.totalDistributed > stockRestant) {
+        showMessage(`Dépassement: vous distribuez ${distribution.totalDistributed} mais seulement ${stockRestant} disponibles`, 'error');
+        return;
+    }
+    
+    showMessage('Enregistrement en cours...', 'warning');
+    
+    // CORRECTION: Utiliser une transaction pour éviter les erreurs
+    const batch = db.batch();
+    
+    // 1. Sauvegarder la distribution
+    const distributionRef = db.collection('stock_distributions').doc();
+    batch.set(distributionRef, distribution);
+    
+    // 2. Sauvegarder les stocks attribués pour Sacré Coeur (si > 0)
+    if (totalSacreCoeur > 0) {
+        const stockSacreRef = db.collection('stocks_attribues').doc();
+        const stockSacreCoeur = {
+            id: stockSacreRef.id,
+            boutique: 'sacre-coeur',
+            boutiqueName: 'SACRÉ COEUR 3',
+            productionId: distribution.productionId,
+            distributionId: distributionRef.id,
+            date: new Date().toISOString(),
+            categories: distribution.sacreCoeur,
+            total: totalSacreCoeur,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        batch.set(stockSacreRef, stockSacreCoeur);
+    }
+    
+    // 3. Sauvegarder les stocks attribués pour Keur Massar (si > 0)
+    if (totalKeurMassar > 0) {
+        const stockKeurRef = db.collection('stocks_attribues').doc();
+        const stockKeurMassar = {
+            id: stockKeurRef.id,
+            boutique: 'keur-massar',
+            boutiqueName: 'KEUR MASSAR',
+            productionId: distribution.productionId,
+            distributionId: distributionRef.id,
+            date: new Date().toISOString(),
+            categories: distribution.keurMassar,
+            total: totalKeurMassar,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        batch.set(stockKeurRef, stockKeurMassar);
+    }
+    
+    // Exécuter le batch
+    batch.commit()
+        .then(() => {
+            showMessage('Distribution enregistrée avec succès!', 'success');
+            resetDistributionForm();
+            loadProductionsForDistribution();
+        })
+        .catch(error => {
+            console.error('Erreur lors de l\'enregistrement:', error);
+            
+            // ESSAYER UNE MÉTHODE ALTERNATIVE (sans batch)
+            db.collection('stock_distributions').add(distribution)
+                .then(docRef => {
+                    showMessage('Distribution enregistrée (méthode alternative)!', 'success');
+                    
+                    // Enregistrer les stocks attribués individuellement
+                    if (totalSacreCoeur > 0) {
+                        const stockSacreCoeur = {
+                            boutique: 'sacre-coeur',
+                            boutiqueName: 'SACRÉ COEUR 3',
+                            productionId: distribution.productionId,
+                            distributionId: docRef.id,
+                            date: new Date().toISOString(),
+                            categories: distribution.sacreCoeur,
+                            total: totalSacreCoeur,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        };
+                        db.collection('stocks_attribues').add(stockSacreCoeur);
+                    }
+                    
+                    if (totalKeurMassar > 0) {
+                        const stockKeurMassar = {
+                            boutique: 'keur-massar',
+                            boutiqueName: 'KEUR MASSAR',
+                            productionId: distribution.productionId,
+                            distributionId: docRef.id,
+                            date: new Date().toISOString(),
+                            categories: distribution.keurMassar,
+                            total: totalKeurMassar,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        };
+                        db.collection('stocks_attribues').add(stockKeurMassar);
+                    }
+                    
+                    resetDistributionForm();
+                    loadProductionsForDistribution();
+                })
+                .catch(secondError => {
+                    console.error('Erreur deuxième tentative:', secondError);
+                    showMessage('Erreur critique lors de l\'enregistrement. Vérifiez la console.', 'error');
+                });
+        });
+}
+
+// Mettre à jour les stocks attribués
+function updateAttributedStocks(distribution) {
+    // Pour Sacré Coeur
+    if (Object.keys(distribution.sacreCoeur).length > 0) {
+        const stockAttribue = {
+            boutique: 'sacre-coeur',
+            boutiqueName: 'SACRÉ COEUR 3',
+            productionId: distribution.productionId,
+            distributionId: distribution.id,
+            date: new Date().toISOString(),
+            categories: distribution.sacreCoeur,
+            total: Object.values(distribution.sacreCoeur).reduce((a, b) => a + b, 0)
+        };
+        
+        db.collection('stocks_attribues').add(stockAttribue)
+            .then(() => console.log('Stock attribué à Sacré Coeur'));
+    }
+    
+    // Pour Keur Massar
+    if (Object.keys(distribution.keurMassar).length > 0) {
+        const stockAttribue = {
+            boutique: 'keur-massar',
+            boutiqueName: 'KEUR MASSAR',
+            productionId: distribution.productionId,
+            distributionId: distribution.id,
+            date: new Date().toISOString(),
+            categories: distribution.keurMassar,
+            total: Object.values(distribution.keurMassar).reduce((a, b) => a + b, 0)
+        };
+        
+        db.collection('stocks_attribues').add(stockAttribue)
+            .then(() => console.log('Stock attribué à Keur Massar'));
+    }
+}
+
+// Réinitialiser le formulaire
+function resetDistributionForm() {
+    document.getElementById('selectProductionDist').value = '';
+    document.getElementById('stockTotalDispo').value = '0';
+    document.getElementById('distributionForm').style.display = 'none';
+    currentProductionForDistribution = null;
+    distributionData = { sacreCoeur: {}, keurMassar: {} };
+}
+      
+      // Initialiser la distribution quand la page boutique est chargée
+if (document.getElementById('selectProductionDist')) {
+    initDistribution();
+}
+      
+      function initStatsPage() {
+    // Événements des filtres période
+    document.querySelectorAll('[data-period]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const period = this.getAttribute('data-period');
+            
+            // Mettre à jour l'état actif
+            document.querySelectorAll('[data-period]').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            currentStatsPeriod = period;
+            
+            // Afficher/masquer la période personnalisée
+            const customDiv = document.getElementById('customPeriodStats');
+            if (period === 'custom') {
+                customDiv.style.display = 'block';
+            } else {
+                customDiv.style.display = 'none';
+                loadStats();
+            }
+        });
+    });
+    
+    // Événements des filtres boutique
+    document.querySelectorAll('[data-boutique]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const boutique = this.getAttribute('data-boutique');
+            
+            // Mettre à jour l'état actif
+            document.querySelectorAll('[data-boutique]').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            currentStatsBoutique = boutique;
+            loadStats();
+        });
+    });
+    
+    // Bouton appliquer période personnalisée
+    document.getElementById('applyCustomPeriodBtn').addEventListener('click', function() {
+        const startDate = document.getElementById('customStartDateStats').value;
+        const endDate = document.getElementById('customEndDateStats').value;
+        
+        if (!startDate || !endDate) {
+            showMessage('Veuillez sélectionner les deux dates', 'error');
+            return;
+        }
+        
+        currentStatsStartDate = new Date(startDate);
+        currentStatsEndDate = new Date(endDate);
+        loadStats();
+    });
+    
+    // Gestion des dépenses
+    document.getElementById('addExpenseBtn').addEventListener('click', function() {
+        document.getElementById('expenseForm').style.display = 'block';
+    });
+    
+    document.getElementById('cancelExpenseBtn').addEventListener('click', function() {
+        document.getElementById('expenseForm').style.display = 'none';
+        resetExpenseForm();
+    });
+    
+    document.getElementById('saveExpenseBtn').addEventListener('click', saveExpense);
+    
+    // Charger les données initiales
+    if (document.getElementById('statsSection').style.display !== 'none') {
+        loadStats();
+        loadExpenses();
+    }
+}
+
+// Charger les statistiques
+function loadStats() {
+    // Déterminer la période
+    let startDate, endDate;
+    const today = new Date();
+    
+    switch(currentStatsPeriod) {
+        case 'month':
+            startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+            endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            break;
+        case 'last-month':
+            startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            endDate = new Date(today.getFullYear(), today.getMonth(), 0);
+            break;
+        case 'year':
+            startDate = new Date(today.getFullYear(), 0, 1);
+            endDate = new Date(today.getFullYear(), 11, 31);
+            break;
+        case 'custom':
+            if (!currentStatsStartDate || !currentStatsEndDate) return;
+            startDate = currentStatsStartDate;
+            endDate = currentStatsEndDate;
+            break;
+        case 'all':
+        default:
+            startDate = null;
+            endDate = null;
+    }
+    
+    // Préparer la requête
+    let invoicesQuery = db.collection('invoices');
+    
+    // Filtrer par boutique si spécifié
+    if (currentStatsBoutique !== 'all') {
+        invoicesQuery = invoicesQuery.where('boutique', '==', currentStatsBoutique);
+    }
+    
+    // Exécuter la requête
+    invoicesQuery.get()
+        .then(snapshot => {
+            let totalRevenue = 0;
+            let totalInvoices = 0;
+            let totalChickens = 0;
+            let boutiqueStats = {
+                'sacre-coeur': { revenue: 0, invoices: 0, chickens: 0 },
+                'keur-massar': { revenue: 0, invoices: 0, chickens: 0 }
+            };
+            
+            snapshot.forEach(doc => {
+                const invoice = doc.data();
+                const invoiceDate = invoice.date?.toDate ? invoice.date.toDate() : new Date(invoice.date);
+                
+                // Filtrer par période si nécessaire
+                if (startDate && endDate) {
+                    if (invoiceDate < startDate || invoiceDate > endDate) {
+                        return; // Skip cette facture
+                    }
+                }
+                
+                // Accumuler les totaux
+                totalRevenue += invoice.total || 0;
+                totalInvoices++;
+                
+                // Compter les poulets
+                if (invoice.items) {
+                    invoice.items.forEach(item => {
+                        totalChickens += item.quantity || 0;
+                    });
+                }
+                
+                // Statistiques par boutique
+                if (invoice.boutique) {
+                    if (!boutiqueStats[invoice.boutique]) {
+                        boutiqueStats[invoice.boutique] = { revenue: 0, invoices: 0, chickens: 0 };
+                    }
+                    
+                    boutiqueStats[invoice.boutique].revenue += invoice.total || 0;
+                    boutiqueStats[invoice.boutique].invoices++;
+                    
+                    if (invoice.items) {
+                        invoice.items.forEach(item => {
+                            boutiqueStats[invoice.boutique].chickens += item.quantity || 0;
+                        });
+                    }
+                }
+            });
+            
+            // Mettre à jour l'interface
+            document.getElementById('totalRevenueStats').textContent = totalRevenue.toLocaleString('fr-FR') + ' F CFA';
+            document.getElementById('totalInvoicesStats').textContent = totalInvoices;
+            document.getElementById('avgInvoiceStats').textContent = totalInvoices > 0 ? 
+                Math.round(totalRevenue / totalInvoices).toLocaleString('fr-FR') + ' F CFA' : '0 F CFA';
+            document.getElementById('totalChickensSoldStats').textContent = totalChickens;
+            
+            // Mettre à jour les détails par boutique
+            updateBoutiqueStatsDetails(boutiqueStats);
+            
+        }).catch(error => {
+            console.error('Erreur chargement stats:', error);
+        });
+}
+
+// Mettre à jour les détails par boutique
+function updateBoutiqueStatsDetails(boutiqueStats) {
+    // Sacré Coeur
+    const sacreCoeur = boutiqueStats['sacre-coeur'] || { revenue: 0, invoices: 0, chickens: 0 };
+    document.getElementById('statsSacreCoeurDetail').innerHTML = `
+        <div style="padding: var(--space-md);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="color: var(--gray-text);">CA :</span>
+                <span style="font-weight: bold; color: #3B82F6;">${sacreCoeur.revenue.toLocaleString('fr-FR')} F CFA</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="color: var(--gray-text);">Factures :</span>
+                <span>${sacreCoeur.invoices}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="color: var(--gray-text);">Poulets vendus :</span>
+                <span>${sacreCoeur.chickens}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--light-gray);">
+                <span style="color: var(--gray-text);">Panier moyen :</span>
+                <span style="font-weight: bold;">
+                    ${sacreCoeur.invoices > 0 ? Math.round(sacreCoeur.revenue / sacreCoeur.invoices).toLocaleString('fr-FR') : '0'} F CFA
+                </span>
+            </div>
+        </div>
+    `;
+    
+    // Keur Massar
+    const keurMassar = boutiqueStats['keur-massar'] || { revenue: 0, invoices: 0, chickens: 0 };
+    document.getElementById('statsKeurMassarDetail').innerHTML = `
+        <div style="padding: var(--space-md);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="color: var(--gray-text);">CA :</span>
+                <span style="font-weight: bold; color: #10B981;">${keurMassar.revenue.toLocaleString('fr-FR')} F CFA</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="color: var(--gray-text);">Factures :</span>
+                <span>${keurMassar.invoices}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="color: var(--gray-text);">Poulets vendus :</span>
+                <span>${keurMassar.chickens}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--light-gray);">
+                <span style="color: var(--gray-text);">Panier moyen :</span>
+                <span style="font-weight: bold;">
+                    ${keurMassar.invoices > 0 ? Math.round(keurMassar.revenue / keurMassar.invoices).toLocaleString('fr-FR') : '0'} F CFA
+                </span>
+            </div>
+        </div>
+    `;
+}
+
+// ==============================================
+// GESTION DES DÉPENSES
+// ==============================================
+
+// Charger les dépenses
+function loadExpenses() {
+    // Déterminer la période (même que pour les stats)
+    let startDate, endDate;
+    const today = new Date();
+    
+    switch(currentStatsPeriod) {
+        case 'month':
+            startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+            endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            break;
+        case 'last-month':
+            startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            endDate = new Date(today.getFullYear(), today.getMonth(), 0);
+            break;
+        case 'year':
+            startDate = new Date(today.getFullYear(), 0, 1);
+            endDate = new Date(today.getFullYear(), 11, 31);
+            break;
+        case 'custom':
+            if (!currentStatsStartDate || !currentStatsEndDate) return;
+            startDate = currentStatsStartDate;
+            endDate = currentStatsEndDate;
+            break;
+        case 'all':
+        default:
+            startDate = null;
+            endDate = null;
+    }
+    
+    db.collection('expenses')
+        .orderBy('date', 'desc')
+        .get()
+        .then(snapshot => {
+            const tbody = document.getElementById('expensesTableBody');
+            tbody.innerHTML = '';
+            
+            let totalExpenses = 0;
+            let expensesCount = 0;
+            
+            snapshot.forEach(doc => {
+                const expense = doc.data();
+                const expenseDate = expense.date?.toDate ? expense.date.toDate() : new Date(expense.date);
+                
+                // Filtrer par période si nécessaire
+                if (startDate && endDate) {
+                    if (expenseDate < startDate || expenseDate > endDate) {
+                        return; // Skip cette dépense
+                    }
+                }
+                
+                const dateStr = formatDate(expenseDate.toISOString());
+                const natureLabels = {
+                    'salaire': 'Salaire',
+                    'nourriture': 'Nourriture',
+                    'transport': 'Transport',
+                    'electricite': 'Électricité',
+                    'eau': 'Eau',
+                    'maintenance': 'Maintenance',
+                    'fourniture': 'Fournitures',
+                    'autre': 'Autre'
+                };
+                
+                totalExpenses += expense.amount || 0;
+                expensesCount++;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${dateStr}</td>
+                    <td>
+                        <span class="expense-badge" style="background: ${getExpenseColor(expense.nature)};">
+                            ${natureLabels[expense.nature] || expense.nature}
+                        </span>
+                    </td>
+                    <td>${expense.description || ''}</td>
+                    <td style="font-weight: bold; color: var(--danger);">${(expense.amount || 0).toLocaleString('fr-FR')} F CFA</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn-small delete" onclick="deleteExpense('${doc.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            // Mettre à jour les totaux
+            document.getElementById('totalExpenses').textContent = totalExpenses.toLocaleString('fr-FR') + ' F CFA';
+            document.getElementById('expensesCount').textContent = expensesCount;
+            
+            // Calculer le bénéfice net
+            const revenueElement = document.getElementById('totalRevenueStats');
+            const revenueText = revenueElement.textContent.replace(/\D/g, '');
+            const totalRevenue = parseInt(revenueText) || 0;
+            const netProfit = totalRevenue - totalExpenses;
+            
+            document.getElementById('netProfit').textContent = netProfit.toLocaleString('fr-FR') + ' F CFA';
+            document.getElementById('netProfit').style.color = netProfit >= 0 ? 'var(--secondary)' : 'var(--danger)';
+            
+        }).catch(error => {
+            console.error('Erreur chargement dépenses:', error);
+        });
+}
+
+// Couleur selon la nature de la dépense
+function getExpenseColor(nature) {
+    const colors = {
+        'salaire': '#ef4444',
+        'nourriture': '#10b981',
+        'transport': '#3b82f6',
+        'electricite': '#f59e0b',
+        'eau': '#06b6d4',
+        'maintenance': '#8b5cf6',
+        'fourniture': '#ec4899',
+        'autre': '#64748b'
+    };
+    
+    return colors[nature] || '#64748b';
+}
+
+// Sauvegarder une dépense
+function saveExpense() {
+    const date = document.getElementById('expenseDate').value;
+    const nature = document.getElementById('expenseNature').value;
+    const description = document.getElementById('expenseDescription').value.trim();
+    const amount = parseInt(document.getElementById('expenseAmount').value) || 0;
+    
+    if (!date) {
+        showMessage('Veuillez sélectionner une date', 'error');
+        return;
+    }
+    
+    if (!description) {
+        showMessage('Veuillez saisir une description', 'error');
+        return;
+    }
+    
+    if (amount <= 0) {
+        showMessage('Veuillez saisir un montant valide', 'error');
+        return;
+    }
+    
+    const expenseData = {
+        date: new Date(date),
+        nature: nature,
+        description: description,
+        amount: amount,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    db.collection('expenses').add(expenseData)
+        .then(() => {
+            showMessage('Dépense enregistrée!', 'success');
+            resetExpenseForm();
+            loadExpenses();
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            showMessage('Erreur lors de l\'enregistrement', 'error');
+        });
+}
+
+// Supprimer une dépense
+function deleteExpense(expenseId) {
+    if (confirm('Voulez-vous vraiment supprimer cette dépense ?')) {
+        db.collection('expenses').doc(expenseId).delete()
+            .then(() => {
+                showMessage('Dépense supprimée', 'success');
+                loadExpenses();
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                showMessage('Erreur lors de la suppression', 'error');
+            });
+    }
+}
+
+// Réinitialiser le formulaire de dépense
+function resetExpenseForm() {
+    document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('expenseNature').value = 'salaire';
+    document.getElementById('expenseDescription').value = '';
+    document.getElementById('expenseAmount').value = '';
+    document.getElementById('expenseForm').style.display = 'none';
+}
+      
+      
+      // Initialiser la page statistiques
+if (document.getElementById('statsSection')) {
+    initStatsPage();
+}
       // Développer par AHMED SAID IDDA AIDARA
     </script>
 </body>
