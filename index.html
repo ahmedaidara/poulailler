@@ -6166,7 +6166,7 @@ function updateDistributionTotals() {
 
 // REPLACEZ la fonction saveDistribution() par celle-ci :
 
-function saveDistribution() {
+async function saveDistribution() {
     if (!currentProductionForDistribution) return;
     
     const distribution = {
@@ -6203,114 +6203,83 @@ function saveDistribution() {
     
     distribution.totalDistributed = totalSacreCoeur + totalKeurMassar;
     
-    // Vérifier qu'on a distribué quelque chose
+    // Vérifications
     if (distribution.totalDistributed === 0) {
         showMessage('Veuillez distribuer au moins un poulet', 'error');
         return;
     }
     
-    // Vérifier qu'on ne dépasse pas le stock disponible
     const stockRestant = currentProductionForDistribution.stockRestant;
     if (distribution.totalDistributed > stockRestant) {
         showMessage(`Dépassement: vous distribuez ${distribution.totalDistributed} mais seulement ${stockRestant} disponibles`, 'error');
         return;
     }
     
-    showMessage('Enregistrement en cours...', 'warning');
+    showMessage('Distribution en cours...', 'warning');
     
-    // CORRECTION: Utiliser une transaction pour éviter les erreurs
-    const batch = db.batch();
-    
-    // 1. Sauvegarder la distribution
-    const distributionRef = db.collection('stock_distributions').doc();
-    batch.set(distributionRef, distribution);
-    
-    // 2. Sauvegarder les stocks attribués pour Sacré Coeur (si > 0)
-    if (totalSacreCoeur > 0) {
-        const stockSacreRef = db.collection('stocks_attribues').doc();
-        const stockSacreCoeur = {
-            id: stockSacreRef.id,
-            boutique: 'sacre-coeur',
-            boutiqueName: 'SACRÉ COEUR 3',
-            productionId: distribution.productionId,
-            distributionId: distributionRef.id,
-            date: new Date().toISOString(),
-            categories: distribution.sacreCoeur,
-            total: totalSacreCoeur,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        batch.set(stockSacreRef, stockSacreCoeur);
-    }
-    
-    // 3. Sauvegarder les stocks attribués pour Keur Massar (si > 0)
-    if (totalKeurMassar > 0) {
-        const stockKeurRef = db.collection('stocks_attribues').doc();
-        const stockKeurMassar = {
-            id: stockKeurRef.id,
-            boutique: 'keur-massar',
-            boutiqueName: 'KEUR MASSAR',
-            productionId: distribution.productionId,
-            distributionId: distributionRef.id,
-            date: new Date().toISOString(),
-            categories: distribution.keurMassar,
-            total: totalKeurMassar,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        batch.set(stockKeurRef, stockKeurMassar);
-    }
-    
-    // Exécuter le batch
-    batch.commit()
-        .then(() => {
-            showMessage('Distribution enregistrée avec succès!', 'success');
-            resetDistributionForm();
-            loadProductionsForDistribution();
-        })
-        .catch(error => {
-            console.error('Erreur lors de l\'enregistrement:', error);
+    try {
+        // 1. Sauvegarder la distribution principale
+        const distributionRef = await db.collection('stock_distributions').add(distribution);
+        console.log('Distribution sauvegardée:', distributionRef.id);
+        
+        // 2. CRÉER AUTOMATIQUEMENT les stocks attribués pour Sacré Coeur
+        if (totalSacreCoeur > 0) {
+            const stockSacreCoeur = {
+                boutique: 'sacre-coeur',
+                boutiqueName: 'SACRÉ COEUR 3',
+                productionId: distribution.productionId,
+                distributionId: distributionRef.id,
+                date: new Date().toISOString(),
+                categories: distribution.sacreCoeur,
+                total: totalSacreCoeur,
+                // NOUVEAUX CHAMPS POUR SUIVRE LES VENTES
+                soldByCategory: {
+                    '1': 0, '2': 0, '3': 0, '4': 0,
+                    '5': 0, '6': 0, '7': 0, '8': 0
+                },
+                totalSold: 0,
+                remaining: totalSacreCoeur,
+                status: 'active',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
             
-            // ESSAYER UNE MÉTHODE ALTERNATIVE (sans batch)
-            db.collection('stock_distributions').add(distribution)
-                .then(docRef => {
-                    showMessage('Distribution enregistrée (méthode alternative)!', 'success');
-                    
-                    // Enregistrer les stocks attribués individuellement
-                    if (totalSacreCoeur > 0) {
-                        const stockSacreCoeur = {
-                            boutique: 'sacre-coeur',
-                            boutiqueName: 'SACRÉ COEUR 3',
-                            productionId: distribution.productionId,
-                            distributionId: docRef.id,
-                            date: new Date().toISOString(),
-                            categories: distribution.sacreCoeur,
-                            total: totalSacreCoeur,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        };
-                        db.collection('stocks_attribues').add(stockSacreCoeur);
-                    }
-                    
-                    if (totalKeurMassar > 0) {
-                        const stockKeurMassar = {
-                            boutique: 'keur-massar',
-                            boutiqueName: 'KEUR MASSAR',
-                            productionId: distribution.productionId,
-                            distributionId: docRef.id,
-                            date: new Date().toISOString(),
-                            categories: distribution.keurMassar,
-                            total: totalKeurMassar,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        };
-                        db.collection('stocks_attribues').add(stockKeurMassar);
-                    }
-                    
-                    resetDistributionForm();
-                    loadProductionsForDistribution();
-                })
-                .catch(secondError => {
-                    console.error('Erreur deuxième tentative:', secondError);
-                    showMessage('Erreur critique lors de l\'enregistrement. Vérifiez la console.', 'error');
-                });
-        });
+            await db.collection('stocks_attribues').add(stockSacreCoeur);
+            console.log('Stock Sacré Coeur créé');
+        }
+        
+        // 3. CRÉER AUTOMATIQUEMENT les stocks attribués pour Keur Massar
+        if (totalKeurMassar > 0) {
+            const stockKeurMassar = {
+                boutique: 'keur-massar',
+                boutiqueName: 'KEUR MASSAR',
+                productionId: distribution.productionId,
+                distributionId: distributionRef.id,
+                date: new Date().toISOString(),
+                categories: distribution.keurMassar,
+                total: totalKeurMassar,
+                // NOUVEAUX CHAMPS POUR SUIVRE LES VENTES
+                soldByCategory: {
+                    '1': 0, '2': 0, '3': 0, '4': 0,
+                    '5': 0, '6': 0, '7': 0, '8': 0
+                },
+                totalSold: 0,
+                remaining: totalKeurMassar,
+                status: 'active',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            await db.collection('stocks_attribues').add(stockKeurMassar);
+            console.log('Stock Keur Massar créé');
+        }
+        
+        showMessage('✓ Distribution enregistrée avec succès! Les boutiques peuvent maintenant voir leur stock.', 'success');
+        resetDistributionForm();
+        loadProductionsForDistribution();
+        
+    } catch (error) {
+        console.error('Erreur complète:', error);
+        showMessage('Erreur: ' + error.message, 'error');
+    }
 }
 
 // Mettre à jour les stocks attribués
@@ -6786,6 +6755,65 @@ function resetExpenseForm() {
 if (document.getElementById('statsSection')) {
     initStatsPage();
 }
+      
+      // ==============================================
+// INITIALISATION AUTOMATIQUE DES COLLECTIONS
+// ==============================================
+
+async function initializeCollections() {
+    console.log('Vérification des collections...');
+    
+    try {
+        // Vérifier si la collection 'stock_distributions' existe
+        const distSnapshot = await db.collection('stock_distributions').limit(1).get();
+        console.log('Collection stock_distributions existe:', !distSnapshot.empty);
+        
+        // Vérifier si la collection 'stocks_attribues' existe
+        const stocksSnapshot = await db.collection('stocks_attribues').limit(1).get();
+        console.log('Collection stocks_attribues existe:', !stocksSnapshot.empty);
+        
+        // Vérifier si la collection 'expenses' existe
+        const expensesSnapshot = await db.collection('expenses').limit(1).get();
+        console.log('Collection expenses existe:', !expensesSnapshot.empty);
+        
+        // Si aucune collection n'existe, créer un document dans chacune
+        if (distSnapshot.empty) {
+            await db.collection('stock_distributions').add({
+                note: 'Collection initialisée automatiquement',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            console.log('Collection stock_distributions créée');
+        }
+        
+        if (stocksSnapshot.empty) {
+            await db.collection('stocks_attribues').add({
+                note: 'Collection initialisée automatiquement',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            console.log('Collection stocks_attribues créée');
+        }
+        
+        if (expensesSnapshot.empty) {
+            await db.collection('expenses').add({
+                note: 'Collection initialisée automatiquement',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            console.log('Collection expenses créée');
+        }
+        
+        console.log('✓ Toutes les collections sont prêtes!');
+        
+    } catch (error) {
+        console.error('Erreur initialisation collections:', error);
+        // Ne pas afficher d'erreur à l'utilisateur, juste logger
+    }
+}
+
+// Appeler cette fonction au chargement du site principal
+document.addEventListener('DOMContentLoaded', function() {
+    // Attendre un peu avant d'initialiser
+    setTimeout(initializeCollections, 2000);
+});
       // Développer par AHMED SAID IDDA AIDARA
     </script>
 </body>
