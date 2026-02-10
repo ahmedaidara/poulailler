@@ -1486,30 +1486,20 @@
         <h3 style="margin: 0;">
             <i class="fas fa-chart-bar"></i> Stocks Attribués - Vue d'ensemble
         </h3>
-        <div class="filters">
-            <button class="filter-btn active" data-stock-filter="all">Tous</button>
-            <button class="filter-btn" data-stock-filter="active">Actifs</button>
-            <button class="filter-btn" data-stock-filter="completed">Terminés</button>
-            <button class="filter-btn" data-stock-filter="sacre-coeur">Sacré Coeur</button>
-            <button class="filter-btn" data-stock-filter="keur-massar">Keur Massar</button>
-        </div>
+       
     </div>
     
     <div class="table-wrapper">
         <table class="records-table">
-            <thead>
-                <tr>
-                    <th>Boutique</th>
-                    <th>Date attribution</th>
-                    <th>Production</th>
-                    <th>Attribué</th>
-                    <th>Vendu</th>
-                    <th>Restant</th>
-                    <th>% Vendu</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
+           <thead>
+    <tr>
+        <th>Boutique</th>
+        <th>Date attribution</th>
+        <th>Production</th>
+        <th>Attribué</th>
+        <th>Actions</th>
+    </tr>
+</thead>
             <tbody id="attributedStocksTableBody">
                 <!-- Rempli dynamiquement -->
             </tbody>
@@ -1522,8 +1512,12 @@
         <p>Distribuez d'abord du stock aux boutiques</p>
     </div>
 </div>
+              <h3 style="margin: 0;">
+            <i class="fas fa-chart-bar"></i> Factures - Vue d'ensemble
+        </h3>
     <!-- Boutiques Cards -->
     <div class="stats-grid">
+      
         <!-- Boutique Sacré Coeur 3 -->
         <div class="stat-card" onclick="selectBoutique('sacre-coeur')" 
              style="cursor: pointer; border-top: 4px solid #3B82F6;">
@@ -1676,39 +1670,7 @@
     </div>
     
     <!-- Statistiques principales -->
-    <div class="stats-grid" style="margin-bottom: var(--space-xl);">
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-money-bill-wave"></i>
-            </div>
-            <div class="stat-value" id="totalRevenueStats">0 F CFA</div>
-            <div class="stat-label">Chiffre d'affaires total</div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-receipt"></i>
-            </div>
-            <div class="stat-value" id="totalInvoicesStats">0</div>
-            <div class="stat-label">Nombre de factures</div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-chart-line"></i>
-            </div>
-            <div class="stat-value" id="avgInvoiceStats">0 F CFA</div>
-            <div class="stat-label">Panier moyen</div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-box"></i>
-            </div>
-            <div class="stat-value" id="totalChickensSoldStats">0</div>
-            <div class="stat-label">Poulets vendus</div>
-        </div>
-    </div>
+
     
     <!-- Répartition par boutique -->
     <div class="table-container" style="margin-bottom: var(--space-xl);">
@@ -1742,122 +1704,49 @@
             </div>
         </div>
     </div>
-    
-    <!-- Gestion des Dépenses -->
-    <div class="table-container">
-        <div class="table-header">
-            <h3 style="margin: 0;">
-                <i class="fas fa-file-invoice-dollar"></i> Gestion des Dépenses
-            </h3>
-            <button id="addExpenseBtn" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Ajouter une Dépense
-            </button>
+  
+  <h3 style="margin-bottom: var(--space-lg);">
+            <i class="fas fa-store"></i> Statistiques
+        </h3>
+        <div class="stats-grid" style="margin-bottom: var(--space-xl);">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <div class="stat-value" id="totalRevenueStats">0 F CFA</div>
+            <div class="stat-label">Chiffre d'affaires total</div>
         </div>
         
-        <!-- Formulaire d'ajout de dépense -->
-        <div id="expenseForm" style="display: none; padding: var(--space-lg); background: var(--light-gray); border-radius: var(--radius-md); margin-bottom: var(--space-lg);">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="expenseDate" class="form-label">Date</label>
-                    <input type="date" id="expenseDate" class="form-input" value="${new Date().toISOString().split('T')[0]}">
-                </div>
-                
-                <div class="form-group">
-                    <label for="expenseNature" class="form-label">Nature de la dépense</label>
-                    <select id="expenseNature" class="form-input">
-                        <option value="salaire">Salaire</option>
-                        <option value="nourriture">Nourriture poulets</option>
-                        <option value="transport">Transport</option>
-                        <option value="electricite">Électricité</option>
-                        <option value="eau">Eau</option>
-                        <option value="maintenance">Maintenance</option>
-                        <option value="fourniture">Fournitures bureau</option>
-                        <option value="autre">Autre</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="expenseDescription" class="form-label">Description</label>
-                    <input type="text" id="expenseDescription" class="form-input" placeholder="Ex: Salaire mois de Janvier">
-                </div>
-                
-                <div class="form-group">
-                    <label for="expenseAmount" class="form-label">Montant (F CFA)</label>
-                    <input type="number" id="expenseAmount" class="form-input" min="0" placeholder="Ex: 50000">
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-receipt"></i>
             </div>
-            
-            <div class="modal-actions">
-                <button id="cancelExpenseBtn" class="btn btn-secondary">
-                    <i class="fas fa-times"></i> Annuler
-                </button>
-                <button id="saveExpenseBtn" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Enregistrer
-                </button>
-            </div>
+            <div class="stat-value" id="totalInvoicesStats">0</div>
+            <div class="stat-label">Nombre de factures</div>
         </div>
         
-        <!-- Liste des dépenses -->
-        <div class="table-wrapper">
-            <table class="records-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Nature</th>
-                        <th>Description</th>
-                        <th>Montant</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="expensesTableBody">
-                    <!-- Rempli dynamiquement -->
-                </tbody>
-            </table>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-value" id="avgInvoiceStats">0 F CFA</div>
+            <div class="stat-label">Panier moyen</div>
         </div>
         
-        <!-- Total des dépenses -->
-        <div style="padding: var(--space-lg); background: #fef2f2; border-radius: var(--radius-md); margin-top: var(--space-lg);">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h4 style="margin: 0; color: var(--danger);">
-                        <i class="fas fa-money-bill-wave"></i> Total des Dépenses
-                    </h4>
-                    <p style="margin: 5px 0 0 0; color: var(--gray-text); font-size: 0.9rem;">
-                        Période sélectionnée
-                    </p>
-                </div>
-                <div style="text-align: right;">
-                    <div style="font-size: 2rem; font-weight: bold; color: var(--danger);" id="totalExpenses">
-                        0 F CFA
-                    </div>
-                    <div style="font-size: 0.9rem; color: var(--gray-text);">
-                        <span id="expensesCount">0</span> dépenses
-                    </div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-box"></i>
             </div>
-            
-            <!-- Bénéfice net -->
-            <div style="margin-top: var(--space-lg); padding: var(--space-md); background: white; border-radius: var(--radius-md);">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div style="font-weight: bold; color: var(--dark-text);">
-                        <i class="fas fa-calculator"></i> BÉNÉFICE NET
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--secondary);" id="netProfit">
-                            0 F CFA
-                        </div>
-                        <div style="font-size: 0.9rem; color: var(--gray-text);">
-                            CA - Dépenses
-                        </div>
-                    </div>
-                </div>
-            </div>
-          
+            <div class="stat-value" id="totalChickensSoldStats">0</div>
+            <div class="stat-label">Poulets vendus</div>
         </div>
     </div>
+   
   
   
 </section>
+           
+           
         </main>
         
          <footer>
@@ -2781,64 +2670,58 @@ function formatNumberForPDF(num) {
     return rounded.toString();
 }
          
-   function updateStatistics() {
-    let totalProduction = 0;   
-    let totalStock = 0;        
-    let totalValue = 0;        
-    let totalRevenue = 0;      
+function updateStatistics() {
+    let totalProduction = 0;   // Stock total restant RÉEL
+    let totalStock = 0;        // Stock initial total
+    let totalValue = 0;        // Valeur du stock restant
+    let totalRevenue = 0;      // Chiffre d'affaires total
+    
+    console.log("=== CALCUL STATISTIQUES ===");
     
     allRecords.forEach(record => {
-        // 1.  
-        const initialStock = record.initialStock || 0;
+        console.log(`Enregistrement ${record.id}:`, {
+            initialStock: record.initialStock,
+            small1Quantity: record.small1Quantity,
+            small1Sold: record.small1Sold,
+            etc: '...'
+        });
         
-        // T 
-        const totalSold = (record.small1Sold || 0) + (record.small2Sold || 0) + 
-                         (record.medium1Sold || 0) + (record.medium2Sold || 0) + 
-                         (record.large1Sold || 0) + (record.large2Sold || 0) + 
-                         (record.xlarge1Sold || 0) + (record.xlarge2Sold || 0);
+        // 1. Calculer le STOCK RESTANT RÉEL
+        // Pour chaque catégorie, ce qui n'a PAS été vendu ou distribué
+        const cat1Restant = Math.max(0, (record.small1Quantity || 0) - (record.small1Sold || 0));
+        const cat2Restant = Math.max(0, (record.small2Quantity || 0) - (record.small2Sold || 0));
+        const cat3Restant = Math.max(0, (record.medium1Quantity || 0) - (record.medium1Sold || 0));
+        const cat4Restant = Math.max(0, (record.medium2Quantity || 0) - (record.medium2Sold || 0));
+        const cat5Restant = Math.max(0, (record.large1Quantity || 0) - (record.large1Sold || 0));
+        const cat6Restant = Math.max(0, (record.large2Quantity || 0) - (record.large2Sold || 0));
+        const cat7Restant = Math.max(0, (record.xlarge1Quantity || 0) - (record.xlarge1Sold || 0));
+        const cat8Restant = Math.max(0, (record.xlarge2Quantity || 0) - (record.xlarge2Sold || 0));
         
-        const totalLostGiven = (record.lost || 0) + (record.given || 0);
+        const stockRestant = cat1Restant + cat2Restant + cat3Restant + cat4Restant + 
+                           cat5Restant + cat6Restant + cat7Restant + cat8Restant;
         
-         
-        const stockRestant = Math.max(0, initialStock - totalSold - totalLostGiven);
+        console.log(`  Stock restant calculé: ${stockRestant} (${cat1Restant}+${cat2Restant}+...)`);
         
-        // 2. Accumuler les  
         totalProduction += stockRestant;
         
-        // 3. Stock initial total
-        totalStock += initialStock;
+        // 2. Stock initial total (ne change pas)
+        totalStock += record.initialStock || 0;
         
-         
-       
-        let totalQuantite = 0;
-        let totalPrix = 0;
+        // 3. VALEUR du stock restant
+        const valueRestant = (cat1Restant * (record.small1Price || 0)) +
+                           (cat2Restant * (record.small2Price || 0)) +
+                           (cat3Restant * (record.medium1Price || 0)) +
+                           (cat4Restant * (record.medium2Price || 0)) +
+                           (cat5Restant * (record.large1Price || 0)) +
+                           (cat6Restant * (record.large2Price || 0)) +
+                           (cat7Restant * (record.xlarge1Price || 0)) +
+                           (cat8Restant * (record.xlarge2Price || 0));
         
-        // Caté 
-        const cat1Dispo = Math.max(0, (record.small1Quantity || 0) - (record.small1Sold || 0));
-        const cat2Dispo = Math.max(0, (record.small2Quantity || 0) - (record.small2Sold || 0));
-        const cat3Dispo = Math.max(0, (record.medium1Quantity || 0) - (record.medium1Sold || 0));
-        const cat4Dispo = Math.max(0, (record.medium2Quantity || 0) - (record.medium2Sold || 0));
-        const cat5Dispo = Math.max(0, (record.large1Quantity || 0) - (record.large1Sold || 0));
-        const cat6Dispo = Math.max(0, (record.large2Quantity || 0) - (record.large2Sold || 0));
-        const cat7Dispo = Math.max(0, (record.xlarge1Quantity || 0) - (record.xlarge1Sold || 0));
-        const cat8Dispo = Math.max(0, (record.xlarge2Quantity || 0) - (record.xlarge2Sold || 0));
+        totalValue += valueRestant;
+        console.log(`  Valeur restante: ${valueRestant} F CFA`);
         
-        // Calculer  
-        if (stockRestant > 0) {
-            totalPrix = (cat1Dispo * (record.small1Price || 0)) +
-                       (cat2Dispo * (record.small2Price || 0)) +
-                       (cat3Dispo * (record.medium1Price || 0)) +
-                       (cat4Dispo * (record.medium2Price || 0)) +
-                       (cat5Dispo * (record.large1Price || 0)) +
-                       (cat6Dispo * (record.large2Price || 0)) +
-                       (cat7Dispo * (record.xlarge1Price || 0)) +
-                       (cat8Dispo * (record.xlarge2Price || 0));
-            
-            totalValue += totalPrix;  
-        }
-        
-        // 5. Calcul du CHIFFRE D'AFFAIRES
-        totalRevenue += (record.small1Sold || 0) * (record.small1Price || 0) +
+        // 4. CHIFFRE D'AFFAIRES (valeur des poulets VENDUS)
+        const revenue = (record.small1Sold || 0) * (record.small1Price || 0) +
                        (record.small2Sold || 0) * (record.small2Price || 0) +
                        (record.medium1Sold || 0) * (record.medium1Price || 0) +
                        (record.medium2Sold || 0) * (record.medium2Price || 0) +
@@ -2846,11 +2729,104 @@ function formatNumberForPDF(num) {
                        (record.large2Sold || 0) * (record.large2Price || 0) +
                        (record.xlarge1Sold || 0) * (record.xlarge1Price || 0) +
                        (record.xlarge2Sold || 0) * (record.xlarge2Price || 0);
+        
+        totalRevenue += revenue;
+        console.log(`  CA: ${revenue} F CFA`);
     });
     
-    // Mise à j 
+    console.log("=== RÉSULTATS FINAUX ===");
+    console.log(`Stock restant total: ${totalProduction}`);
+    console.log(`Stock initial total: ${totalStock}`);
+    console.log(`Valeur stock: ${totalValue} F CFA`);
+    console.log(`CA total: ${totalRevenue} F CFA`);
+    
+    // Mise à jour de l'interface
     document.getElementById('productionCount').textContent = Math.max(0, totalProduction).toLocaleString('fr-FR');
     document.getElementById('stockCount').textContent = Math.round(totalStock).toLocaleString('fr-FR');
+    document.getElementById('stockValue').textContent = Math.round(totalValue).toLocaleString('fr-FR') + ' F CFA';
+    document.getElementById('revenueCount').textContent = Math.round(totalRevenue).toLocaleString('fr-FR') + ' F CFA';
+}
+
+      // ==============================================
+// CALCULER LES VENTES RÉELLES DEPUIS LES FACTURES
+// ==============================================
+
+async function calculateActualSalesForProduction(productionId) {
+    console.log(`📊 Calcul ventes réelles pour production: ${productionId}`);
+    
+    const ventesParCategorie = {
+        '1': 0, '2': 0, '3': 0, '4': 0,
+        '5': 0, '6': 0, '7': 0, '8': 0
+    };
+    
+    try {
+        // Charger TOUTES les factures pour CETTE production
+        const snapshot = await db.collection('invoices')
+            .where('productionId', '==', productionId)
+            .get();
+        
+        console.log(`📈 ${snapshot.size} factures trouvées pour cette production`);
+        
+        snapshot.forEach(doc => {
+            const facture = doc.data();
+            
+            if (facture.items && Array.isArray(facture.items)) {
+                facture.items.forEach(item => {
+                    const catId = item.id.toString();
+                    if (ventesParCategorie.hasOwnProperty(catId)) {
+                        ventesParCategorie[catId] += item.quantity || 0;
+                    }
+                });
+            }
+        });
+        
+        console.log("📦 Ventes calculées depuis factures:", ventesParCategorie);
+        return ventesParCategorie;
+        
+    } catch (error) {
+        console.error("❌ Erreur calcul ventes:", error);
+        return ventesParCategorie;
+    }
+}
+
+// Fonction de fallback
+function calculateLocalStats() {
+    let totalProduction = 0;
+    let totalStock = 0;
+    let totalValue = 0;
+    let totalRevenue = 0;
+    
+    allRecords.forEach(record => {
+        const initialStock = record.initialStock || 0;
+        totalStock += initialStock;
+        
+        const totalSold = (record.small1Sold || 0) + (record.small2Sold || 0) + 
+                         (record.medium1Sold || 0) + (record.medium2Sold || 0) + 
+                         (record.large1Sold || 0) + (record.large2Sold || 0) + 
+                         (record.xlarge1Sold || 0) + (record.xlarge2Sold || 0);
+        
+        const totalLostGiven = (record.lost || 0) + (record.given || 0);
+        const stockRestant = Math.max(0, initialStock - totalSold - totalLostGiven);
+        
+        totalProduction += stockRestant;
+        
+        // Valeur estimée 
+        const avgPrice = 3000; // Prix moyen
+        totalValue += stockRestant * avgPrice;
+        
+        // CA estimé
+        totalRevenue += (record.small1Sold || 0) * (record.small1Price || 2000) +
+                       (record.small2Sold || 0) * (record.small2Price || 2500) +
+                       (record.medium1Sold || 0) * (record.medium1Price || 3000) +
+                       (record.medium2Sold || 0) * (record.medium2Price || 3300) +
+                       (record.large1Sold || 0) * (record.large1Price || 3500) +
+                       (record.large2Sold || 0) * (record.large2Price || 3700) +
+                       (record.xlarge1Sold || 0) * (record.xlarge1Price || 4000) +
+                       (record.xlarge2Sold || 0) * (record.xlarge2Price || 4500);
+    });
+    
+    document.getElementById('productionCount').textContent = totalProduction.toLocaleString('fr-FR');
+    document.getElementById('stockCount').textContent = totalStock.toLocaleString('fr-FR');
     document.getElementById('stockValue').textContent = Math.round(totalValue).toLocaleString('fr-FR') + ' F CFA';
     document.getElementById('revenueCount').textContent = Math.round(totalRevenue).toLocaleString('fr-FR') + ' F CFA';
 }
@@ -5767,32 +5743,22 @@ function loadBoutiqueStats() {
         });
 }
 
-// Charg 
- function loadInvoices(filter = 'all') {
+function loadInvoices(filter = 'all') {
     console.log('Chargement factures avec filtre:', filter);
     
-    let query = db.collection('invoices').orderBy('date', 'desc');
+    // Initialiser la requête
+    let query = db.collection('invoices');
     
-    if (filter !== 'all' && filter !== 'today' && filter !== 'week') {
-        query = query.where('boutique', '==', filter);
+    // Appliquer les filtres boutique
+    if (filter === 'sacre-coeur') {
+        query = query.where('boutique', '==', 'sacre-coeur');
+    } else if (filter === 'keur-massar') {
+        query = query.where('boutique', '==', 'keur-massar');
     }
-   
-    if (filter === 'today') {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
     
-    query = query.where('date', '>=', today)
-                 .where('date', '<', tomorrow);
-}
-
-if (filter === 'week') {
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
+    // Trier par date
+    query = query.orderBy('date', 'desc');
     
-    query = query.where('date', '>=', weekAgo);
-}
     query.get().then(snapshot => {
         console.log(`Nombre de factures trouvées: ${snapshot.size}`);
         const tbody = document.getElementById('invoicesTableBody');
@@ -5810,10 +5776,20 @@ if (filter === 'week') {
         tbody.style.display = 'table-row-group';
         emptyState.style.display = 'none';
         
+        // Calculer les dates pour les filtres
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        weekAgo.setHours(0, 0, 0, 0);
+        
+        let displayedCount = 0;
+        
         snapshot.forEach(doc => {
             const invoice = doc.data();
-            console.log('Facture:', invoice.invoiceNumber, invoice.boutique);
             
+            // Récupérer la date
             let date;
             if (invoice.date && invoice.date.seconds) {
                 date = new Date(invoice.date.seconds * 1000);
@@ -5823,17 +5799,24 @@ if (filter === 'week') {
                 date = new Date();
             }
             
-            // Appl 
+            // Appliquer les filtres temporels
             if (filter === 'today') {
-                const today = new Date();
-                if (date.toDateString() !== today.toDateString()) return;
+                const invoiceDay = new Date(date);
+                invoiceDay.setHours(0, 0, 0, 0);
+                if (invoiceDay.getTime() !== today.getTime()) {
+                    return; // Skip cette facture
+                }
             }
             
             if (filter === 'week') {
-                const weekAgo = new Date();
-                weekAgo.setDate(weekAgo.getDate() - 7);
-                if (date < weekAgo) return;
+                const invoiceDay = new Date(date);
+                invoiceDay.setHours(0, 0, 0, 0);
+                if (invoiceDay < weekAgo) {
+                    return; // Skip cette facture
+                }
             }
+            
+            displayedCount++;
             
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -5861,6 +5844,15 @@ if (filter === 'week') {
             
             tbody.appendChild(row);
         });
+        
+        console.log(`Factures affichées: ${displayedCount}`);
+        
+        // Si rien n'est affiché après filtrage
+        if (displayedCount === 0) {
+            tbody.style.display = 'none';
+            emptyState.style.display = 'block';
+        }
+        
     }).catch(error => {
         console.error('Erreur chargement factures:', error);
         showMessage('Erreur de chargement des factures', 'error');
@@ -6104,7 +6096,6 @@ function initDistribution() {
     document.getElementById('saveDistributionBtn').addEventListener('click', saveDistribution);
 }
 
-// Configurer le formulaire de distribution
 function setupDistributionForm() {
     if (!currentProductionForDistribution) return;
     
@@ -6127,10 +6118,25 @@ function setupDistributionForm() {
     let sacreCoeurHTML = '';
     let keurMassarHTML = '';
     
+    // CALCULER LE STOCK DISPONIBLE TOTAL POUR LA PRODUCTION
+    const stockInitialTotal = production.initialStock || 0;
+    const totalSold = categories.reduce((sum, cat) => {
+        return sum + (production[cat.soldField] || 0);
+    }, 0);
+    const totalLostGiven = (production.lost || 0) + (production.given || 0);
+    const stockDisponibleTotal = Math.max(0, stockInitialTotal - totalSold - totalLostGiven);
+    
+    // Mettre à jour le stock total affiché
+    document.getElementById('globalStockTotal').textContent = stockDisponibleTotal;
+    document.getElementById('remainingToDistribute').textContent = stockDisponibleTotal;
+    
     categories.forEach(cat => {
+        // STOCK DISPONIBLE RÉEL = Quantité initiale - Déjà vendu
         const stockInitial = production[cat.qtyField] || 0;
         const dejaVendu = production[cat.soldField] || 0;
         const disponible = Math.max(0, stockInitial - dejaVendu);
+        
+        console.log(`Catégorie ${cat.id}: ${stockInitial} - ${dejaVendu} = ${disponible} disponibles`);
         
         // Stocker la disponibilité
         distributionData.categories = distributionData.categories || {};
@@ -6189,7 +6195,7 @@ function setupDistributionForm() {
         input.addEventListener('input', updateDistributionTotals);
     });
 }
-
+      
 // Mettre à jour les totaux de distribution
 function updateDistributionTotals() {
     let totalSacreCoeur = 0;
@@ -6226,8 +6232,6 @@ function updateDistributionTotals() {
         document.getElementById('saveDistributionBtn').disabled = false;
     }
 }
-
-// REPLACEZ la fonction saveDistribution() par celle-ci :
 
 async function saveDistribution() {
     if (!currentProductionForDistribution) return;
@@ -6281,11 +6285,11 @@ async function saveDistribution() {
     showMessage('Distribution en cours...', 'warning');
     
     try {
-        // 1. Sauvegarder la distribution principale
+        // 1. Sauvegarder la distribution
         const distributionRef = await db.collection('stock_distributions').add(distribution);
         console.log('Distribution sauvegardée:', distributionRef.id);
         
-        // 2. CRÉER AUTOMATIQUEMENT les stocks attribués pour Sacré Coeur
+        // 2. CRÉER AUTOMATIQUEMENT les stocks attribués
         if (totalSacreCoeur > 0) {
             const stockSacreCoeur = {
                 boutique: 'sacre-coeur',
@@ -6295,7 +6299,7 @@ async function saveDistribution() {
                 date: new Date().toISOString(),
                 categories: distribution.sacreCoeur,
                 total: totalSacreCoeur,
-                // NOUVEAUX CHAMPS POUR SUIVRE LES VENTES
+                // NOUVEAUX CHAMPS : suivi des ventes depuis les factures
                 soldByCategory: {
                     '1': 0, '2': 0, '3': 0, '4': 0,
                     '5': 0, '6': 0, '7': 0, '8': 0
@@ -6310,7 +6314,6 @@ async function saveDistribution() {
             console.log('Stock Sacré Coeur créé');
         }
         
-        // 3. CRÉER AUTOMATIQUEMENT les stocks attribués pour Keur Massar
         if (totalKeurMassar > 0) {
             const stockKeurMassar = {
                 boutique: 'keur-massar',
@@ -6320,7 +6323,7 @@ async function saveDistribution() {
                 date: new Date().toISOString(),
                 categories: distribution.keurMassar,
                 total: totalKeurMassar,
-                // NOUVEAUX CHAMPS POUR SUIVRE LES VENTES
+                // NOUVEAUX CHAMPS : suivi des ventes depuis les factures
                 soldByCategory: {
                     '1': 0, '2': 0, '3': 0, '4': 0,
                     '5': 0, '6': 0, '7': 0, '8': 0
@@ -6335,13 +6338,98 @@ async function saveDistribution() {
             console.log('Stock Keur Massar créé');
         }
         
-        showMessage('✓ Distribution enregistrée avec succès! Les boutiques peuvent maintenant voir leur stock.', 'success');
+        // 3. METTRE À JOUR LE STOCK DE LA PRODUCTION DANS FIREBASE
+        await updateProductionAfterDistribution(
+            currentProductionForDistribution.id,
+            distribution.sacreCoeur,
+            distribution.keurMassar
+        );
+        
+        showMessage('✓ Distribution enregistrée! Stock mis à jour.', 'success');
         resetDistributionForm();
         loadProductionsForDistribution();
         
     } catch (error) {
         console.error('Erreur complète:', error);
         showMessage('Erreur: ' + error.message, 'error');
+    }
+}
+
+// ==============================================
+// FONCTION POUR METTRE À JOUR LA PRODUCTION
+// ==============================================
+
+async function updateProductionAfterDistribution(productionId, sacreCoeurCats, keurMassarCats) {
+    try {
+        const productionRef = db.collection('poulailler_records').doc(productionId);
+        const productionDoc = await productionRef.get();
+        
+        if (!productionDoc.exists) {
+            console.error('Production non trouvée');
+            return;
+        }
+        
+        const production = productionDoc.data();
+        const updates = {};
+        
+        // MAPPING des catégories aux champs de production
+        const categoryMapping = {
+            '1': { qtyField: 'small1Quantity', soldField: 'small1Sold' },
+            '2': { qtyField: 'small2Quantity', soldField: 'small2Sold' },
+            '3': { qtyField: 'medium1Quantity', soldField: 'medium1Sold' },
+            '4': { qtyField: 'medium2Quantity', soldField: 'medium2Sold' },
+            '5': { qtyField: 'large1Quantity', soldField: 'large1Sold' },
+            '6': { qtyField: 'large2Quantity', soldField: 'large2Sold' },
+            '7': { qtyField: 'xlarge1Quantity', soldField: 'xlarge1Sold' },
+            '8': { qtyField: 'xlarge2Quantity', soldField: 'xlarge2Sold' }
+        };
+        
+        // Pour chaque catégorie, calculer combien a été distribué
+        Object.keys(categoryMapping).forEach(catId => {
+            const catDistributed = 
+                (sacreCoeurCats[catId] || 0) + 
+                (keurMassarCats[catId] || 0);
+            
+            if (catDistributed > 0) {
+                const mapping = categoryMapping[catId];
+                const currentQuantity = production[mapping.qtyField] || 0;
+                const currentSold = production[mapping.soldField] || 0;
+                
+                // La nouvelle quantité disponible = quantité initiale - déjà vendu - distribué
+                const newQuantity = Math.max(0, currentQuantity - currentSold - catDistributed);
+                updates[mapping.qtyField] = newQuantity;
+                
+                console.log(`Catégorie ${catId}: ${currentQuantity} - ${currentSold} - ${catDistributed} = ${newQuantity}`);
+            }
+        });
+        
+        // Mettre à jour le stock initial TOTAL
+        let totalDistributed = 0;
+        for (let catId in sacreCoeurCats) totalDistributed += sacreCoeurCats[catId];
+        for (let catId in keurMassarCats) totalDistributed += keurMassarCats[catId];
+        
+        const currentInitial = production.initialStock || 0;
+        const currentSold = (production.small1Sold || 0) + (production.small2Sold || 0) +
+                           (production.medium1Sold || 0) + (production.medium2Sold || 0) +
+                           (production.large1Sold || 0) + (production.large2Sold || 0) +
+                           (production.xlarge1Sold || 0) + (production.xlarge2Sold || 0);
+        
+        const newInitial = Math.max(0, currentInitial - currentSold - totalDistributed);
+        updates.initialStock = newInitial;
+        
+        // Mettre à jour les métadonnées
+        updates.lastDistributionDate = new Date().toISOString();
+        updates.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+        
+        console.log('Mises à jour production:', updates);
+        
+        // Appliquer les mises à jour
+        await productionRef.update(updates);
+        console.log('✅ Production mise à jour dans Firebase');
+        
+    } catch (error) {
+        console.error('Erreur mise à jour production:', error);
+        throw error;
     }
 }
 
@@ -6880,14 +6968,13 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // ==============================================
 // GESTION DU TABLEAU DE BORD DES STOCKS ATTRIBUÉS
-// ==============================================
-
 function loadAttributedStocksDashboard(filter = 'all') {
     console.log("Chargement stocks avec filtre:", filter);
     
+    // Construction de la requête
     let query = db.collection('stocks_attribues');
     
-    // Appliquer les filtres
+    // Appliquer les filtres CORRECTEMENT
     if (filter === 'active') {
         query = query.where('remaining', '>', 0);
     } else if (filter === 'completed') {
@@ -6898,7 +6985,10 @@ function loadAttributedStocksDashboard(filter = 'all') {
         query = query.where('boutique', '==', 'keur-massar');
     }
     
-    query.orderBy('date', 'desc').get()
+    // Trier par date
+    query = query.orderBy('date', 'desc');
+    
+    query.get()
         .then(snapshot => {
             const tbody = document.getElementById('attributedStocksTableBody');
             const emptyState = document.getElementById('emptyStocksState');
@@ -6906,6 +6996,7 @@ function loadAttributedStocksDashboard(filter = 'all') {
             tbody.innerHTML = '';
             
             if (snapshot.empty) {
+                console.log('Aucun stock trouvé avec filtre:', filter);
                 tbody.style.display = 'none';
                 emptyState.style.display = 'block';
                 return;
@@ -6915,6 +7006,8 @@ function loadAttributedStocksDashboard(filter = 'all') {
             emptyState.style.display = 'none';
             
             // Pour chaque stock attribué
+            const promises = [];
+            
             snapshot.forEach(doc => {
                 const stock = doc.data();
                 const date = new Date(stock.date);
@@ -6923,24 +7016,25 @@ function loadAttributedStocksDashboard(filter = 'all') {
                 const total = stock.total || 0;
                 const sold = stock.totalSold || 0;
                 const remaining = stock.remaining || total;
+                
+                // Calculer le pourcentage vendu
                 const percentSold = total > 0 ? Math.round((sold / total) * 100) : 0;
                 
-                // Charger les infos de la production
+                // Charger les infos de la production (optionnel)
                 let productionInfo = 'N/A';
                 if (stock.productionId) {
-                    db.collection('poulailler_records').doc(stock.productionId).get()
+                    const promise = db.collection('poulailler_records').doc(stock.productionId).get()
                         .then(prodDoc => {
                             if (prodDoc.exists) {
                                 const prodData = prodDoc.data();
                                 const prodDate = new Date(prodData.startDate);
-                                const prodDateStr = `${prodDate.getDate()}/${prodDate.getMonth()+1}`;
-                                productionInfo = `Prod. ${prodDateStr}`;
-                                
-                                // Mettre à jour la cellule
-                                const cell = document.getElementById(`prod-${doc.id}`);
-                                if (cell) cell.textContent = productionInfo;
+                                return `${prodDate.getDate()}/${prodDate.getMonth()+1}`;
                             }
-                        });
+                            return 'N/A';
+                        })
+                        .catch(() => 'N/A');
+                    
+                    promises.push(promise);
                 }
                 
                 // Déterminer le status
@@ -6954,49 +7048,45 @@ function loadAttributedStocksDashboard(filter = 'all') {
                     statusColor = '#F59E0B';
                 }
                 
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>
-                        <span class="boutique-badge ${stock.boutique === 'sacre-coeur' ? 'badge-sacre-coeur' : 'badge-keur-massar'}">
-                            ${stock.boutiqueName || stock.boutique}
-                        </span>
-                    </td>
-                    <td>${dateStr}</td>
-                    <td id="prod-${doc.id}">${productionInfo}</td>
-                    <td><strong>${total}</strong></td>
-                    <td style="color: ${sold > 0 ? '#EF4444' : '#6B7280'}">${sold}</td>
-                    <td><strong style="color: ${remaining > 0 ? '#10B981' : '#EF4444'}">${remaining}</strong></td>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="width: 60px; height: 6px; background: #E5E7EB; border-radius: 3px; overflow: hidden;">
-                                <div style="width: ${percentSold}%; height: 100%; background: ${percentSold > 80 ? '#EF4444' : percentSold > 50 ? '#F59E0B' : '#10B981'};"></div>
-                            </div>
-                            <span>${percentSold}%</span>
-                        </div>
-                    </td>
-                    <td>
-                        <span style="display: inline-block; padding: 4px 12px; border-radius: 20px; background: ${statusColor}20; color: ${statusColor}; font-size: 0.85rem; font-weight: 600;">
-                            ${statusText}
-                        </span>
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="action-btn-small view" onclick="viewStockDetails('${doc.id}')" title="Voir détails">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="action-btn-small delete" onclick="showDeleteStockModal('${doc.id}', '${stock.boutiqueName}')" title="Supprimer">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
+               const row = document.createElement('tr');
+row.innerHTML = `
+    <td>
+        <span class="boutique-badge ${stock.boutique === 'sacre-coeur' ? 'badge-sacre-coeur' : 'badge-keur-massar'}">
+            ${stock.boutiqueName || stock.boutique}
+        </span>
+    </td>
+    <td>${dateStr}</td>
+    <td id="prod-${doc.id}">${productionInfo}</td>
+    <td><strong>${total}</strong></td>
+    <td>
+        <div class="action-buttons">
+            <button class="action-btn-small view" onclick="viewStockDetails('${doc.id}')" title="Voir détails">
+                <i class="fas fa-eye"></i>
+            </button>
+            <button class="action-btn-small delete" onclick="showDeleteStockModal('${doc.id}', '${stock.boutiqueName}')" title="Supprimer">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    </td>
+`;
                 
                 tbody.appendChild(row);
             });
             
+            // Attendre que toutes les infos de production soient chargées
+            Promise.all(promises).then(results => {
+                results.forEach((prodInfo, index) => {
+                    const doc = snapshot.docs[index];
+                    if (doc) {
+                        const cell = document.getElementById(`prod-${doc.id}`);
+                        if (cell) cell.textContent = `Prod. ${prodInfo}`;
+                    }
+                });
+            });
+            
         }).catch(error => {
             console.error('Erreur chargement stocks:', error);
-            showMessage('Erreur de chargement', 'error');
+            showMessage('Erreur de chargement des stocks', 'error');
         });
 }
 
@@ -7120,6 +7210,247 @@ function viewStockDetails(stockId) {
         });
 }
 
+      // Fonction pour calculer les ventes réelles d'un stock
+async function calculateActualSalesForStock(stockId, categories) {
+    console.log('Calcul ventes réelles pour stock:', stockId);
+    
+    const ventesParCategorie = {};
+    
+    // Initialiser à 0 pour chaque catégorie
+    categories.forEach(cat => {
+        ventesParCategorie[cat.id] = 0;
+    });
+    
+    try {
+        // Charger TOUTES les factures pour CETTE boutique et CE stock
+        const snapshot = await db.collection('invoices')
+            .where('stockAttribueId', '==', stockId)
+            .get();
+        
+        console.log(`📊 ${snapshot.size} factures trouvées pour ce stock`);
+        
+        snapshot.forEach(doc => {
+            const facture = doc.data();
+            
+            if (facture.items && Array.isArray(facture.items)) {
+                facture.items.forEach(item => {
+                    const catId = item.id.toString();
+                    if (ventesParCategorie.hasOwnProperty(catId)) {
+                        ventesParCategorie[catId] += item.quantity || 0;
+                    }
+                });
+            }
+        });
+        
+        console.log("📦 Ventes calculées:", ventesParCategorie);
+        return ventesParCategorie;
+        
+    } catch (error) {
+        console.error("❌ Erreur calcul ventes:", error);
+        return ventesParCategorie;
+    }
+}
+
+// MODIFIEZ la fonction viewStockDetails() :
+async function viewStockDetails(stockId) {
+    db.collection('stocks_attribues').doc(stockId).get()
+        .then(async doc => {
+            if (!doc.exists) return;
+            
+            const stock = doc.data();
+            
+            // 1. Calculer les ventes RÉELLES depuis les factures
+            const ventesReelles = await calculateActualSalesForProduction(stock.productionId);
+            
+            let content = `
+                <div style="max-width: 600px;">
+                    <h3 style="margin-bottom: 20px; color: var(--dark-text);">
+                        <i class="fas fa-box"></i> Détails du Stock
+                    </h3>
+                    
+                    <div style="background: var(--light-gray); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                            <div>
+                                <strong>Boutique:</strong><br>
+                                ${stock.boutiqueName || stock.boutique}
+                            </div>
+                            <div>
+                                <strong>Date attribution:</strong><br>
+                                ${formatDate(stock.date)}
+                            </div>
+                            <div>
+                                <strong>Total attribué:</strong><br>
+                                ${stock.total || 0} poulets
+                            </div>
+                            <div>
+                                <strong>Vendu réel:</strong><br>
+                                <span style="color: ${ventesReelles.total > 0 ? '#EF4444' : '#6B7280'}; font-weight: bold;">
+                                    ${Object.values(ventesReelles).reduce((a, b) => a + b, 0)} poulets
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin-bottom: 15px;">Détail par catégorie (Ventes réelles depuis factures)</h4>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+            `;
+            
+            // Les 8 catégories
+            const categories = [
+                { id: '1', name: 'Très petits (1-1.1 kg)' },
+                { id: '2', name: 'Petits (1.2 kg)' },
+                { id: '3', name: 'Moyens-petits (1.3-1.4 kg)' },
+                { id: '4', name: 'Moyens (1.5-1.6 kg)' },
+                { id: '5', name: 'Moyens-grands (1.7-1.9 kg)' },
+                { id: '6', name: 'Grands (2 kg)' },
+                { id: '7', name: 'Très grands (2.1-2.3 kg)' },
+                { id: '8', name: 'Géants (+2.4 kg)' }
+            ];
+            
+            let totalAttribue = 0;
+            let totalVenduReel = 0;
+            
+            categories.forEach(cat => {
+                const attribue = stock.categories?.[cat.id] || 0;
+                const venduReel = ventesReelles[cat.id] || 0;
+                const restant = attribue - venduReel;
+                
+                totalAttribue += attribue;
+                totalVenduReel += venduReel;
+                
+                if (attribue > 0) {
+                    content += `
+                        <div style="background: white; padding: 10px; border-radius: 8px; border: 1px solid #E5E7EB;">
+                            <div style="font-weight: bold; margin-bottom: 5px;">${cat.name}</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; font-size: 0.9rem;">
+                                <div style="text-align: center;">
+                                    <div style="color: #6B7280; font-size: 0.8rem;">Attribué</div>
+                                    <div style="font-weight: bold;">${attribue}</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="color: #6B7280; font-size: 0.8rem;">Vendu réel</div>
+                                    <div style="color: #EF4444; font-weight: bold;">${venduReel}</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="color: #6B7280; font-size: 0.8rem;">Restant</div>
+                                    <div style="color: ${restant > 0 ? '#10B981' : '#EF4444'}; font-weight: bold;">
+                                        ${restant}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            // Calculer le pourcentage
+            const pourcentageVendu = totalAttribue > 0 ? Math.round((totalVenduReel / totalAttribue) * 100) : 0;
+            
+            content += `
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: #F0F9FF; border-radius: 10px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div>
+                                <strong>Total attribué:</strong><br>
+                                <span style="font-size: 1.2rem;">${totalAttribue}</span>
+                            </div>
+                            <div>
+                                <strong>Vendu réel:</strong><br>
+                                <span style="font-size: 1.2rem; color: #EF4444;">${totalVenduReel}</span>
+                            </div>
+                            <div>
+                                <strong>Restant:</strong><br>
+                                <span style="font-size: 1.2rem; color: #10B981;">${totalAttribue - totalVenduReel}</span>
+                            </div>
+                            <div>
+                                <strong>% Vendu:</strong><br>
+                                <span style="font-size: 1.2rem; color: ${pourcentageVendu > 50 ? '#EF4444' : '#10B981'};">${pourcentageVendu}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            
+            // Afficher les détails par catégorie
+            categories.forEach(cat => {
+                const attribue = stock.categories?.[cat.id] || 0;
+                const venduReel = ventesReelles[cat.id] || 0;
+                const restantReel = Math.max(0, attribue - venduReel);
+                
+                if (attribue > 0) {
+                    content += `
+                        <div style="background: white; padding: 10px; border-radius: 8px; border: 1px solid #E5E7EB;">
+                            <div style="font-weight: bold; margin-bottom: 5px;">${cat.name}</div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 3px;">
+                                <span>Attribué:</span>
+                                <span style="font-weight: bold;">${attribue}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 3px;">
+                                <span>Vendu :</span>
+                                <span style="color: #EF4444;">${venduReel}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span>Restant:</span>
+                                <span style="color: ${restantReel > 0 ? '#10B981' : '#EF4444'}; font-weight: bold;">
+                                    ${restantReel}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            content += `
+                    </div>
+                </div>
+            `;
+            
+            // Afficher dans une modal
+            const modal = document.createElement('div');
+            modal.id = 'stockDetailsModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+                padding: 20px;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 15px; padding: 25px; width: 100%; max-width: 700px; max-height: 80vh; overflow-y: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="margin: 0; color: var(--dark-text);">Détails du Stock</h3>
+                        <button onclick="document.getElementById('stockDetailsModal').remove()"
+                                style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--gray-text);">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    ${content}
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button onclick="document.getElementById('stockDetailsModal').remove()"
+                                style="background: var(--primary); color: white; border: none; padding: 10px 30px; border-radius: 8px; cursor: pointer;">
+                            Fermer
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+        }).catch(error => {
+            console.error('Erreur:', error);
+            showMessage('Erreur de chargement', 'error');
+        });
+}
+      
 // Modal de suppression de stock
 function showDeleteStockModal(stockId, boutiqueName) {
     currentStockToDelete = stockId;
