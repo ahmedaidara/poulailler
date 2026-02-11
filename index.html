@@ -1083,16 +1083,13 @@
                 <button class="nav-btn" data-section="pdf">
                     <i class="fas fa-file-pdf"></i> PDF/Rapport
                 </button>
-                <button class="nav-btn" data-section="settings">
-                    <i class="fas fa-cog"></i> Paramètres
-                </button>
+               
               <button class="nav-btn" data-section="stats">
     <i class="fas fa-chart-pie"></i> Statistiques
 </button>
-              <button class="nav-btn" data-section="expenses" onclick="showExpenseManager()">
-    <i class="fas fa-money-bill-wave"></i> Dépenses
-</button>
-            </div>
+              <button class="nav-btn" data-section="settings">
+                    <i class="fas fa-cog"></i> Paramètres
+                </button>
         </header>
         
          <main>
@@ -2764,80 +2761,66 @@ function formatNumberForPDF(num) {
 }
          
 function updateStatistics() {
-    let totalProduction = 0;   // Stock total restant RÉEL
-    let totalStock = 0;        // Stock initial total
-    let totalValue = 0;        // Valeur du stock restant
-    let totalRevenue = 0;      // Chiffre d'affaires total
+    console.log("=== MISE À JOUR STATISTIQUES AVEC FACTURES ===");
     
-    console.log("=== CALCUL STATISTIQUES ===");
+    let totalStockInitial = 0;
+    let totalPouletsVendus = 0;
+    let totalCA = 0;
     
-    allRecords.forEach(record => {
-        console.log(`Enregistrement ${record.id}:`, {
-            initialStock: record.initialStock,
-            small1Quantity: record.small1Quantity,
-            small1Sold: record.small1Sold,
-            etc: '...'
+    // 1. Calculer le TOTAL DES VENTES depuis les factures des boutiques
+    db.collection('invoices').get()
+        .then(snapshot => {
+            console.log(`📊 ${snapshot.size} factures trouvées`);
+            
+            snapshot.forEach(doc => {
+                const facture = doc.data();
+                totalCA += facture.total || 0;
+                
+                // Compter les poulets vendus
+                if (facture.items && Array.isArray(facture.items)) {
+                    facture.items.forEach(item => {
+                        totalPouletsVendus += item.quantity || 0;
+                    });
+                }
+            });
+            
+            console.log(`💰 CA total factures: ${totalCA} F CFA`);
+            console.log(`🐔 Poulets vendus: ${totalPouletsVendus}`);
+            
+            // 2. Calculer le STOCK INITIAL TOTAL depuis les productions
+            let totalInitial = 0;
+            allRecords.forEach(record => {
+                totalInitial += record.initialStock || 0;
+            });
+            totalStockInitial = totalInitial;
+            
+            // 3. Calculer le STOCK RESTANT RÉEL
+            // Stock restant = Stock initial total - Poulets vendus
+            const stockRestant = Math.max(0, totalStockInitial - totalPouletsVendus);
+            
+            // 4. Calculer la VALEUR du stock restant (prix moyen)
+            const prixMoyen = 3000; // Prix moyen estimé
+            const valeurStock = stockRestant * prixMoyen;
+            
+            console.log("=== RÉSULTATS FINAUX ===");
+            console.log(`Stock initial total: ${totalStockInitial}`);
+            console.log(`Poulets vendus: ${totalPouletsVendus}`);
+            console.log(`Stock restant: ${stockRestant}`);
+            console.log(`CA total: ${totalCA} F CFA`);
+            console.log(`Valeur stock: ${valeurStock} F CFA`);
+            
+            // 5. MISE À JOUR DE L'INTERFACE
+            document.getElementById('productionCount').textContent = stockRestant.toLocaleString('fr-FR');
+            document.getElementById('stockCount').textContent = totalStockInitial.toLocaleString('fr-FR');
+            document.getElementById('stockValue').textContent = valeurStock.toLocaleString('fr-FR') + ' F CFA';
+            document.getElementById('revenueCount').textContent = totalCA.toLocaleString('fr-FR') + ' F CFA';
+            
+        })
+        .catch(error => {
+            console.error("❌ Erreur chargement factures:", error);
+            // Fallback: utiliser calculateLocalStats()
+            calculateLocalStats();
         });
-        
-        // 1. Calculer le STOCK RESTANT RÉEL
-        // Pour chaque catégorie, ce qui n'a PAS été vendu ou distribué
-        const cat1Restant = Math.max(0, (record.small1Quantity || 0) - (record.small1Sold || 0));
-        const cat2Restant = Math.max(0, (record.small2Quantity || 0) - (record.small2Sold || 0));
-        const cat3Restant = Math.max(0, (record.medium1Quantity || 0) - (record.medium1Sold || 0));
-        const cat4Restant = Math.max(0, (record.medium2Quantity || 0) - (record.medium2Sold || 0));
-        const cat5Restant = Math.max(0, (record.large1Quantity || 0) - (record.large1Sold || 0));
-        const cat6Restant = Math.max(0, (record.large2Quantity || 0) - (record.large2Sold || 0));
-        const cat7Restant = Math.max(0, (record.xlarge1Quantity || 0) - (record.xlarge1Sold || 0));
-        const cat8Restant = Math.max(0, (record.xlarge2Quantity || 0) - (record.xlarge2Sold || 0));
-        
-        const stockRestant = cat1Restant + cat2Restant + cat3Restant + cat4Restant + 
-                           cat5Restant + cat6Restant + cat7Restant + cat8Restant;
-        
-        console.log(`  Stock restant calculé: ${stockRestant} (${cat1Restant}+${cat2Restant}+...)`);
-        
-        totalProduction += stockRestant;
-        
-        // 2. Stock initial total (ne change pas)
-        totalStock += record.initialStock || 0;
-        
-        // 3. VALEUR du stock restant
-        const valueRestant = (cat1Restant * (record.small1Price || 0)) +
-                           (cat2Restant * (record.small2Price || 0)) +
-                           (cat3Restant * (record.medium1Price || 0)) +
-                           (cat4Restant * (record.medium2Price || 0)) +
-                           (cat5Restant * (record.large1Price || 0)) +
-                           (cat6Restant * (record.large2Price || 0)) +
-                           (cat7Restant * (record.xlarge1Price || 0)) +
-                           (cat8Restant * (record.xlarge2Price || 0));
-        
-        totalValue += valueRestant;
-        console.log(`  Valeur restante: ${valueRestant} F CFA`);
-        
-        // 4. CHIFFRE D'AFFAIRES (valeur des poulets VENDUS)
-        const revenue = (record.small1Sold || 0) * (record.small1Price || 0) +
-                       (record.small2Sold || 0) * (record.small2Price || 0) +
-                       (record.medium1Sold || 0) * (record.medium1Price || 0) +
-                       (record.medium2Sold || 0) * (record.medium2Price || 0) +
-                       (record.large1Sold || 0) * (record.large1Price || 0) +
-                       (record.large2Sold || 0) * (record.large2Price || 0) +
-                       (record.xlarge1Sold || 0) * (record.xlarge1Price || 0) +
-                       (record.xlarge2Sold || 0) * (record.xlarge2Price || 0);
-        
-        totalRevenue += revenue;
-        console.log(`  CA: ${revenue} F CFA`);
-    });
-    
-    console.log("=== RÉSULTATS FINAUX ===");
-    console.log(`Stock restant total: ${totalProduction}`);
-    console.log(`Stock initial total: ${totalStock}`);
-    console.log(`Valeur stock: ${totalValue} F CFA`);
-    console.log(`CA total: ${totalRevenue} F CFA`);
-    
-    // Mise à jour de l'interface
-    document.getElementById('productionCount').textContent = Math.max(0, totalProduction).toLocaleString('fr-FR');
-    document.getElementById('stockCount').textContent = Math.round(totalStock).toLocaleString('fr-FR');
-    document.getElementById('stockValue').textContent = Math.round(totalValue).toLocaleString('fr-FR') + ' F CFA';
-    document.getElementById('revenueCount').textContent = Math.round(totalRevenue).toLocaleString('fr-FR') + ' F CFA';
 }
 
       // ==============================================
@@ -9586,7 +9569,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="option-item">
                     <input type="checkbox" id="printExpenseNotes" class="checkbox" checked>
                     <label for="printExpenseNotes">Notes et observations</label>
-                </div>
+                </div> 
                 
                 <div class="option-item">
                     <label for="printOrientation" class="form-label" style="display: block; margin-bottom: var(--space-sm);">Orientation :</label>
