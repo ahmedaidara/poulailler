@@ -1087,6 +1087,10 @@
               <button class="nav-btn" data-section="stats">
     <i class="fas fa-chart-pie"></i> Statistiques
 </button>
+              
+              <button class="nav-btn" id="btnDepense">
+    <i class="fas fa-file-invoice-dollar"></i> Dépenses
+</button>
               <button class="nav-btn" data-section="settings">
                     <i class="fas fa-cog"></i> Paramètres
                 </button>
@@ -2180,7 +2184,7 @@
             e.preventDefault();
             showMessage('Inspection désactivée', 'warning');
             return false;
-        }
+        } 
         
         
         if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'K' || e.key === 'C')) {
@@ -2214,7 +2218,7 @@
         
         if ((widthThreshold || heightThreshold) && !devtoolsOpen) {
             devtoolsOpen = true;
-            showMessage('Les outils de développement sont détectés', 'error');
+            showMessage('NB: Cette connexion est sauvegardée', 'error');
             
         }
     }, 1000);
@@ -2510,7 +2514,7 @@ let currentStatsEndDate = null;
         })
         .catch(error => {
             console.error("Erreur de chargement des enregistrements:", error);
-            showMessage('Erreur de chargement des données', 'error');
+           
         });
 }
         
@@ -3058,285 +3062,195 @@ function calculateLocalStats() {
         });
 }
         
-         
-        function viewRecord(recordId) {
-            const record = allRecords.find(r => r.id === recordId);
-            if (!record) return;
+     function viewRecord(recordId) {
+    const record = allRecords.find(r => r.id === recordId);
+    if (!record) return;
+    
+    const totalSold = (record.small1Sold || 0) + (record.small2Sold || 0) + 
+          (record.medium1Sold || 0) + (record.medium2Sold || 0) + 
+          (record.large1Sold || 0) + (record.large2Sold || 0) + 
+          (record.xlarge1Sold || 0) + (record.xlarge2Sold || 0);
+    
+    const totalRevenue = (record.small1Sold || 0) * (record.small1Price || 0) + 
+                (record.small2Sold || 0) * (record.small2Price || 0) + 
+                (record.medium1Sold || 0) * (record.medium1Price || 0) + 
+                (record.medium2Sold || 0) * (record.medium2Price || 0) + 
+                (record.large1Sold || 0) * (record.large1Price || 0) + 
+                (record.large2Sold || 0) * (record.large2Price || 0) + 
+                (record.xlarge1Sold || 0) * (record.xlarge1Price || 0) + 
+                (record.xlarge2Sold || 0) * (record.xlarge2Price || 0);
+    
+    const startDateFormatted = formatDate(record.startDate);
+    const endDateFormatted = record.endDate ? formatDate(record.endDate) : 'Non définie';
+    
+    let content = `
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl);">
+            <div class="form-group">
+                <label class="form-label">Date de début</label>
+                <div class="form-input" style="background: var(--light-gray);">${startDateFormatted}</div>
+            </div>
             
-             
-            const totalSold = (record.small1Sold || 0) + (record.small2Sold || 0) + 
-                  (record.medium1Sold || 0) + (record.medium2Sold || 0) + 
-                  (record.large1Sold || 0) + (record.large2Sold || 0) + 
-                  (record.xlarge1Sold || 0) + (record.xlarge2Sold || 0);
-           const totalRevenue = (record.small1Sold || 0) * (record.small1Price || 0) + 
-                    (record.small2Sold || 0) * (record.small2Price || 0) + 
-                    (record.medium1Sold || 0) * (record.medium1Price || 0) + 
-                    (record.medium2Sold || 0) * (record.medium2Price || 0) + 
-                    (record.large1Sold || 0) * (record.large1Price || 0) + 
-                    (record.large2Sold || 0) * (record.large2Price || 0) + 
-                    (record.xlarge1Sold || 0) * (record.xlarge1Price || 0) + 
-                    (record.xlarge2Sold || 0) * (record.xlarge2Price || 0);
+            <div class="form-group">
+                <label class="form-label">Date de fin</label>
+                <div class="form-input" style="background: var(--light-gray);">${endDateFormatted}</div>
+            </div>
             
+            <div class="form-group">
+                <label class="form-label">Stock initial</label>
+                <div class="form-input" style="background: var(--light-gray);">${record.initialStock || 0}</div>
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl);">
+            <div class="form-group">
+                <label class="form-label">Donnés gratuitement</label>
+                <div class="form-input" style="background: var(--light-gray);">${record.given || 0}</div>
+            </div>
             
-            const startDateFormatted = formatDate(record.startDate);
-            const endDateFormatted = record.endDate ? formatDate(record.endDate) : 'Non définie';
-            
-            
-            let content = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl);">
-                    <div class="form-group">
-                        <label class="form-label">Date de début</label>
-                        <div class="form-input" style="background: var(--light-gray);">${startDateFormatted}</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Date de fin</label>
-                        <div class="form-input" style="background: var(--light-gray);">${endDateFormatted}</div>
-                    </div>
-                    
-                    
-                    
-                    <div class="form-group">
-                        <label class="form-label">Stock initial</label>
-                        <div class="form-input" style="background: var(--light-gray);">${record.initialStock || 0}</div>
-                    </div>
-                </div>
-                
-              <h3 style="margin-bottom: var(--space-lg);">Ventes par catégorie (8 niveaux)</h3>
-
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl);">
-    <div class="price-category">
-        <h4 style="margin-bottom: var(--space-md);">  Très petits (1-1.1 kg)</h4>
-        <p>Quantité: ${record.small1Quantity || 0}</p>
-        <p>Vendus: ${record.small1Sold || 0}</p>
-        <p>Prix: ${record.small1Price || 0} F CFA</p>
-        <p>Total: ${(record.small1Sold || 0) * (record.small1Price || 0)} F CFA</p>
-    </div>
+            <div class="form-group">
+                <label class="form-label">Perdus (morts)</label>
+                <div class="form-input" style="background: var(--light-gray);">${record.lost || 0}</div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Notes</label>
+            <div class="form-input" style="background: var(--light-gray); min-height: 80px;">${record.notes || 'Aucune note'}</div>
+        </div>
+    `;
     
-    <div class="price-category">
-        <h4 style="margin-bottom: var(--space-md);">  Petits (1.2 kg)</h4>
-        <p>Quantité: ${record.small2Quantity || 0}</p>
-        <p>Vendus: ${record.small2Sold || 0}</p>
-        <p>Prix: ${record.small2Price || 0} F CFA</p>
-        <p>Total: ${(record.small2Sold || 0) * (record.small2Price || 0)} F CFA</p>
-    </div>
-    
-    <div class="price-category">
-        <h4 style="margin-bottom: var(--space-md);">  Moyens-petits (1.3-1.4 kg)</h4>
-        <p>Quantité: ${record.medium1Quantity || 0}</p>
-        <p>Vendus: ${record.medium1Sold || 0}</p>
-        <p>Prix: ${record.medium1Price || 0} F CFA</p>
-        <p>Total: ${(record.medium1Sold || 0) * (record.medium1Price || 0)} F CFA</p>
-    </div>
-    
-    <div class="price-category">
-        <h4 style="margin-bottom: var(--space-md);">  Moyens (1.5-1.6 kg)</h4>
-        <p>Quantité: ${record.medium2Quantity || 0}</p>
-        <p>Vendus: ${record.medium2Sold || 0}</p>
-        <p>Prix: ${record.medium2Price || 0} F CFA</p>
-        <p>Total: ${(record.medium2Sold || 0) * (record.medium2Price || 0)} F CFA</p>
-    </div>
-    
-    <div class="price-category">
-        <h4 style="margin-bottom: var(--space-md);">  Moyens-grands (1.7-1.9 kg)</h4>
-        <p>Quantité: ${record.large1Quantity || 0}</p>
-        <p>Vendus: ${record.large1Sold || 0}</p>
-        <p>Prix: ${record.large1Price || 0} F CFA</p>
-        <p>Total: ${(record.large1Sold || 0) * (record.large1Price || 0)} F CFA</p>
-    </div>
-    
-    <div class="price-category">
-        <h4 style="margin-bottom: var(--space-md);">  Grands (2 kg)</h4>
-        <p>Quantité: ${record.large2Quantity || 0}</p>
-        <p>Vendus: ${record.large2Sold || 0}</p>
-        <p>Prix: ${record.large2Price || 0} F CFA</p>
-        <p>Total: ${(record.large2Sold || 0) * (record.large2Price || 0)} F CFA</p>
-    </div>
-    
-    <div class="price-category">
-        <h4 style="margin-bottom: var(--space-md);">  Très grands (2.1-2.3 kg)</h4>
-        <p>Quantité: ${record.xlarge1Quantity || 0}</p>
-        <p>Vendus: ${record.xlarge1Sold || 0}</p>
-        <p>Prix: ${record.xlarge1Price || 0} F CFA</p>
-        <p>Total: ${(record.xlarge1Sold || 0) * (record.xlarge1Price || 0)} F CFA</p>
-    </div>
-    
-    <div class="price-category">
-        <h4 style="margin-bottom: var(--space-md);">  Géants (+2.4 kg)</h4>
-        <p>Quantité: ${record.xlarge2Quantity || 0}</p>
-        <p>Vendus: ${record.xlarge2Sold || 0}</p>
-        <p>Prix: ${record.xlarge2Price || 0} F CFA</p>
-        <p>Total: ${(record.xlarge2Sold || 0) * (record.xlarge2Price || 0)} F CFA</p>
-    </div>
-</div>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl);">
-                     
-                    
-                    <div class="form-group">
-                        <label class="form-label">Donnés gratuitement</label>
-                        <div class="form-input" style="background: var(--light-gray);">${record.given || 0}</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Perdus (morts)</label>
-                        <div class="form-input" style="background: var(--light-gray);">${record.lost || 0}</div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Notes</label>
-                    <div class="form-input" style="background: var(--light-gray); min-height: 80px;">${record.notes || 'Aucune note'}</div>
-                </div>
-                
-                <div style="background: var(--light-gray); padding: var(--space-lg); border-radius: var(--radius-lg); margin-top: var(--space-xl);">
-                    <h4 style="margin-bottom: var(--space-md);">Résumé</h4>
-                    <p>Total vendu: ${totalSold} poulets</p>
-                    <p>Chiffre d'affaires: ${totalRevenue} F CFA</p>
-                </div>
-            `;
-            
-        content += `
-    <div style="background: #f0f9ff; padding: var(--space-lg); border-radius: var(--radius-lg); margin-top: var(--space-xl);">
-        <h4 style="margin-bottom: var(--space-md); color: #0369a1;">
-            <i class="fas fa-boxes-stacked"></i> Stock Disponible pour Vente
-        </h4>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-md);">
-`;
-
-// Liste des catégories avec leurs noms et clés
-const categoriesInfo = [
-    { id: 1, name: 'Très petits (1-1.1 kg)', quantityKey: 'small1Quantity', soldKey: 'small1Sold', priceKey: 'small1Price', catKey: 'cat1' },
-    { id: 2, name: 'Petits (1.2 kg)', quantityKey: 'small2Quantity', soldKey: 'small2Sold', priceKey: 'small2Price', catKey: 'cat2' },
-    { id: 3, name: 'Moyens-petits (1.3-1.4 kg)', quantityKey: 'medium1Quantity', soldKey: 'medium1Sold', priceKey: 'medium1Price', catKey: 'cat3' },
-    { id: 4, name: 'Moyens (1.5-1.6 kg)', quantityKey: 'medium2Quantity', soldKey: 'medium2Sold', priceKey: 'medium2Price', catKey: 'cat4' },
-    { id: 5, name: 'Moyens-grands (1.7-1.9 kg)', quantityKey: 'large1Quantity', soldKey: 'large1Sold', priceKey: 'large1Price', catKey: 'cat5' },
-    { id: 6, name: 'Grands (2 kg)', quantityKey: 'large2Quantity', soldKey: 'large2Sold', priceKey: 'large2Price', catKey: 'cat6' },
-    { id: 7, name: 'Très grands (2.1-2.3 kg)', quantityKey: 'xlarge1Quantity', soldKey: 'xlarge1Sold', priceKey: 'xlarge1Price', catKey: 'cat7' },
-    { id: 8, name: 'Géants (+2.4 kg)', quantityKey: 'xlarge2Quantity', soldKey: 'xlarge2Sold', priceKey: 'xlarge2Price', catKey: 'cat8' }
-];
-
-// Pour chaque catégorie, calculer le stock disponible
-categoriesInfo.forEach(cat => {
-    // 1. Quantité initiale (priorité à stock_disponible, sinon aux champs individuels)
-    let quantiteInitiale = 0;
-    
-    if (record.stock_disponible && record.stock_disponible[cat.catKey]) {
-        // Utiliser stock_disponible si disponible
-        quantiteInitiale = record.stock_disponible[cat.catKey];
-    } else if (record[cat.quantityKey]) {
-        // Sinon utiliser le champ quantité
-        quantiteInitiale = record[cat.quantityKey] || 0;
-    }
-    
-    // 2. Nombre déjà vendu
-    const dejaVendu = record[cat.soldKey] || 0;
-    
-    // 3. Stock restant
-    const stockRestant = Math.max(0, quantiteInitiale - dejaVendu);
-    
-    // 4. Prix
-    const prix = record[cat.priceKey] || 0;
-    const valeurStock = stockRestant * prix;
-    
+    // SECTION STOCK DISPONIBLE UNIQUEMENT (sans Ventes par catégorie ni Résumé)
     content += `
-        <div style="background: white; padding: var(--space-md); border-radius: var(--radius-md); border: 1px solid #e0e0e0;">
-            <div style="font-weight: bold; font-size: 0.9rem; margin-bottom: 8px;">${cat.name}</div>
-            
-            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                <small style="color: #666;">Initial:</small>
-                <small style="font-weight: bold;">${quantiteInitiale}</small>
-            </div>
-            
-            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                <small style="color: #666;">Déjà vendu:</small>
-                <small style="color: #ef4444;">${dejaVendu}</small>
-            </div>
-            
-            <div style="border-top: 1px solid #e0e0e0; padding-top: 5px; margin-top: 5px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <small style="color: #666;">Disponible:</small>
-                    <div style="font-weight: bold; color: ${stockRestant > 0 ? '#10b981' : '#ef4444'};">
-                        ${stockRestant}
-                    </div>
+        <div style="background: #f0f9ff; padding: var(--space-lg); border-radius: var(--radius-lg); margin-top: var(--space-xl);">
+            <h4 style="margin-bottom: var(--space-md); color: #0369a1;">
+                <i class="fas fa-boxes-stacked"></i> Stock Disponible pour Vente
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-md);">
+    `;
+
+    // Liste des catégories avec leurs noms et clés
+    const categoriesInfo = [
+        { id: 1, name: 'Très petits (1-1.1 kg)', quantityKey: 'small1Quantity', soldKey: 'small1Sold', priceKey: 'small1Price', catKey: 'cat1' },
+        { id: 2, name: 'Petits (1.2 kg)', quantityKey: 'small2Quantity', soldKey: 'small2Sold', priceKey: 'small2Price', catKey: 'cat2' },
+        { id: 3, name: 'Moyens-petits (1.3-1.4 kg)', quantityKey: 'medium1Quantity', soldKey: 'medium1Sold', priceKey: 'medium1Price', catKey: 'cat3' },
+        { id: 4, name: 'Moyens (1.5-1.6 kg)', quantityKey: 'medium2Quantity', soldKey: 'medium2Sold', priceKey: 'medium2Price', catKey: 'cat4' },
+        { id: 5, name: 'Moyens-grands (1.7-1.9 kg)', quantityKey: 'large1Quantity', soldKey: 'large1Sold', priceKey: 'large1Price', catKey: 'cat5' },
+        { id: 6, name: 'Grands (2 kg)', quantityKey: 'large2Quantity', soldKey: 'large2Sold', priceKey: 'large2Price', catKey: 'cat6' },
+        { id: 7, name: 'Très grands (2.1-2.3 kg)', quantityKey: 'xlarge1Quantity', soldKey: 'xlarge1Sold', priceKey: 'xlarge1Price', catKey: 'cat7' },
+        { id: 8, name: 'Géants (+2.4 kg)', quantityKey: 'xlarge2Quantity', soldKey: 'xlarge2Sold', priceKey: 'xlarge2Price', catKey: 'cat8' }
+    ];
+
+    // Pour chaque catégorie, calculer le stock disponible
+    categoriesInfo.forEach(cat => {
+        // 1. Quantité initiale (priorité à stock_disponible, sinon aux champs individuels)
+        let quantiteInitiale = 0;
+        
+        if (record.stock_disponible && record.stock_disponible[cat.catKey]) {
+            quantiteInitiale = record.stock_disponible[cat.catKey];
+        } else if (record[cat.quantityKey]) {
+            quantiteInitiale = record[cat.quantityKey] || 0;
+        }
+        
+        // 2. Nombre déjà vendu
+        const dejaVendu = record[cat.soldKey] || 0;
+        
+        // 3. Stock restant
+        const stockRestant = Math.max(0, quantiteInitiale - dejaVendu);
+        
+        // 4. Prix
+        const prix = record[cat.priceKey] || 0;
+        const valeurStock = stockRestant * prix;
+        
+        content += `
+            <div style="background: white; padding: var(--space-md); border-radius: var(--radius-md); border: 1px solid #e0e0e0;">
+                <div style="font-weight: bold; font-size: 0.9rem; margin-bottom: 8px;">${cat.name}</div>
+                
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <small style="color: #666;">Initial:</small>
+                    <small style="font-weight: bold;">${quantiteInitiale}</small>
                 </div>
                 
-                <div style="margin-top: 5px; font-size: 0.8rem; color: #3b82f6; text-align: right;">
-                    ≈ ${valeurStock.toLocaleString('fr-FR')} F CFA
-                </div>
+              
+            </div>
+        `;
+    });
+
+    content += `
             </div>
         </div>
     `;
-});
-
-content += `
-        </div>
-    </div>
-`;
-          
-          db.collection('invoices')
-    .where('productionId', '==', recordId)
-    .get()
-    .then(snapshot => {
-        let facturesHTML = '';
-        
-        if (snapshot.empty) {
-            facturesHTML = `<p style="color: var(--gray-text); text-align: center;">Aucune facture pour cette production</p>`;
-        } else {
-            facturesHTML = `<div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-                    <thead>
-                        <tr style="background: var(--light-gray);">
-                            <th style="padding: 8px; text-align: left;">N° Facture</th>
-                            <th style="padding: 8px; text-align: left;">Date</th>
-                            <th style="padding: 8px; text-align: left;">Boutique</th>
-                            <th style="padding: 8px; text-align: right;">Montant</th>
+    
+    // Afficher le contenu de base
+    document.getElementById('viewModalContent').innerHTML = content;
+    
+    // Charger et afficher les factures
+    db.collection('invoices')
+        .where('productionId', '==', recordId)
+        .get()
+        .then(snapshot => {
+            let facturesHTML = '';
+            
+            if (snapshot.empty) {
+                facturesHTML = `<p style="color: var(--gray-text); text-align: center; margin-top: var(--space-xl);">Aucune facture pour cette production</p>`;
+            } else {
+                facturesHTML = `<div style="margin-top: var(--space-xl);">
+                    <h4 style="margin-bottom: var(--space-md);">
+                        <i class="fas fa-file-invoice"></i> CONSULTEZ LA PAGE FACTURE POUR PLUS DE PRECISION !
+                    </h4>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                            <thead>
+                                <tr style="background: var(--light-gray);">
+                                    <th style="padding: 8px; text-align: left;">N° Facture</th>
+                                    <th style="padding: 8px; text-align: left;">Date</th>
+                                    <th style="padding: 8px; text-align: left;">Boutique</th>
+                                    <th style="padding: 8px; text-align: right;">Montant</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                
+                let totalVentes = 0;
+                
+                snapshot.forEach(doc => {
+                    const facture = doc.data();
+                    const date = new Date(facture.date?.seconds * 1000 || facture.date);
+                    
+                    facturesHTML += `
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 8px;">${facture.invoiceNumber || 'N/A'}</td>
+                            <td style="padding: 8px;">${formatDate(date)}</td>
+                            <td style="padding: 8px;">${facture.boutiqueName || ''}</td>
+                            <td style="padding: 8px; text-align: right; font-weight: bold;">
+                                ${(facture.total || 0).toLocaleString('fr-FR')} F CFA
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>`;
-            
-            let totalVentes = 0;
-            
-            snapshot.forEach(doc => {
-                const facture = doc.data();
-                const date = new Date(facture.date?.seconds * 1000 || facture.date);
+                    `;
+                    
+                    totalVentes += facture.total || 0;
+                });
                 
+                facturesHTML += `</tbody></table>`;
+                
+                // Résumé des factures
                 facturesHTML += `
-                    <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 8px;">${facture.invoiceNumber || 'N/A'}</td>
-                        <td style="padding: 8px;">${formatDate(date)}</td>
-                        <td style="padding: 8px;">${facture.boutiqueName || ''}</td>
-                        <td style="padding: 8px; text-align: right; font-weight: bold;">
-                            ${(facture.total || 0).toLocaleString('fr-FR')} F CFA
-                        </td>
-                    </tr>
-                `;
-                
-                totalVentes += facture.total || 0;
-            });
-            
-            facturesHTML += `</tbody></table>`;
-            
-            // Résumé
-            facturesHTML += `
-                <div style="margin-top: 15px; padding: 10px; background: #f0f9ff; border-radius: 8px;">
-                    <div style="display: flex; justify-content: space-between;">
-                        <span><strong>${snapshot.size} facture(s)</strong></span>
-                        <span><strong>Total ventes:</strong> ${totalVentes.toLocaleString('fr-FR')} F CFA</span>
+                    <div style="margin-top: 15px; padding: 10px; background: #f0f9ff; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span><strong>${snapshot.size} facture(s)</strong></span>
+                            <span><strong>Total ventes:</strong> ${totalVentes.toLocaleString('fr-FR')} F CFA</span>
+                        </div>
                     </div>
-                </div>
-            `;
-        }
-        
-        // Insérer dans le contenu
-        document.getElementById('viewModalContent').innerHTML += facturesHTML;
-        
-    }).catch(error => {
-        console.error('Erreur chargement factures:', error);
-    });
-            document.getElementById('viewModalContent').innerHTML = content;
-            showModal('viewModal');
-        }
+                </div>`;
+            }
+            
+            // Ajouter les factures au contenu existant
+            document.getElementById('viewModalContent').innerHTML += facturesHTML;
+            
+        }).catch(error => {
+            console.error('Erreur chargement factures:', error);
+        });
+    
+    showModal('viewModal');
+}
         
          
         function showUpdateModal(recordId) {
@@ -3756,7 +3670,7 @@ if (xlarge2Quantity < currentRecordToEdit.xlarge2Sold) {
     document.getElementById('confirmDeleteBtn').disabled = !isCorrect;
 }
         
-        
+         
         function deleteRecord() {
             if (!currentRecordToDelete) return;
             
@@ -3769,7 +3683,7 @@ if (xlarge2Quantity < currentRecordToEdit.xlarge2Sold) {
                 })
                 .catch(error => {
                     console.error("Erreur de suppression d'enregistrement:", error);
-                    showMessage("Erreur lors de la suppression de l'enregistrement", 'error');
+                    showMessage("Rafraichissez la page pour voir les modifications", 'error');
                 });
         }
         
@@ -9484,9 +9398,25 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Collection "expenses" sera créée automatiquement au premier enregistrement');
         });
 });
+        
+      
       // Développer par AHMED SAID IDDA AIDARA
     </script>
-  
+  <script>
+function afficherDepense() {
+    document.getElementById('depense-iframe').src = 'depense.html';
+    document.getElementById('depense-container').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function fermerDepense() {
+    document.getElementById('depense-container').style.display = 'none';
+    document.getElementById('depense-iframe').src = '';
+    document.body.style.overflow = 'auto';
+}
+
+document.getElementById('btnDepense').addEventListener('click', afficherDepense);
+</script>
   <!-- =============================== -->
 <!-- MODAL GESTION DES DÉPENSES -->
 <!-- =============================== -->
@@ -9591,6 +9521,13 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 </div>
+       <div id="depense-container" style="display: none; position: fixed; top: 60px; left: 0; right: 0; bottom: 0; width: 100%; background: white; z-index: 999;">
+    <button onclick="fermerDepense()" style="position: absolute; top: 10px; right: 20px; z-index: 1000; padding: 8px 16px; background: #ff4444; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        <i class="fas fa-times"></i> Fermer
+    </button>
+    <iframe id="depense-iframe" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+</div>
+       
 </body>
  </html>
 
