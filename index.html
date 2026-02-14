@@ -1688,7 +1688,7 @@
 <div class="table-container" style="margin-top: var(--space-2xl);">
     <div class="table-header">
         <h3 style="margin: 0;">
-            <i class="fas fa-chart-bar"></i> Stocks Attribués - Vue d'ensemble
+             
         </h3>
        
     </div>
@@ -1697,11 +1697,7 @@
         <table class="records-table">
            <thead>
     <tr>
-        <th>Boutique</th>
-        <th>Date attribution</th>
-        <th>Production</th>
-        <th>Attribué</th>
-        <th>Actions</th>
+        
     </tr>
 </thead>
             <tbody id="attributedStocksTableBody">
@@ -1831,8 +1827,51 @@
 </section>
            <!-- Section Statistiques et Dépenses -->
 <section id="statsSection" class="dashboard-section" style="display: none;">
-    <h2 class="section-title"><i class="fas fa-chart-pie"></i> Statistiques et Dépenses</h2>
-    
+    <h2 class="section-title"><i class="fas fa-chart-pie"></i> Statistiques </h2>
+        <div class="table-container" style="margin-bottom: var(--space-xl);">
+        <div class="table-header">
+            <h3 style="margin: 0;">
+                <i class="fas fa-boxes" style="color: #8B5CF6;"></i> Stocks Attribués - Vue d'ensemble
+            </h3>
+            <div class="filters">
+                <button class="filter-btn active" data-stock-filter="all">Tous</button>
+                <button class="filter-btn" data-stock-filter="active">Actifs</button>
+                <button class="filter-btn" data-stock-filter="completed">Terminés</button>
+                <button class="filter-btn" data-stock-filter="sacre-coeur">Sacré Coeur</button>
+                <button class="filter-btn" data-stock-filter="keur-massar">Keur Massar</button>
+            </div>
+        </div>
+        
+        <div class="table-wrapper">
+            <table class="records-table">
+                <thead>
+                    <tr>
+                        <th>Boutique</th>
+                        <th>Date attribution</th>
+                        <th>Production</th>
+                        <th>Attribué</th>
+                        <th>  </th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="statsStocksTableBody">
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 30px;">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #8B5CF6;"></i>
+                            <p style="margin-top: 10px;">Chargement des stocks...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="statsEmptyStocks" class="empty-state" style="display: none;">
+            <i class="fas fa-box-open" style="font-size: 3rem; margin-bottom: var(--space-md); color: var(--light-gray);"></i>
+            <h3>Aucun stock attribué</h3>
+            <p>Les stocks attribués aux boutiques apparaîtront ici</p>
+        </div>
+    </div>
     <!-- Filtres -->
     <div class="table-container" style="margin-bottom: var(--space-xl);">
         <div class="table-header">
@@ -6703,6 +6742,8 @@ if (document.getElementById('selectProductionDist')) {
             } else {
                 customDiv.style.display = 'none';
                 loadStats();
+              initStatsStockFilters();
+
             }
         });
     });
@@ -6852,6 +6893,7 @@ function loadStats() {
             
             // Mettre à jour les détails par boutique
             updateBoutiqueStatsDetails(boutiqueStats);
+      loadStatsStocks('all');
             
         }).catch(error => {
             console.error('Erreur chargement stats:', error);
@@ -9939,6 +9981,284 @@ function addRefreshButton() {
 }
 
 // Appeler cette fonction après le login
+    
+    // ==============================================
+// CHARGEMENT DES STOCKS POUR LA PAGE STATISTIQUES
+// ==============================================
+
+function loadStatsStocks(filter = 'all') {
+    console.log("📦 Chargement stocks pour stats avec filtre:", filter);
+    
+    const tbody = document.getElementById('statsStocksTableBody');
+    const emptyState = document.getElementById('statsEmptyStocks');
+    
+    if (!tbody) {
+        console.error("❌ Élément 'statsStocksTableBody' non trouvé");
+        return;
+    }
+    
+    // Afficher le chargement
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="7" style="text-align: center; padding: 30px;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #8B5CF6;"></i>
+                <p style="margin-top: 10px;">Chargement des stocks...</p>
+            </td>
+        </tr>
+    `;
+    tbody.style.display = 'table-row-group';
+    if (emptyState) emptyState.style.display = 'none';
+    
+    // Construire la requête
+    let query = db.collection('stocks_attribues');
+    
+    if (filter === 'sacre-coeur') {
+        query = query.where('boutique', '==', 'sacre-coeur');
+    } else if (filter === 'keur-massar') {
+        query = query.where('boutique', '==', 'keur-massar');
+    } else if (filter === 'active') {
+        query = query.where('remaining', '>', 0);
+    } else if (filter === 'completed') {
+        query = query.where('remaining', '==', 0);
+    }
+    
+    query = query.orderBy('date', 'desc').limit(20);
+    
+    query.get()
+        .then(snapshot => {
+            console.log(`📊 ${snapshot.size} stocks trouvés`);
+            
+            if (snapshot.empty) {
+                tbody.innerHTML = '';
+                tbody.style.display = 'none';
+                if (emptyState) emptyState.style.display = 'block';
+                return;
+            }
+            
+            tbody.innerHTML = '';
+            
+            snapshot.forEach(doc => {
+                const stock = doc.data();
+                const date = new Date(stock.date);
+                const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
+                
+                // Déterminer le nom de la boutique
+                let boutiqueName = 'Inconnue';
+                let badgeClass = '';
+                
+                if (stock.boutique === 'sacre-coeur') {
+                    boutiqueName = 'Sacré Coeur 3';
+                    badgeClass = 'badge-sacre-coeur';
+                } else if (stock.boutique === 'keur-massar') {
+                    boutiqueName = 'Keur Massar';
+                    badgeClass = 'badge-keur-massar';
+                } else if (stock.boutiqueName) {
+                    boutiqueName = stock.boutiqueName;
+                }
+                
+                const total = stock.total || 0;
+                const vendu = stock.totalSold || 0;
+                const restant = stock.remaining || (total - vendu);
+                
+                // Déterminer la couleur du statut
+                let statutColor = '#10B981'; // Vert
+                if (restant === 0) statutColor = '#6B7280'; // Gris
+                else if (restant < total * 0.3) statutColor = '#F59E0B'; // Orange
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <span class="boutique-badge ${badgeClass}">
+                            ${boutiqueName}
+                        </span>
+                    </td>
+                    <td>${dateStr}</td>
+                    <td>${dateStr}</td>
+                    <td><strong>${total}</strong></td>
+                    <td style="color: #EF4444;">${vendu}</td>
+                    <td style="color: ${statutColor}; font-weight: bold;">${restant}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn-small view" onclick="viewStockDetails('${doc.id}')" title="Voir détails">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn-small" onclick="printStockDetails('${doc.id}')" title="Imprimer" 
+                                    style="background: rgba(139, 92, 246, 0.1); color: #8B5CF6;">
+                                <i class="fas fa-print"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            tbody.style.display = 'table-row-group';
+            if (emptyState) emptyState.style.display = 'none';
+            
+        }).catch(error => {
+            console.error('❌ Erreur:', error);
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 30px; color: #EF4444;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i>
+                        <p>Erreur: ${error.message}</p>
+                    </td>
+                </tr>
+            `;
+        });
+}
+
+// ==============================================
+// IMPRIMER LES DÉTAILS D'UN STOCK
+// ==============================================
+
+function printStockDetails(stockId) {
+    db.collection('stocks_attribues').doc(stockId).get()
+        .then(doc => {
+            if (!doc.exists) return;
+            
+            const stock = doc.data();
+            const date = new Date(stock.date);
+            const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
+            
+            const boutique = stock.boutique === 'sacre-coeur' ? 'Sacré Coeur 3' : 'Keur Massar';
+            const total = stock.total || 0;
+            const vendu = stock.totalSold || 0;
+            const restant = stock.remaining || (total - vendu);
+            
+            // Créer une fenêtre d'impression
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Stock - ${boutique}</title>
+                    <style>
+                        body { font-family: Arial; padding: 20px; }
+                        h1 { color: #8B5CF6; }
+                        .header { background: #8B5CF6; color: white; padding: 10px; border-radius: 5px; }
+                        .info { margin: 20px 0; padding: 15px; background: #f3f4f6; border-radius: 5px; }
+                        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+                        .stat { padding: 10px; background: white; border-radius: 5px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th { background: #8B5CF6; color: white; padding: 8px; text-align: left; }
+                        td { padding: 8px; border-bottom: 1px solid #ddd; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>DAKAR CHICKEN EXPRESS</h1>
+                        <p>Détail du Stock Attribué</p>
+                    </div>
+                    
+                    <div class="info">
+                        <p><strong>Boutique:</strong> ${boutique}</p>
+                        <p><strong>Date d'attribution:</strong> ${dateStr}</p>
+                    </div>
+                    
+                    <div class="grid">
+                        <div class="stat">
+                            <h3>Total attribué</h3>
+                            <p style="font-size: 24px; color: #8B5CF6;">${total} poulets</p>
+                        </div>
+                        <div class="stat">
+                            <h3>Vendu</h3>
+                            <p style="font-size: 24px; color: #EF4444;">${vendu} poulets</p>
+                        </div>
+                        <div class="stat">
+                            <h3>Restant</h3>
+                            <p style="font-size: 24px; color: ${restant > 0 ? '#10B981' : '#6B7280'};">${restant} poulets</p>
+                        </div>
+                        <div class="stat">
+                            <h3>Taux de vente</h3>
+                            <p style="font-size: 24px; color: #3B82F6;">${total > 0 ? Math.round((vendu/total)*100) : 0}%</p>
+                        </div>
+                    </div>
+                    
+                    <h3>Détail par catégorie</h3>
+                    <table>
+                        <tr>
+                            <th>Catégorie</th>
+                            <th>Attribué</th>
+                            <th>Vendu</th>
+                            <th>Restant</th>
+                        </tr>
+            `);
+            
+            // Ajouter les catégories
+            const categories = [
+                { id: '1', nom: 'Très petits' },
+                { id: '2', nom: 'Petits' },
+                { id: '3', nom: 'Moyens-petits' },
+                { id: '4', nom: 'Moyens' },
+                { id: '5', nom: 'Moyens-grands' },
+                { id: '6', nom: 'Grands' },
+                { id: '7', nom: 'Très grands' },
+                { id: '8', nom: 'Géants' }
+            ];
+            
+            categories.forEach(cat => {
+                const attribue = stock.categories?.[cat.id] || 0;
+                const venduCat = stock.soldByCategory?.[cat.id] || 0;
+                const restantCat = attribue - venduCat;
+                
+                if (attribue > 0) {
+                    printWindow.document.write(`
+                        <tr>
+                            <td>${cat.nom}</td>
+                            <td>${attribue}</td>
+                            <td>${venduCat}</td>
+                            <td>${restantCat}</td>
+                        </tr>
+                    `);
+                }
+            });
+            
+            printWindow.document.write(`
+                    </table>
+                    <p style="margin-top: 30px; text-align: center; color: #666;">
+                        Document généré le ${new Date().toLocaleDateString('fr-FR')}
+                    </p>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.print();
+        })
+        .catch(error => {
+            console.error('Erreur impression:', error);
+            showMessage('Erreur lors de l\'impression', 'error');
+        });
+}
+
+// ==============================================
+// INITIALISATION DES FILTRES POUR LA PAGE STATS
+// ==============================================
+
+function initStatsStockFilters() {
+    const filterButtons = document.querySelectorAll('[data-stock-filter]');
+    
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const filter = this.getAttribute('data-stock-filter');
+            
+            // Mettre à jour la classe active
+            filterButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Charger les stocks avec le filtre
+            loadStatsStocks(filter);
+        });
+    });
+}
+
+// ==============================================
+// MODIFIER LA FONCTION loadStats EXISTANTE
+// ==============================================
+
+// Trouvez votre fonction loadStats() et ajoutez cette ligne à la fin :
+// loadStatsStocks('all');
 // addRefreshButton(); // Décommentez si vous voulez ajouter le bouton
 </script>
   <!-- =============================== -->
