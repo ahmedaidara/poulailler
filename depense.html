@@ -575,8 +575,8 @@
         <div class="header">
             <img src="https://i.postimg.cc/0QBKNcGj/photo-5782651308169956527-x.jpg" alt="Logo" class="logo">
             <div>
-                <h1 class="title">GESTION DES DÉPENSES</h1>
-                <p class="subtitle">DAKAR CHICKEN EXPRESS </p>
+                <h1 class="title"> DÉPENSES</h1>
+                <p class="subtitle">DCE</p>
             </div>
         </div>
         
@@ -854,7 +854,7 @@ async function calculateRealRevenue(productionId) {
                     }
                     
                     displayProductions();
-                })
+                })  
                 .catch(error => {
                     console.error("Erreur chargement productions:", error);
                     showMessage("Erreur de chargement des productions", "error");
@@ -940,18 +940,8 @@ const caInitial = 0; // Temporaire
         ${dateStr}
     </div>
     <div class="production-stats">
-        <div class="stat-item">
-            <div class="stat-label">Initial</div>
-            <div class="stat-value">${initialStock}</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">Restant</div>
-            <div class="stat-value" id="stock-${production.id}">${initialStock}</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">CA</div>
-            <div class="stat-value" id="ca-${production.id}">0</div>
-        </div>
+        
+       
     </div>
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <span style="color: #64748B; font-size: 0.85rem;">
@@ -1146,7 +1136,7 @@ function loadExpensesForProduction(productionId) {
         })
         .catch(error => {
             console.error("❌ Erreur chargement dépenses:", error);
-            showMessage("Erreur de chargement des dépenses", "error");
+            
             
             // Ligne par défaut
             currentExpenses = [{
@@ -1522,11 +1512,11 @@ function loadExpensesHistory() {
                                 <span style="color: #64748B;">Total dépenses</span><br>
                                 <strong style="font-size: 1.2rem; color: #EF4444;">${expense.totalExpenses?.toLocaleString('fr-FR')} F CFA</strong>
                             </div>
-                            <div>
-                                <span style="color: #64748B;">Chiffre d'affaires</span><br>
-                                <strong style="font-size: 1.2rem; color: #3B82F6;">${(expense.modifiedCA || expense.originalCA || 0).toLocaleString('fr-FR')} F CFA</strong>
-                                ${expense.modifiedCA ? '<span style="font-size: 0.75rem; color: #F59E0B; margin-left: 5px;">(modifié)</span>' : ''}
-                            </div>
+                           <div>
+    <span style="color: #64748B;">Chiffre d'affaires</span><br>
+    <strong style="font-size: 1.2rem; color: #3B82F6;">${(expense.modifiedCA || expense.originalCA || 0).toLocaleString('fr-FR')} F CFA</strong>
+    ${expense.modifiedCA && expense.modifiedCA !== expense.originalCA ? '<span style="font-size: 0.75rem; color: #F59E0B; margin-left: 5px;">(modifié)</span>' : ''}
+</div>
                             <div>
                                 <span style="color: #64748B;">Bénéfice net</span><br>
                                 <strong style="font-size: 1.2rem; color: ${expense.beneficeNet >= 0 ? '#10B981' : '#EF4444'};">
@@ -1978,6 +1968,257 @@ function refreshAfterEdit() {
         loadExpensesForProduction(currentProduction.id);
     }
 }
+      
+      // ==============================================
+// SYNCHRONISATION TEMPS RÉEL AVEC FIREBASE
+// ==============================================
+
+// Variable pour stocker les écouteurs
+let invoicesListeners = [];
+
+// Fonction principale pour activer le temps réel
+function enableRealTimeSync() {
+    console.log("🔄 Activation de la synchronisation temps réel...");
+    
+    // Nettoyer les anciens écouteurs
+    invoicesListeners.forEach(unsubscribe => unsubscribe());
+    invoicesListeners = [];
+    
+    // Pour chaque production, créer un écouteur sur ses factures
+    allProductions.forEach(production => {
+        const productionId = production.id;
+        const initialStock = production.initialStock || 0;
+        
+        // Écouter en temps réel les factures de cette production
+        const unsubscribe = db.collection('invoices')
+            .where('productionId', '==', productionId)
+            .onSnapshot(snapshot => {
+                // Quand une facture est ajoutée, modifiée ou supprimée
+                console.log(`📊 Mise à jour en temps réel pour production ${productionId}`);
+                
+                let totalVendus = 0;
+                let totalCA = 0;
+                
+                snapshot.forEach(doc => {
+                    const facture = doc.data();
+                    totalCA += facture.total || 0;
+                    
+                    if (facture.items && Array.isArray(facture.items)) {
+                        facture.items.forEach(item => {
+                            totalVendus += item.quantity || 0;
+                        });
+                    }
+                });
+                
+                // Calculer le stock restant
+                const stockReel = Math.max(0, initialStock - totalVendus);
+                
+                // 1️⃣ METTRE À JOUR LA CARTE DE PRODUCTION
+                const stockElement = document.getElementById(`stock-${productionId}`);
+                const caElement = document.getElementById(`ca-${productionId}`);
+                
+                if (stockElement) {
+                    stockElement.textContent = stockReel;
+                    // Ajouter un effet visuel
+                    stockElement.style.transition = 'all 0.3s ease';
+                    stockElement.style.backgroundColor = '#10B981';
+                    stockElement.style.color = 'white';
+                    stockElement.style.padding = '2px 8px';
+                    stockElement.style.borderRadius = '12px';
+                    
+                    setTimeout(() => {
+                        stockElement.style.backgroundColor = 'transparent';
+                        stockElement.style.color = '#0F172A';
+                        stockElement.style.padding = '0';
+                    }, 1000);
+                }
+                
+                if (caElement) {
+                    caElement.textContent = totalCA.toLocaleString('fr-FR');
+                    // Ajouter un effet visuel
+                    caElement.style.transition = 'all 0.3s ease';
+                    caElement.style.backgroundColor = '#3B82F6';
+                    caElement.style.color = 'white';
+                    caElement.style.padding = '2px 8px';
+                    caElement.style.borderRadius = '12px';
+                    
+                    setTimeout(() => {
+                        caElement.style.backgroundColor = 'transparent';
+                        caElement.style.color = '#0F172A';
+                        caElement.style.padding = '0';
+                    }, 1000);
+                }
+                
+                // 2️⃣ METTRE À JOUR LA PRODUCTION SÉLECTIONNÉE (SI C'EST CELLE-CI)
+                if (currentProduction && currentProduction.id === productionId) {
+                    document.getElementById('selectedProductionStock').textContent = stockReel;
+                    document.getElementById('selectedProductionCA').textContent = totalCA.toLocaleString('fr-FR');
+                    
+                    // Mettre à jour le CA si non verrouillé
+                    if (!caLocked) {
+                        document.getElementById('caInput').value = totalCA;
+                        currentCA = totalCA;
+                        calculateTotals();
+                    }
+                    
+                    // Effet visuel
+                    const infoDiv = document.getElementById('selectedProductionInfo');
+                    infoDiv.style.transition = 'all 0.3s ease';
+                    infoDiv.style.backgroundColor = '#2563EB';
+                    infoDiv.style.boxShadow = '0 0 0 4px #3B82F6';
+                    
+                    setTimeout(() => {
+                        infoDiv.style.backgroundColor = '';
+                        infoDiv.style.boxShadow = '';
+                    }, 1000);
+                }
+                
+                // 3️⃣ METTRE À JOUR L'HISTORIQUE SI NÉCESSAIRE
+                // (Optionnel - on peut recharger l'historique toutes les 30 secondes max)
+            }, error => {
+                console.error(`❌ Erreur écouteur pour production ${productionId}:`, error);
+            });
+        
+        // Sauvegarder l'écouteur pour pouvoir l'arrêter plus tard
+        invoicesListeners.push(unsubscribe);
+    });
+    
+    console.log(`✅ ${invoicesListeners.length} écouteurs temps réel activés`);
+}
+
+// Fonction pour arrêter tous les écouteurs (utile pour éviter les fuites mémoire)
+function stopRealTimeSync() {
+    console.log("🛑 Arrêt de la synchronisation temps réel...");
+    invoicesListeners.forEach(unsubscribe => unsubscribe());
+    invoicesListeners = [];
+    console.log("✅ Synchronisation arrêtée");
+}
+
+// Fonction pour rafraîchir manuellement (au cas où)
+function manualRefresh() {
+    console.log("🔄 Rafraîchissement manuel...");
+    stopRealTimeSync();
+    enableRealTimeSync();
+    showMessage('Données synchronisées', 'success');
+}
+
+// ==============================================
+// SURCHARGER selectProduction POUR AJOUTER L'ÉCOUTEUR
+// ==============================================
+
+// Sauvegarder l'ancienne fonction
+const originalSelectProduction = selectProduction;
+
+// Remplacer par une version améliorée
+selectProduction = async function(productionId) {
+    // Appeler la fonction originale d'abord
+    await originalSelectProduction(productionId);
+    
+    // Ajouter un écouteur spécifique pour cette production (en plus)
+    if (currentProduction) {
+        const initialStock = currentProduction.initialStock || 0;
+        
+        const unsubscribe = db.collection('invoices')
+            .where('productionId', '==', productionId)
+            .onSnapshot(snapshot => {
+                console.log(`📊 Mise à jour de la production sélectionnée ${productionId}`);
+                
+                let totalVendus = 0;
+                let totalCA = 0;
+                
+                snapshot.forEach(doc => {
+                    const facture = doc.data();
+                    totalCA += facture.total || 0;
+                    
+                    if (facture.items && Array.isArray(facture.items)) {
+                        facture.items.forEach(item => {
+                            totalVendus += item.quantity || 0;
+                        });
+                    }
+                });
+                
+                const stockReel = Math.max(0, initialStock - totalVendus);
+                
+                // Mettre à jour l'affichage
+                document.getElementById('selectedProductionStock').textContent = stockReel;
+                document.getElementById('selectedProductionCA').textContent = totalCA.toLocaleString('fr-FR');
+                
+                if (!caLocked) {
+                    document.getElementById('caInput').value = totalCA;
+                    currentCA = totalCA;
+                    calculateTotals();
+                }
+            });
+        
+        // Ajouter cet écouteur à la liste
+        invoicesListeners.push(unsubscribe);
+    }
+};
+
+// ==============================================
+// DÉMARRER LA SYNCHRONISATION AUTOMATIQUE
+// ==============================================
+
+// Démarrer quand les productions sont chargées
+const originalLoadProductions = loadProductions;
+loadProductions = function() {
+    originalLoadProductions();
+    // Attendre un peu que allProductions soit rempli
+    setTimeout(() => {
+        if (allProductions.length > 0) {
+            enableRealTimeSync();
+        } else {
+            // Réessayer plus tard
+            setTimeout(() => {
+                if (allProductions.length > 0) {
+                    enableRealTimeSync();
+                }
+            }, 2000);
+        }
+    }, 1000);
+};
+
+// ==============================================
+// AJOUTER UN BOUTON DE RAFRAÎCHISSEMENT DANS L'INTERFACE
+// ==============================================
+
+// Créer et ajouter le bouton
+function addRefreshButton() {
+    const header = document.querySelector('.header');
+    if (header) {
+        const refreshBtn = document.createElement('button');
+        refreshBtn.id = 'refreshRealTimeBtn';
+        refreshBtn.className = 'btn btn-outline';
+        refreshBtn.style.marginLeft = 'auto';
+        refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> ';
+        refreshBtn.title = 'Forcer la synchronisation';
+        refreshBtn.onclick = manualRefresh;
+        
+        // Ajouter un indicateur de connexion
+        const statusIndicator = document.createElement('span');
+        statusIndicator.id = 'realtimeStatus';
+        statusIndicator.style.marginLeft = '10px';
+        statusIndicator.style.padding = '5px 10px';
+        statusIndicator.style.borderRadius = '20px';
+        statusIndicator.style.fontSize = '0.8rem';
+        statusIndicator.style.backgroundColor = '#10B981';
+        statusIndicator.style.color = 'white';
+        statusIndicator.innerHTML = '<i class="fas fa-wifi"></i> ';
+        
+        header.appendChild(refreshBtn);
+        header.appendChild(statusIndicator);
+    }
+}
+
+// Ajouter le bouton après le chargement
+setTimeout(addRefreshButton, 2000);
+
+// ==============================================
+// NETTOYAGE QUAND ON QUITTE LA PAGE
+// ==============================================
+window.addEventListener('beforeunload', function() {
+    stopRealTimeSync();
+});
     </script>
 </body>
 </html>
