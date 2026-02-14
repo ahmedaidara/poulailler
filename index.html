@@ -7169,14 +7169,16 @@ document.addEventListener('DOMContentLoaded', function() {
 });
       
       // ==============================================
-// GESTION DU TABLEAU DE BORD DES STOCKS ATTRIBUÉS
 function loadAttributedStocksDashboard(filter = 'all') {
-    console.log("Chargement stocks avec filtre:", filter);
+    console.log("📊 Chargement stocks avec filtre:", filter);
+    
+    // NE PAS utiliser onSnapshot ici car nous voulons un chargement unique
+    // ou alors nous devons adapter la fonction pour utiliser les données existantes
     
     // Construction de la requête
     let query = db.collection('stocks_attribues');
     
-    // Appliquer les filtres CORRECTEMENT
+    // Appliquer les filtres
     if (filter === 'active') {
         query = query.where('remaining', '>', 0);
     } else if (filter === 'completed') {
@@ -7195,49 +7197,35 @@ function loadAttributedStocksDashboard(filter = 'all') {
             const tbody = document.getElementById('attributedStocksTableBody');
             const emptyState = document.getElementById('emptyStocksState');
             
+            if (!tbody) {
+                console.error("❌ Élément 'attributedStocksTableBody' non trouvé");
+                return;
+            }
+            
             tbody.innerHTML = '';
             
             if (snapshot.empty) {
-                console.log('Aucun stock trouvé avec filtre:', filter);
+                console.log('📭 Aucun stock trouvé avec filtre:', filter);
                 tbody.style.display = 'none';
-                emptyState.style.display = 'block';
+                if (emptyState) emptyState.style.display = 'block';
                 return;
             }
             
             tbody.style.display = 'table-row-group';
-            emptyState.style.display = 'none';
+            if (emptyState) emptyState.style.display = 'none';
             
             // Pour chaque stock attribué
-            const promises = [];
-            
             snapshot.forEach(doc => {
                 const stock = doc.data();
                 const date = new Date(stock.date);
                 const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
                 
                 const total = stock.total || 0;
+                
+                // Calculer le pourcentage vendu si disponible
                 const sold = stock.totalSold || 0;
                 const remaining = stock.remaining || total;
-                
-                // Calculer le pourcentage vendu
                 const percentSold = total > 0 ? Math.round((sold / total) * 100) : 0;
-                
-                // Charger les infos de la production (optionnel)
-                let productionInfo = 'N/A';
-                if (stock.productionId) {
-                    const promise = db.collection('poulailler_records').doc(stock.productionId).get()
-                        .then(prodDoc => {
-                            if (prodDoc.exists) {
-                                const prodData = prodDoc.data();
-                                const prodDate = new Date(prodData.startDate);
-                                return `${prodDate.getDate()}/${prodDate.getMonth()+1}`;
-                            }
-                            return 'N/A';
-                        })
-                        .catch(() => 'N/A');
-                    
-                    promises.push(promise);
-                }
                 
                 // Déterminer le status
                 let statusText = 'Actif';
@@ -7250,44 +7238,33 @@ function loadAttributedStocksDashboard(filter = 'all') {
                     statusColor = '#F59E0B';
                 }
                 
-               const row = document.createElement('tr');
-row.innerHTML = `
-    <td>
-        <span class="boutique-badge ${stock.boutique === 'sacre-coeur' ? 'badge-sacre-coeur' : 'badge-keur-massar'}">
-            ${stock.boutiqueName || stock.boutique}
-        </span>
-    </td>
-    <td>${dateStr}</td>
-    <td id="prod-${doc.id}">${productionInfo}</td>
-    <td><strong>${total}</strong></td>
-    <td>
-        <div class="action-buttons">
-            <button class="action-btn-small view" onclick="viewStockDetails('${doc.id}')" title="Voir détails">
-                <i class="fas fa-eye"></i>
-            </button>
-            <button class="action-btn-small delete" onclick="showDeleteStockModal('${doc.id}', '${stock.boutiqueName}')" title="Supprimer">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
-    </td>
-`;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <span class="boutique-badge ${stock.boutique === 'sacre-coeur' ? 'badge-sacre-coeur' : 'badge-keur-massar'}">
+                            ${stock.boutiqueName || (stock.boutique === 'sacre-coeur' ? 'Sacré Coeur 3' : 'Keur Massar')}
+                        </span>
+                    </td>
+                    <td>${dateStr}</td>
+                    <td>Prod. ${dateStr}</td>
+                    <td><strong>${total}</strong></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn-small view" onclick="viewStockDetails('${doc.id}')" title="Voir détails">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn-small delete" onclick="showDeleteStockModal('${doc.id}', '${stock.boutiqueName || stock.boutique}')" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
                 
                 tbody.appendChild(row);
             });
             
-            // Attendre que toutes les infos de production soient chargées
-            Promise.all(promises).then(results => {
-                results.forEach((prodInfo, index) => {
-                    const doc = snapshot.docs[index];
-                    if (doc) {
-                        const cell = document.getElementById(`prod-${doc.id}`);
-                        if (cell) cell.textContent = `Prod. ${prodInfo}`;
-                    }
-                });
-            });
-            
         }).catch(error => {
-            console.error('Erreur chargement stocks:', error);
+            console.error('❌ Erreur chargement stocks:', error);
             showMessage('Erreur de chargement des stocks', 'error');
         });
 }
@@ -9666,69 +9643,52 @@ function initRealtimeSync() {
             updateStatistics();
             updateLastProductionStats();
         }, (error) => {
-            console.error("Erreur écoute productions:", error);
+            console.error("❌ Erreur écoute productions:", error);
         });
 
-    // 2. Écouter les factures
+    // 2. Écouter les factures - Version simplifiée qui recharge quand nécessaire
     if (unsubscribeInvoices) unsubscribeInvoices();
     unsubscribeInvoices = db.collection('invoices')
         .orderBy('date', 'desc')
         .onSnapshot(() => {
             console.log('🧾 Mise à jour des factures détectée');
-            // Recharger les stats boutique si la section est visible
-            if (document.getElementById('boutiquesSection').style.display !== 'none') {
-                loadBoutiqueStats();
+            
+            // Recharger les stats boutique
+            loadBoutiqueStats();
+            
+            // Recharger les factures si la section boutique est visible
+            if (document.getElementById('boutiquesSection') && 
+                document.getElementById('boutiquesSection').style.display !== 'none') {
                 const activeFilter = document.querySelector('[data-boutique].active')?.getAttribute('data-boutique') || 'all';
                 loadInvoices(activeFilter);
             }
-            // Mettre à jour les stats globales
+            
+            // Mettre à jour les statistiques globales
             updateStatistics();
         }, (error) => {
-            console.error("Erreur écoute factures:", error);
+            console.error("❌ Erreur écoute factures:", error);
         });
 
-    // 3. Écouter les dépenses
-    if (unsubscribeExpenses) unsubscribeExpenses();
-    unsubscribeExpenses = db.collection('expenses')
-        .orderBy('createdAt', 'desc')
-        .onSnapshot(() => {
-            console.log('💰 Mise à jour des dépenses détectée');
-            if (document.getElementById('statsSection').style.display !== 'none') {
-                loadExpenses();
-            }
-        }, (error) => {
-            console.error("Erreur écoute dépenses:", error);
-        });
-
-    // 4. Écouter les stocks attribués
+    // 3. Écouter les stocks attribués
     if (unsubscribeStocks) unsubscribeStocks();
     unsubscribeStocks = db.collection('stocks_attribues')
         .orderBy('date', 'desc')
         .onSnapshot(() => {
             console.log('📊 Mise à jour des stocks attribués détectée');
-            if (document.getElementById('boutiquesSection').style.display !== 'none') {
+            
+            // Recharger les stocks si la section boutique est visible
+            if (document.getElementById('boutiquesSection') && 
+                document.getElementById('boutiquesSection').style.display !== 'none') {
                 const activeFilter = document.querySelector('[data-stock-filter].active')?.getAttribute('data-stock-filter') || 'all';
                 loadAttributedStocksDashboard(activeFilter);
             }
         }, (error) => {
-            console.error("Erreur écoute stocks:", error);
-        });
-
-    // 5. Écouter les distributions
-    if (unsubscribeDistributions) unsubscribeDistributions();
-    unsubscribeDistributions = db.collection('stock_distributions')
-        .orderBy('createdAt', 'desc')
-        .onSnapshot(() => {
-            console.log('📦 Mise à jour des distributions détectée');
-            if (document.getElementById('boutiquesSection').style.display !== 'none') {
-                loadProductionsForDistribution();
-            }
-        }, (error) => {
-            console.error("Erreur écoute distributions:", error);
+            console.error("❌ Erreur écoute stocks:", error);
         });
 
     console.log('✅ Synchronisation en temps réel activée');
 }
+
 
 // Fonction pour arrêter tous les écouteurs (optionnel)
 function stopRealtimeSync() {
@@ -9739,7 +9699,23 @@ function stopRealtimeSync() {
     if (unsubscribeDistributions) unsubscribeDistributions();
     console.log('⏹️ Synchronisation en temps réel arrêtée');
 }
-
+function initStockDashboardFilters() {
+    const filterButtons = document.querySelectorAll('[data-stock-filter]');
+    if (filterButtons.length > 0) {
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const filter = this.getAttribute('data-stock-filter');
+                
+                // Mettre à jour l'état actif
+                filterButtons.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Charger les stocks avec le filtre
+                loadAttributedStocksDashboard(filter);
+            });
+        });
+    }
+}
 // ==============================================
 // MODIFICATION DES FONCTIONS EXISTANTES
 // ==============================================
@@ -9750,10 +9726,126 @@ function loadRecords() {
     console.log('Les productions sont synchronisées en temps réel');
 }
 
-// Remplacer la fonction loadInvoices() par celle-ci
 function loadInvoices(filter = 'all') {
-    console.log('Les factures sont synchronisées en temps réel');
-    // La mise à jour se fait via onSnapshot
+    console.log('🧾 Chargement factures avec filtre:', filter);
+    
+    // Construction de la requête
+    let query = db.collection('invoices');
+    
+    // Appliquer les filtres boutique
+    if (filter === 'sacre-coeur') {
+        query = query.where('boutique', '==', 'sacre-coeur');
+    } else if (filter === 'keur-massar') {
+        query = query.where('boutique', '==', 'keur-massar');
+    }
+    
+    // Trier par date
+    query = query.orderBy('date', 'desc');
+    
+    query.get().then(snapshot => {
+        console.log(`📊 Nombre de factures trouvées: ${snapshot.size}`);
+        
+        const tbody = document.getElementById('invoicesTableBody');
+        const emptyState = document.getElementById('emptyInvoices');
+        
+        if (!tbody) {
+            console.error("❌ Élément 'invoicesTableBody' non trouvé");
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        
+        if (snapshot.empty) {
+            console.log('📭 Aucune facture trouvée');
+            tbody.style.display = 'none';
+            if (emptyState) emptyState.style.display = 'block';
+            return;
+        }
+        
+        tbody.style.display = 'table-row-group';
+        if (emptyState) emptyState.style.display = 'none';
+        
+        // Calculer les dates pour les filtres
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        weekAgo.setHours(0, 0, 0, 0);
+        
+        let displayedCount = 0;
+        
+        snapshot.forEach(doc => {
+            const invoice = doc.data();
+            
+            // Récupérer la date
+            let date;
+            if (invoice.date && invoice.date.seconds) {
+                date = new Date(invoice.date.seconds * 1000);
+            } else if (invoice.date) {
+                date = new Date(invoice.date);
+            } else {
+                date = new Date();
+            }
+            
+            // Appliquer les filtres temporels
+            if (filter === 'today') {
+                const invoiceDay = new Date(date);
+                invoiceDay.setHours(0, 0, 0, 0);
+                if (invoiceDay.getTime() !== today.getTime()) {
+                    return; // Skip cette facture
+                }
+            }
+            
+            if (filter === 'week') {
+                const invoiceDay = new Date(date);
+                invoiceDay.setHours(0, 0, 0, 0);
+                if (invoiceDay < weekAgo) {
+                    return; // Skip cette facture
+                }
+            }
+            
+            displayedCount++;
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${invoice.invoiceNumber || 'N/A'}</td>
+                <td>
+                    <span class="boutique-badge ${invoice.boutique === 'sacre-coeur' ? 'badge-sacre-coeur' : 'badge-keur-massar'}">
+                        ${invoice.boutique === 'sacre-coeur' ? 'Sacré Coeur 3' : 'Keur Massar'}
+                    </span>
+                </td>
+                <td>${formatDate(date)}</td>
+                <td>${invoice.client?.name || 'Non renseigné'}</td>
+                <td>${invoice.client?.phone || '--'}</td>
+                <td>${(invoice.total || 0).toLocaleString('fr-FR')} F CFA</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="action-btn-small view" onclick="viewInvoiceDetail('${doc.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn-small delete" onclick="deleteInvoice('${doc.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+        
+        console.log(`✅ Factures affichées: ${displayedCount}`);
+        
+        // Si rien n'est affiché après filtrage
+        if (displayedCount === 0) {
+            tbody.style.display = 'none';
+            if (emptyState) emptyState.style.display = 'block';
+        }
+        
+    }).catch(error => {
+        console.error('❌ Erreur chargement factures:', error);
+        showMessage('Erreur de chargement des factures', 'error');
+    });
 }
 
 // Remplacer la fonction loadExpenses() par celle-ci
