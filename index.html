@@ -1043,6 +1043,116 @@
         font-size: 0.8rem;
     }
 }
+      
+      /* ============================================== */
+/* NAVIGATION EN BAS POUR PETITS ÉCRANS */
+/* ============================================== */
+
+@media (max-width: 768px) {
+    /* Cacher l'en-tête original */
+    header {
+        display: none !important;
+    }
+    
+    /* Créer une nouvelle barre de navigation en bas */
+    .mobile-nav-bottom {
+        display: flex !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+        padding: 8px 4px;
+        z-index: 1000;
+        justify-content: space-around;
+        align-items: center;
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.95);
+        border-top: 1px solid rgba(59, 130, 246, 0.2);
+    }
+    
+    /* Style des boutons de navigation mobile */
+    .mobile-nav-btn {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        padding: 8px 2px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: #64748B;
+        font-size: 0.7rem;
+        gap: 4px;
+        min-width: 0;
+    }
+    
+    .mobile-nav-btn i {
+        font-size: 1.3rem;
+        margin-bottom: 2px;
+    }
+    
+    .mobile-nav-btn span {
+        font-size: 0.6rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        padding: 0 2px;
+    }
+    
+    /* Bouton actif */
+    .mobile-nav-btn.active {
+        color: #3B82F6;
+        background: rgba(59, 130, 246, 0.1);
+    }
+    
+    /* Bouton spécial dépenses */
+    .mobile-nav-btn.depense {
+        color: #EF4444;
+    }
+    
+    .mobile-nav-btn.depense.active {
+        background: rgba(239, 68, 68, 0.1);
+        color: #EF4444;
+    }
+    
+    /* Ajuster le contenu principal pour laisser de la place en bas */
+    main {
+        padding-bottom: 80px !important;
+        margin-bottom: 0 !important;
+    }
+    
+    /* Ajuster le footer */
+    footer {
+        margin-bottom: 70px !important;
+        padding-bottom: 10px !important;
+    }
+}
+
+/* Pour les très petits écrans */
+@media (max-width: 480px) {
+    .mobile-nav-btn i {
+        font-size: 1.2rem;
+    }
+    
+    .mobile-nav-btn span {
+        font-size: 0.55rem;
+    }
+    
+    .mobile-nav-bottom {
+        padding: 4px 2px;
+    }
+}
+
+/* Cacher la navigation mobile sur les grands écrans */
+.mobile-nav-bottom {
+    display: none;
+}
     </style>
 </head>
 <body>
@@ -2462,7 +2572,109 @@ let currentStatsEndDate = null;
     }
 }
         
-         
+         // ==============================================
+// CRÉATION DE LA NAVIGATION MOBILE
+// ==============================================
+
+function createMobileNavigation() {
+    // Vérifier si la navigation mobile existe déjà
+    if (document.querySelector('.mobile-nav-bottom')) {
+        return;
+    }
+    
+    // Créer le conteneur de navigation mobile
+    const mobileNav = document.createElement('div');
+    mobileNav.className = 'mobile-nav-bottom';
+    
+    // Liste des boutons de navigation (adaptez selon vos besoins)
+    const navItems = [
+        { icon: 'chart-line', text: 'Dashboard', section: 'dashboard', color: '#3B82F6' },
+        { icon: 'store', text: 'Boutiques', section: 'boutiques', color: '#10B981' },
+        { icon: 'history', text: 'Historique', section: 'records', color: '#8B5CF6' },
+        { icon: 'file-pdf', text: 'PDF', section: 'pdf', color: '#F59E0B' },
+        { icon: 'chart-pie', text: 'Stats', section: 'stats', color: '#EC4899' },
+        { icon: 'file-invoice-dollar', text: 'Dépenses', section: 'depense', color: '#EF4444', special: true },
+        { icon: 'cog', text: 'Param.', section: 'settings', color: '#64748B' }
+    ];
+    
+    // Créer chaque bouton
+    navItems.forEach(item => {
+        const btn = document.createElement('button');
+        btn.className = `mobile-nav-btn ${item.special ? 'depense' : ''}`;
+        btn.setAttribute('data-section-mobile', item.section);
+        btn.innerHTML = `
+            <i class="fas fa-${item.icon}" style="color: ${item.color};"></i>
+            <span>${item.text}</span>
+        `;
+        
+        // Ajouter l'événement de clic
+        btn.addEventListener('click', function() {
+            // Enlever la classe active de tous les boutons
+            document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Gérer le cas spécial des dépenses
+            if (item.section === 'depense') {
+                afficherDepense(); // Votre fonction existante
+            } else {
+                showSection(item.section);
+            }
+        });
+        
+        mobileNav.appendChild(btn);
+    });
+    
+    // Ajouter la navigation mobile au body
+    document.body.appendChild(mobileNav);
+    
+    // Activer le bouton Dashboard par défaut
+    setTimeout(() => {
+        const dashboardBtn = document.querySelector('[data-section-mobile="dashboard"]');
+        if (dashboardBtn) dashboardBtn.classList.add('active');
+    }, 100);
+}
+
+// Fonction pour mettre à jour la classe active sur mobile
+function updateMobileActiveSection(sectionId) {
+    document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-section-mobile') === sectionId) {
+            btn.classList.add('active');
+        }
+    });
+}
+
+// Modifier la fonction showSection existante pour mettre à jour le mobile
+const originalShowSection = showSection;
+showSection = function(sectionId) {
+    originalShowSection(sectionId);
+    updateMobileActiveSection(sectionId);
+};
+
+// Initialiser la navigation mobile après connexion
+document.addEventListener('DOMContentLoaded', function() {
+    // Attendre que le login soit réussi
+    const originalLoginSuccess = loginSuccess;
+    loginSuccess = function() {
+        originalLoginSuccess();
+        createMobileNavigation();
+    };
+});
+
+// Alternative si loginSuccess n'existe pas, créer la navigation quand l'interface apparaît
+const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+        if (mutation.target.id === 'appInterface' && mutation.target.style.display === 'block') {
+            setTimeout(createMobileNavigation, 500);
+        }
+    });
+});
+
+observer.observe(document.getElementById('appInterface'), {
+    attributes: true,
+    attributeFilter: ['style']
+});
+      
         function showModal(modalId) {
             const modal = document.getElementById(modalId);
             modal.classList.add('active');
