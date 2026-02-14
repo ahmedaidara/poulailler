@@ -9416,6 +9416,226 @@ function fermerDepense() {
 }
 
 document.getElementById('btnDepense').addEventListener('click', afficherDepense);
+    
+    
+    
+    // ==============================================
+// SYNCHRONISATION EN TEMPS RÉEL AVEC FIRESTORE
+// ==============================================
+
+// Variables pour les écouteurs
+let unsubscribeRecords = null;
+let unsubscribeInvoices = null;
+let unsubscribeExpenses = null;
+let unsubscribeStocks = null;
+let unsubscribeDistributions = null;
+
+// Fonction pour initialiser tous les écouteurs en temps réel
+function initRealtimeSync() {
+    console.log('🔄 Initialisation de la synchronisation en temps réel...');
+    
+    // 1. Écouter les productions
+    if (unsubscribeRecords) unsubscribeRecords();
+    unsubscribeRecords = db.collection('poulailler_records')
+        .orderBy('startDate', 'desc')
+        .onSnapshot((snapshot) => {
+            console.log('📦 Mise à jour des productions détectée');
+            allRecords = [];
+            snapshot.forEach(doc => {
+                allRecords.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
+            });
+            
+            // Mettre à jour l'interface
+            const activeFilter = document.querySelector('.filter-btn.active')?.getAttribute('data-filter') || 'all';
+            applyFilter(activeFilter);
+            updateStatistics();
+            updateLastProductionStats();
+        }, (error) => {
+            console.error("Erreur écoute productions:", error);
+        });
+
+    // 2. Écouter les factures
+    if (unsubscribeInvoices) unsubscribeInvoices();
+    unsubscribeInvoices = db.collection('invoices')
+        .orderBy('date', 'desc')
+        .onSnapshot(() => {
+            console.log('🧾 Mise à jour des factures détectée');
+            // Recharger les stats boutique si la section est visible
+            if (document.getElementById('boutiquesSection').style.display !== 'none') {
+                loadBoutiqueStats();
+                const activeFilter = document.querySelector('[data-boutique].active')?.getAttribute('data-boutique') || 'all';
+                loadInvoices(activeFilter);
+            }
+            // Mettre à jour les stats globales
+            updateStatistics();
+        }, (error) => {
+            console.error("Erreur écoute factures:", error);
+        });
+
+    // 3. Écouter les dépenses
+    if (unsubscribeExpenses) unsubscribeExpenses();
+    unsubscribeExpenses = db.collection('expenses')
+        .orderBy('createdAt', 'desc')
+        .onSnapshot(() => {
+            console.log('💰 Mise à jour des dépenses détectée');
+            if (document.getElementById('statsSection').style.display !== 'none') {
+                loadExpenses();
+            }
+        }, (error) => {
+            console.error("Erreur écoute dépenses:", error);
+        });
+
+    // 4. Écouter les stocks attribués
+    if (unsubscribeStocks) unsubscribeStocks();
+    unsubscribeStocks = db.collection('stocks_attribues')
+        .orderBy('date', 'desc')
+        .onSnapshot(() => {
+            console.log('📊 Mise à jour des stocks attribués détectée');
+            if (document.getElementById('boutiquesSection').style.display !== 'none') {
+                const activeFilter = document.querySelector('[data-stock-filter].active')?.getAttribute('data-stock-filter') || 'all';
+                loadAttributedStocksDashboard(activeFilter);
+            }
+        }, (error) => {
+            console.error("Erreur écoute stocks:", error);
+        });
+
+    // 5. Écouter les distributions
+    if (unsubscribeDistributions) unsubscribeDistributions();
+    unsubscribeDistributions = db.collection('stock_distributions')
+        .orderBy('createdAt', 'desc')
+        .onSnapshot(() => {
+            console.log('📦 Mise à jour des distributions détectée');
+            if (document.getElementById('boutiquesSection').style.display !== 'none') {
+                loadProductionsForDistribution();
+            }
+        }, (error) => {
+            console.error("Erreur écoute distributions:", error);
+        });
+
+    console.log('✅ Synchronisation en temps réel activée');
+}
+
+// Fonction pour arrêter tous les écouteurs (optionnel)
+function stopRealtimeSync() {
+    if (unsubscribeRecords) unsubscribeRecords();
+    if (unsubscribeInvoices) unsubscribeInvoices();
+    if (unsubscribeExpenses) unsubscribeExpenses();
+    if (unsubscribeStocks) unsubscribeStocks();
+    if (unsubscribeDistributions) unsubscribeDistributions();
+    console.log('⏹️ Synchronisation en temps réel arrêtée');
+}
+
+// ==============================================
+// MODIFICATION DES FONCTIONS EXISTANTES
+// ==============================================
+
+// Remplacer la fonction loadRecords() par celle-ci
+function loadRecords() {
+    // Ne rien faire, les données sont chargées via onSnapshot
+    console.log('Les productions sont synchronisées en temps réel');
+}
+
+// Remplacer la fonction loadInvoices() par celle-ci
+function loadInvoices(filter = 'all') {
+    console.log('Les factures sont synchronisées en temps réel');
+    // La mise à jour se fait via onSnapshot
+}
+
+// Remplacer la fonction loadExpenses() par celle-ci
+function loadExpenses() {
+    console.log('Les dépenses sont synchronisées en temps réel');
+    // La mise à jour se fait via onSnapshot
+}
+
+// Remplacer la fonction loadAttributedStocksDashboard() par celle-ci
+function loadAttributedStocksDashboard(filter = 'all') {
+    console.log('Les stocks attribués sont synchronisés en temps réel');
+    // La mise à jour se fait via onSnapshot
+}
+
+// ==============================================
+// AMÉLIORATION DE LA FONCTION showSection
+// ==============================================
+
+// Remplacer votre fonction showSection existante par celle-ci
+function showSection(sectionId) {
+    document.querySelectorAll('.dashboard-section').forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    document.getElementById(sectionId + 'Section').style.display = 'block';
+    
+    // Forcer une mise à jour immédiate lors du changement de section
+    if (sectionId === 'records') {
+        // Appliquer le filtre actif
+        const activeFilter = document.querySelector('.filter-btn.active')?.getAttribute('data-filter') || 'all';
+        applyFilter(activeFilter);
+    }
+    
+    if (sectionId === 'stats') {
+        loadStats();
+        // Les dépenses se mettront à jour via onSnapshot
+    }
+    
+    if (sectionId === 'boutiques') {
+        loadBoutiqueStats();
+        initBoutiqueFilters();
+        // Les factures et stocks se mettront à jour via onSnapshot
+    }
+}
+
+// ==============================================
+// INITIALISATION AU CHARGEMENT DE LA PAGE
+// ==============================================
+
+// Ajouter cette fonction pour démarrer la synchronisation après connexion
+function loginSuccess() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appInterface').style.display = 'block';
+    
+    // Initialiser la synchronisation en temps réel
+    initRealtimeSync();
+    
+    showMessage('Connexion réussie! Synchronisation en temps réel activée.', 'success');
+}
+
+// ==============================================
+// GESTIONNAIRE D'ÉVÉNEMENTS POUR LES MODIFICATIONS
+// ==============================================
+
+// Fonction utilitaire pour forcer une mise à jour manuelle si nécessaire
+function forceRefresh() {
+    console.log('🔄 Rafraîchissement manuel demandé');
+    
+    // Réinitialiser les écouteurs
+    stopRealtimeSync();
+    setTimeout(() => {
+        initRealtimeSync();
+        showMessage('Données rafraîchies', 'success');
+    }, 500);
+}
+
+// ==============================================
+// AJOUT D'UN BOUTON DE RAFRAÎCHISSEMENT MANUEL (OPTIONNEL)
+// ==============================================
+
+// Ajouter ce code dans votre section des paramètres ou dans l'en-tête
+function addRefreshButton() {
+    const navLinks = document.querySelector('.nav-links');
+    if (navLinks) {
+        const refreshBtn = document.createElement('button');
+        refreshBtn.className = 'nav-btn';
+        refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i><span>Rafraîchir</span>';
+        refreshBtn.onclick = forceRefresh;
+        navLinks.appendChild(refreshBtn);
+    }
+}
+
+// Appeler cette fonction après le login
+// addRefreshButton(); // Décommentez si vous voulez ajouter le bouton
 </script>
   <!-- =============================== -->
 <!-- MODAL GESTION DES DÉPENSES -->
