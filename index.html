@@ -10142,7 +10142,7 @@ function addRefreshButton() {
                     boutiqueName = stock.boutiqueName;
                 }
                 
-                // Nom de la production
+                // Nom de la production 
 let productionName = `Production du ${dateStr}`;
               if (!productionName || productionName === 'null' || productionName === 'undefined') {
     productionName = `Production du ${dateStr}`;
@@ -10542,7 +10542,61 @@ function initStatsStockFilters() {
     </button>
     <iframe id="depense-iframe" src="" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
-       
+       <script>
+// ==============================================
+// SYNCHRONISATION AUTOMATIQUE - PLUS BESOIN DE RAFRAÎCHIR
+// ==============================================
+
+(function autoSync() {
+    console.log("🔄 Synchronisation automatique activée");
+    
+    // Écouter les changements dans les productions
+    db.collection('poulailler_records')
+        .orderBy('startDate', 'desc')
+        .onSnapshot(() => {
+            console.log("📦 Mise à jour productions détectée");
+            if (typeof loadRecords === 'function') loadRecords();
+            if (typeof updateStatistics === 'function') updateStatistics();
+        });
+    
+    // Écouter les changements dans les stocks attribués
+    db.collection('stocks_attribues')
+        .orderBy('date', 'desc')
+        .onSnapshot(() => {
+            console.log("📊 Mise à jour stocks attribués détectée");
+            if (typeof loadStatsStocks === 'function') loadStatsStocks();
+            if (typeof loadAttributedStocksDashboard === 'function') loadAttributedStocksDashboard();
+        });
+    
+    // Écouter les changements dans les factures
+    db.collection('invoices')
+        .orderBy('date', 'desc')
+        .onSnapshot(() => {
+            console.log("🧾 Mise à jour factures détectée");
+            if (typeof loadBoutiqueStats === 'function') loadBoutiqueStats();
+            if (typeof loadStats === 'function') loadStats();
+            if (typeof updateStatistics === 'function') updateStatistics();
+        });
+    
+    // Écouter les changements dans les dépenses
+    db.collection('expenses')
+        .orderBy('createdAt', 'desc')
+        .onSnapshot(() => {
+            console.log("💰 Mise à jour dépenses détectée");
+            if (typeof loadExpenses === 'function') loadExpenses();
+        });
+    
+    // Écouter les distributions de stock
+    db.collection('stock_distributions')
+        .orderBy('createdAt', 'desc')
+        .onSnapshot(() => {
+            console.log("📦 Mise à jour distributions détectée");
+            if (typeof loadProductionsForDistribution === 'function') loadProductionsForDistribution();
+        });
+    
+    console.log("✅ Synchronisation automatique en cours - Plus besoin de F5 !");
+})();
+</script>
 </body>
  </html>
 
