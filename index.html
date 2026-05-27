@@ -1199,7 +1199,7 @@
 </button>
               
               <button class="nav-btn" id="btnDepense">
-    <i class="fas fa-file-invoice-dollar"></i> Dépenses
+    <i class="fas fa-file-invoice-dollar"></i> Dettes
 </button>
               <button class="nav-btn" data-section="settings">
                     <i class="fas fa-cog"></i> Paramètres
@@ -3018,7 +3018,8 @@ function formatNumberForPDF(num) {
 function updateStatistics() {
     console.log("=== MISE À JOUR STATISTIQUES AVEC FACTURES ===");
     
-    let totalStockInitial = 0;
+    let totalLostGivenGlobal = 0;
+  
     let totalPouletsVendus = 0;
     let totalCA = 0;
     
@@ -3042,16 +3043,12 @@ function updateStatistics() {
             console.log(`💰 CA total factures: ${totalCA} F CFA`);
             console.log(`🐔 Poulets vendus: ${totalPouletsVendus}`);
             
-            // 2. Calculer le STOCK INITIAL TOTAL depuis les productions
-            let totalInitial = 0;
-            allRecords.forEach(record => {
-                totalInitial += record.initialStock || 0;
-            });
-            totalStockInitial = totalInitial;
-            
-            // 3. Calculer le STOCK RESTANT RÉEL
-            // Stock restant = Stock initial total - Poulets vendus
-            const stockRestant = Math.max(0, totalStockInitial - totalPouletsVendus);
+         // 2. Prendre UNIQUEMENT le stock initial de la DERNIÈRE production
+let totalStockInitial = 0;
+if (allRecords.length > 0) {
+    totalStockInitial = allRecords[0].initialStock || 0;
+}
+const stockRestant = Math.max(0, totalStockInitial - totalPouletsVendus - totalLostGivenGlobal);
             
             // 4. Calculer la VALEUR du stock restant (prix moyen)
             const prixMoyen = 3000; // Prix moyen estimé
@@ -3137,7 +3134,9 @@ function calculateLocalStats() {
                          (record.xlarge1Sold || 0) + (record.xlarge2Sold || 0);
         
         const totalLostGiven = (record.lost || 0) + (record.given || 0);
-        const stockRestant = Math.max(0, initialStock - totalSold - totalLostGiven);
+// FORCER la valeur à 0 si undefined
+const finalLostGiven = isNaN(totalLostGiven) ? 0 : totalLostGiven;
+        const stockRestant = Math.max(0, initialStock - totalSold - finalLostGiven);
         
         totalProduction += stockRestant;
         
@@ -7539,7 +7538,9 @@ async function viewStockDetails(stockId) {
                 const attribue = stock.categories?.[cat.id] || 0;
                 const venduReel = ventesReelles[cat.id] || 0;
                 const restant = attribue - venduReel;
-                
+                // CORRECTION : s'assurer que restant n'est pas négatif dans l'affichage
+const restantAffiche = Math.max(0, restant);
+              
                 totalAttribue += attribue;
                 totalVenduReel += venduReel;
                 
@@ -9772,6 +9773,67 @@ function loadRecords() {
     console.log('Les productions sont synchronisées en temps réel');
 }
 
+    async function syncSalesFromInvoices() {
+    console.log("🔄 Synchronisation des ventes depuis les factures...");
+    
+    // Récupérer TOUTES les productions
+    const productionsSnapshot = await db.collection('poulailler_records').get();
+    
+    for (const prodDoc of productionsSnapshot.docs) {
+        const productionId = prodDoc.id;
+        const production = prodDoc.data();
+        
+        // Récupérer TOUTES les factures pour cette production
+        const invoicesSnapshot = await db.collection('invoices')
+            .where('productionId', '==', productionId)
+            .get();
+        
+        // Initialiser les compteurs de ventes
+        let small1Sold = 0, small2Sold = 0, medium1Sold = 0, medium2Sold = 0;
+        let large1Sold = 0, large2Sold = 0, xlarge1Sold = 0, xlarge2Sold = 0;
+        
+        // Parcourir les factures
+        invoicesSnapshot.forEach(invDoc => {
+            const invoice = invDoc.data();
+            if (invoice.items) {
+                invoice.items.forEach(item => {
+                    const qty = item.quantity || 0;
+                    switch(item.id) {
+                        case '1': small1Sold += qty; break;
+                        case '2': small2Sold += qty; break;
+                        case '3': medium1Sold += qty; break;
+                        case '4': medium2Sold += qty; break;
+                        case '5': large1Sold += qty; break;
+                        case '6': large2Sold += qty; break;
+                        case '7': xlarge1Sold += qty; break;
+                        case '8': xlarge2Sold += qty; break;
+                    }
+                });
+            }
+        });
+        
+        // Mettre à jour la production dans Firebase
+        await prodDoc.ref.update({
+            small1Sold: small1Sold,
+            small2Sold: small2Sold,
+            medium1Sold: medium1Sold,
+            medium2Sold: medium2Sold,
+            large1Sold: large1Sold,
+            large2Sold: large2Sold,
+            xlarge1Sold: xlarge1Sold,
+            xlarge2Sold: xlarge2Sold,
+            lastSync: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        console.log(`✅ Production ${productionId} synchronisée: total vendu = ${small1Sold+small2Sold+medium1Sold+medium2Sold+large1Sold+large2Sold+xlarge1Sold+xlarge2Sold}`);
+    }
+    
+    // Recharger l'affichage
+    loadRecords();
+    showMessage('Synchronisation terminée!', 'success');
+}
+    
+    
 function loadInvoices(filter = 'all') {
     console.log('🧾 Chargement factures avec filtre:', filter);
     
@@ -9945,7 +10007,7 @@ function showSection(sectionId) {
 function loginSuccess() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appInterface').style.display = 'block';
-    
+    setTimeout(syncSalesFromInvoices, 2000);
     // Initialiser la synchronisation en temps réel
     initRealtimeSync();
     
