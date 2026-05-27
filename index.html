@@ -2007,6 +2007,11 @@
             </div>
             
             <div class="form-grid">
+              <div class="form-group">
+    <label for="productionName" class="form-label">Nom de la production</label>
+    <input type="text" id="productionName" class="form-input" placeholder="Ex: Prod 1,">
+</div>
+              
                 <div class="form-group">
                     <label for="startDate" class="form-label">Date de début *</label>
                     <input type="date" id="startDate" class="form-input" required>
@@ -2939,8 +2944,8 @@ function loadBoutiqueStats() {
     
     const row = document.createElement('tr');
     row.innerHTML = `
-        <td>${startDateFormatted}</td>
-        <td>${endDateFormatted}</td>
+    <td><strong>${record.productionName || formatDate(record.startDate)}</strong><br><small style="color:#666;">${startDateFormatted}</small></td>
+    <td>${endDateFormatted}</td>
         <td>${record.newChickens || 0}</td>
         <td>${totalSold}</td>
         <td>${totalLostGiven}</td>
@@ -3277,7 +3282,8 @@ const finalLostGiven = isNaN(totalLostGiven) ? 0 : totalLostGiven;
         endDate,
         newChickens,
         initialStock,
-        
+            productionName: document.getElementById('productionName').value || `Production du ${startDate}`,
+       
         // 8 catégories
         small1Price, small1Quantity, small1Sold: 0,
         small2Price, small2Quantity, small2Sold: 0,
@@ -3333,42 +3339,46 @@ const finalLostGiven = isNaN(totalLostGiven) ? 0 : totalLostGiven;
     const startDateFormatted = formatDate(record.startDate);
     const endDateFormatted = record.endDate ? formatDate(record.endDate) : 'Non définie';
     
-    let content = `
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl);">
-            <div class="form-group">
-                <label class="form-label">Date de début</label>
-                <div class="form-input" style="background: var(--light-gray);">${startDateFormatted}</div>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Date de fin</label>
-                <div class="form-input" style="background: var(--light-gray);">${endDateFormatted}</div>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Stock initial</label>
-                <div class="form-input" style="background: var(--light-gray);">${record.initialStock || 0}</div>
-            </div>
-        </div>
-        
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl);">
-            <div class="form-group">
-                <label class="form-label">Donnés gratuitement</label>
-                <div class="form-input" style="background: var(--light-gray);">${record.given || 0}</div>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Perdus (morts)</label>
-                <div class="form-input" style="background: var(--light-gray);">${record.lost || 0}</div>
-            </div>
+       
+   let content = `
+    <div style="background: #f0f9ff; padding: 12px 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #3B82F6;">
+        <strong style="font-size: 1.1rem;">🏷️ ${record.productionName || 'Production sans nom'}</strong>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl);">
+        <div class="form-group">
+            <label class="form-label">Date de début</label>
+            <div class="form-input" style="background: var(--light-gray);">${startDateFormatted}</div>
         </div>
         
         <div class="form-group">
-            <label class="form-label">Notes</label>
-            <div class="form-input" style="background: var(--light-gray); min-height: 80px;">${record.notes || 'Aucune note'}</div>
+            <label class="form-label">Date de fin</label>
+            <div class="form-input" style="background: var(--light-gray);">${endDateFormatted}</div>
         </div>
-    `;
+        
+        <div class="form-group">
+            <label class="form-label">Stock initial</label>
+            <div class="form-input" style="background: var(--light-gray);">${record.initialStock || 0}</div>
+        </div>
+    </div>
     
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl);">
+        <div class="form-group">
+            <label class="form-label">Donnés gratuitement</label>
+            <div class="form-input" style="background: var(--light-gray);">${record.given || 0}</div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Perdus (morts)</label>
+            <div class="form-input" style="background: var(--light-gray);">${record.lost || 0}</div>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label class="form-label">Notes</label>
+        <div class="form-input" style="background: var(--light-gray); min-height: 80px;">${record.notes || 'Aucune note'}</div>
+    </div>
+`;
     // SECTION STOCK DISPONIBLE UNIQUEMENT (sans Ventes par catégorie ni Résumé)
     content += `
         <div style="background: #f0f9ff; padding: var(--space-lg); border-radius: var(--radius-lg); margin-top: var(--space-xl);">
@@ -6294,8 +6304,8 @@ function loadProductionsForDistribution() {
                 // Vérifier si déjà distribué
                 const option = document.createElement('option');
                 option.value = doc.id;
-                option.textContent = `Production du ${dateStr} - ${stockRestant} poulets restants`;
-                
+ const productionName = production.productionName || `Production du ${dateStr}`;
+option.textContent = `${productionName} - ${stockRestant} poulets restants`;                
                 // Stocker les données dans l'option
                 option.dataset.production = JSON.stringify({
                     id: doc.id,
@@ -6535,6 +6545,8 @@ async function saveDistribution() {
                 boutique: 'sacre-coeur',
                 boutiqueName: 'SACRÉ COEUR 3',
                 productionId: distribution.productionId,
+                  productionName: currentProductionForDistribution.data.productionName || null,  // ← AJOUTER
+
                 distributionId: distributionRef.id,
                 date: new Date().toISOString(),
                 categories: distribution.sacreCoeur,
@@ -6559,6 +6571,8 @@ async function saveDistribution() {
                 boutique: 'keur-massar',
                 boutiqueName: 'KEUR MASSAR',
                 productionId: distribution.productionId,
+                  productionName: currentProductionForDistribution.data.productionName || null,  // ← AJOUTER
+
                 distributionId: distributionRef.id,
                 date: new Date().toISOString(),
                 categories: distribution.keurMassar,
@@ -10070,47 +10084,36 @@ function addRefreshButton() {
 // CHARGEMENT DES STOCKS POUR LA PAGE STATISTIQUES
 // ==============================================
 
-function loadStatsStocks(filter = 'all') {
-    console.log("📦 Chargement stocks pour stats avec filtre:", filter);
+ function loadStatsStocks(filter = 'all') {
+    console.log("📦 loadStatsStocks appelé avec filtre:", filter);
     
     const tbody = document.getElementById('statsStocksTableBody');
     const emptyState = document.getElementById('statsEmptyStocks');
     
     if (!tbody) {
-        console.error("❌ Élément 'statsStocksTableBody' non trouvé");
+        console.error("❌ Element statsStocksTableBody non trouvé");
         return;
     }
     
-    // Afficher le chargement
+    // Afficher chargement
     tbody.innerHTML = `
         <tr>
             <td colspan="7" style="text-align: center; padding: 30px;">
-                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #8B5CF6;"></i>
-                <p style="margin-top: 10px;">Chargement des stocks...</p>
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+                <p>Chargement des stocks...</p>
             </td>
         </tr>
     `;
     tbody.style.display = 'table-row-group';
     if (emptyState) emptyState.style.display = 'none';
     
-    // Construire la requête
+    // Requête simple sans where pour tester
     let query = db.collection('stocks_attribues');
-    
-    if (filter === 'sacre-coeur') {
-        query = query.where('boutique', '==', 'sacre-coeur');
-    } else if (filter === 'keur-massar') {
-        query = query.where('boutique', '==', 'keur-massar');
-    } else if (filter === 'active') {
-        query = query.where('remaining', '>', 0);
-    } else if (filter === 'completed') {
-        query = query.where('remaining', '==', 0);
-    }
-    
-    query = query.orderBy('date', 'desc').limit(20);
+    query = query.orderBy('date', 'desc').limit(50);
     
     query.get()
         .then(snapshot => {
-            console.log(`📊 ${snapshot.size} stocks trouvés`);
+            console.log("📊 Stocks trouvés:", snapshot.size);
             
             if (snapshot.empty) {
                 tbody.innerHTML = '';
@@ -10126,10 +10129,9 @@ function loadStatsStocks(filter = 'all') {
                 const date = new Date(stock.date);
                 const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
                 
-                // Déterminer le nom de la boutique
+                // Nom de la boutique
                 let boutiqueName = 'Inconnue';
                 let badgeClass = '';
-                
                 if (stock.boutique === 'sacre-coeur') {
                     boutiqueName = 'Sacré Coeur 3';
                     badgeClass = 'badge-sacre-coeur';
@@ -10140,29 +10142,35 @@ function loadStatsStocks(filter = 'all') {
                     boutiqueName = stock.boutiqueName;
                 }
                 
+                // Nom de la production
+let productionName = `Production du ${dateStr}`;
+              if (!productionName || productionName === 'null' || productionName === 'undefined') {
+    productionName = `Production du ${dateStr}`;
+}
+                
                 const total = stock.total || 0;
                 const vendu = stock.totalSold || 0;
                 const restant = stock.remaining || (total - vendu);
                 
-                // Déterminer la couleur du statut
-                let statutColor = '#10B981'; // Vert
-                if (restant === 0) statutColor = '#6B7280'; // Gris
-                else if (restant < total * 0.3) statutColor = '#F59E0B'; // Orange
+                // Couleur du statut
+                let statutColor = '#10B981';
+                if (restant === 0) statutColor = '#6B7280';
+                else if (restant < total * 0.3) statutColor = '#F59E0B';
                 
                 const row = document.createElement('tr');
                 row.innerHTML = `
-    <td>${boutiqueName}</td>
-    <td>${dateStr}</td>
-    <td>${dateStr}</td>
-    <td><strong>${total}</strong></td>
-    <td style="color: #EF4444;">${vendu}</td>
-    <td style="color: ${statutColor}; font-weight: bold;">${restant}</td>
-    <td>
-        <button class="action-btn-small delete" onclick="confirmDeleteStock('${doc.id}', '${boutiqueName}', ${total})" title="Supprimer">
-            <i class="fas fa-trash"></i>
-        </button>
-    </td>
-`;
+                    <td><span class="boutique-badge ${badgeClass}">${boutiqueName}</span></td>
+                    <td>${dateStr}</td>
+                    <td>${productionName}</td>
+                    <td><strong>${total}</strong></td>
+                    <td style="color: #EF4444;">${vendu}</td>
+                    <td style="color: ${statutColor}; font-weight: bold;">${restant}</td>
+                    <td>
+                        <button class="action-btn-small delete" onclick="confirmDeleteStock('${doc.id}', '${boutiqueName}', ${total})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
                 
                 tbody.appendChild(row);
             });
@@ -10171,17 +10179,21 @@ function loadStatsStocks(filter = 'all') {
             if (emptyState) emptyState.style.display = 'none';
             
         }).catch(error => {
-            console.error('❌ Erreur:', error);
+            console.error("❌ Erreur chargement stocks:", error);
             tbody.innerHTML = `
                 <tr>
                     <td colspan="7" style="text-align: center; padding: 30px; color: #EF4444;">
                         <i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i>
                         <p>Erreur: ${error.message}</p>
+                        <button onclick="loadStatsStocks()" style="margin-top: 10px; padding: 8px 16px; background: #3B82F6; color: white; border: none; border-radius: 5px;">
+                            Réessayer
+                        </button>
                     </td>
                 </tr>
             `;
         });
 }
+// Essayer d'abord le nom stocké dans le document
 
 // ==============================================
 // IMPRIMER LES DÉTAILS D'UN STOCK
