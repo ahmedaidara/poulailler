@@ -23,7 +23,6 @@
             padding: 20px;
         }
         
-        /* Interface principale */
         .main-interface {
             background: white;
             border-radius: 20px;
@@ -75,7 +74,6 @@
             background: #e0e0e0;
         }
         
-        /* Stats rapides */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -103,7 +101,6 @@
             margin-top: 5px;
         }
         
-        /* Filtres */
         .filters-container {
             background: #f8fafc;
             border-radius: 16px;
@@ -113,7 +110,7 @@
         
         .filters-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             align-items: end;
         }
@@ -169,7 +166,6 @@
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
         
-        /* Tableau */
         .table-container {
             background: white;
             border-radius: 16px;
@@ -208,7 +204,6 @@
             cursor: pointer;
         }
         
-        /* Badges statut */
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -234,12 +229,10 @@
             color: #059669;
         }
         
-        /* Montants */
         .amount-total { font-weight: 700; color: #1e293b; }
         .amount-paid { color: #10b981; font-weight: 500; }
         .amount-remaining { color: #dc2626; font-weight: 700; }
         
-        /* Boutons action */
         .action-buttons {
             display: flex;
             gap: 8px;
@@ -271,7 +264,6 @@
             transform: scale(1.05);
         }
         
-        /* Modal */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -377,7 +369,6 @@
             outline: none;
         }
         
-        /* Message flottant */
         .message {
             position: fixed;
             top: 20px;
@@ -405,7 +396,6 @@
             to { transform: translateX(100%); opacity: 0; }
         }
         
-        /* Responsive */
         @media (max-width: 768px) {
             body { padding: 10px; }
             .main-interface { padding: 15px; }
@@ -454,6 +444,12 @@
     <div class="filters-container">
         <div class="filters-grid">
             <div class="filter-group">
+                <label><i class="fas fa-store"></i> Boutique</label>
+                <select id="boutiqueFilter">
+                    <option value="all">🏪 Toutes les boutiques</option>
+                </select>
+            </div>
+            <div class="filter-group">
                 <label><i class="fas fa-user"></i> Rechercher</label>
                 <input type="text" id="searchInput" placeholder="Nom ou téléphone...">
             </div>
@@ -480,6 +476,7 @@
             <table class="debts-table">
                 <thead>
                     <tr>
+                        <th>Boutique</th>
                         <th>Client</th>
                         <th>Téléphone</th>
                         <th>N° Facture</th>
@@ -492,7 +489,7 @@
                     </tr>
                 </thead>
                 <tbody id="debtsTableBody">
-                    <tr><td colspan="9" style="text-align: center; padding: 40px;">Chargement...</td></tr>
+                    <tr><td colspan="10" style="text-align: center; padding: 40px;">Chargement...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -506,9 +503,7 @@
             <h3><i class="fas fa-file-invoice"></i> Détail de la dette</h3>
             <button class="close-modal" onclick="closeModal()">&times;</button>
         </div>
-        <div class="modal-body" id="modalBody">
-            <!-- Contenu dynamique -->
-        </div>
+        <div class="modal-body" id="modalBody"></div>
         <div class="modal-footer">
             <button class="btn btn-secondary" onclick="closeModal()">Fermer</button>
             <button id="updatePaymentBtn" class="btn btn-success">
@@ -540,51 +535,80 @@
     let allInvoices = [];
     let currentInvoice = null;
     
-    // Configuration boutique (par défaut Keur Massar, adaptable)
-    let currentBoutique = { id: 'keur-massar', name: 'KEUR MASSAR', phone: '77 777 77 78' };
+    // Fonction pour obtenir le nom de la boutique
+    function getBoutiqueName(inv) {
+        if (inv.boutiqueName) return inv.boutiqueName;
+        if (inv.boutique === 'sacre-coeur') return 'Sacré Coeur 3';
+        if (inv.boutique === 'keur-massar') return 'Keur Massar';
+        return inv.boutique || 'Inconnue';
+    }
     
-    // Charger les dettes
+    // Charger les dettes (TOUTES les boutiques)
     async function loadDebts() {
         const tbody = document.getElementById('debtsTableBody');
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
         
         try {
-           const snapshot = await db.collection('invoices').get();
+            const snapshot = await db.collection('invoices').get();
             
-            let allInvoices = [];
-snapshot.forEach(doc => {
-    const inv = doc.data();
-    inv.id = doc.id;
-    allInvoices.push(inv);
-});
-
-// Extraire les boutiques uniques pour le filtre
-const boutiquesSet = new Set();
-allInvoices.forEach(inv => {
-    if (inv.boutiqueName) boutiquesSet.add(inv.boutiqueName);
-    else if (inv.boutique === 'sacre-coeur') boutiquesSet.add('Sacré Coeur 3');
-    else if (inv.boutique === 'keur-massar') boutiquesSet.add('Keur Massar');
-});
+            allInvoices = [];
+            snapshot.forEach(doc => {
+                const inv = doc.data();
+                inv.id = doc.id;
+                allInvoices.push(inv);
+            });
             
             // Trier par date (récent en premier)
             allInvoices.sort((a, b) => (b.date?.seconds || 0) - (a.date?.seconds || 0));
             
+            // Remplir le filtre boutique
+            populateBoutiqueFilter();
+            
+            // Appliquer les filtres
             applyFilters();
             updateStats();
             
         } catch (error) {
             console.error("Erreur:", error);
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: red;">Erreur de chargement</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: red;">Erreur de chargement</td></tr>';
         }
+    }
+    
+    // Remplir le select des boutiques
+    function populateBoutiqueFilter() {
+        const select = document.getElementById('boutiqueFilter');
+        const boutiques = new Set();
+        
+        allInvoices.forEach(inv => {
+            const name = getBoutiqueName(inv);
+            if (name) boutiques.add(name);
+        });
+        
+        // Garder seulement l'option "Toutes"
+        while (select.options.length > 1) {
+            select.remove(1);
+        }
+        
+        boutiques.forEach(b => {
+            const option = document.createElement('option');
+            option.value = b;
+            option.textContent = b;
+            select.appendChild(option);
+        });
     }
     
     // Appliquer les filtres
     function applyFilters() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
         const statusFilter = document.getElementById('statusFilter').value;
+        const boutiqueFilter = document.getElementById('boutiqueFilter').value;
         
         let filtered = allInvoices.filter(inv => {
             const paiement = inv.paiement || { statut: 'impaye', resteAPayer: inv.total || 0 };
+            const invBoutique = getBoutiqueName(inv);
+            
+            // Filtre boutique
+            if (boutiqueFilter !== 'all' && invBoutique !== boutiqueFilter) return false;
             
             // Filtre statut
             if (statusFilter !== 'all' && paiement.statut !== statusFilter) return false;
@@ -601,8 +625,8 @@ allInvoices.forEach(inv => {
         
         // Trier par reste à payer (plus gros en premier)
         filtered.sort((a, b) => {
-            const resteA = a.paiement?.resteAPayer || a.total || 0;
-            const resteB = b.paiement?.resteAPayer || b.total || 0;
+            const resteA = a.paiement?.resteAPayer || 0;
+            const resteB = b.paiement?.resteAPayer || 0;
             return resteB - resteA;
         });
         
@@ -614,16 +638,20 @@ allInvoices.forEach(inv => {
         const tbody = document.getElementById('debtsTableBody');
         
         if (invoices.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px;">Aucune dette trouvée</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 40px;">Aucune dette trouvée</td></tr>';
             return;
         }
         
         tbody.innerHTML = '';
         
         invoices.forEach(inv => {
-            const paiement = inv.paiement || { montantPaye: 0, resteAPayer: inv.total || 0, statut: 'impaye' };
+            const paiement = inv.paiement || { montantPaye: 0, resteAPayer: 0, statut: 'impaye' };
+            const reste = (paiement.resteAPayer && paiement.resteAPayer > 0) ? paiement.resteAPayer : 0;
+            const montantPaye = paiement.montantPaye || 0;
+            
             const date = inv.date?.seconds ? new Date(inv.date.seconds * 1000) : new Date(inv.date);
             const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
+            const boutiqueName = getBoutiqueName(inv);
             
             let statutClass = '';
             let statutText = '';
@@ -640,13 +668,14 @@ allInvoices.forEach(inv => {
             
             const row = document.createElement('tr');
             row.innerHTML = `
+                <td>${boutiqueName}</td>
                 <td><strong>${inv.client?.name || 'Anonyme'}</strong></td>
                 <td>${inv.client?.phone || '--'}</td>
                 <td>${inv.invoiceNumber || 'N/A'}</td>
                 <td>${dateStr}</td>
                 <td class="amount-total">${(inv.total || 0).toLocaleString('fr-FR')} F CFA</td>
-                <td class="amount-paid">${(paiement.montantPaye || 0).toLocaleString('fr-FR')} F CFA</td>
-                <td class="amount-remaining">${(paiement.resteAPayer || inv.total).toLocaleString('fr-FR')} F CFA</td>
+                <td class="amount-paid">${montantPaye.toLocaleString('fr-FR')} F CFA</td>
+                <td class="amount-remaining">${reste.toLocaleString('fr-FR')} F CFA</td>
                 <td><span class="status-badge ${statutClass}">${statutText}</span></td>
                 <td>
                     <div class="action-buttons">
@@ -669,7 +698,7 @@ allInvoices.forEach(inv => {
         let debtorsCount = 0;
         
         allInvoices.forEach(inv => {
-            const reste = inv.paiement?.resteAPayer || inv.total || 0;
+            const reste = (inv.paiement?.resteAPayer && inv.paiement.resteAPayer > 0) ? inv.paiement.resteAPayer : 0;
             if (reste > 0) {
                 totalDebt += reste;
                 debtorsCount++;
@@ -703,8 +732,12 @@ allInvoices.forEach(inv => {
     
     // Afficher le modal
     function showModal(inv, editable) {
-        const paiement = inv.paiement || { montantPaye: 0, resteAPayer: inv.total || 0, modePaiement: 'especes', statut: 'impaye' };
+        const paiement = inv.paiement || { montantPaye: 0, resteAPayer: 0, modePaiement: 'especes', statut: 'impaye' };
+        const reste = (paiement.resteAPayer && paiement.resteAPayer > 0) ? paiement.resteAPayer : 0;
+        const montantPaye = paiement.montantPaye || 0;
+        
         const date = inv.date?.seconds ? new Date(inv.date.seconds * 1000) : new Date(inv.date);
+        const boutiqueName = getBoutiqueName(inv);
         
         let itemsHtml = '';
         if (inv.items && inv.items.length > 0) {
@@ -720,6 +753,7 @@ allInvoices.forEach(inv => {
         
         let modalHtml = `
             <div style="margin-bottom: 20px;">
+                <p><strong>Boutique :</strong> ${boutiqueName}</p>
                 <p><strong>Client :</strong> ${inv.client?.name || 'Non renseigné'}</p>
                 <p><strong>Téléphone :</strong> ${inv.client?.phone || '--'}</p>
                 <p><strong>N° Facture :</strong> ${inv.invoiceNumber || 'N/A'}</p>
@@ -735,11 +769,11 @@ allInvoices.forEach(inv => {
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px; color: #10b981;">
                     <span><strong>Payé :</strong></span>
-                    <span>${(paiement.montantPaye || 0).toLocaleString('fr-FR')} F CFA</span>
+                    <span>${montantPaye.toLocaleString('fr-FR')} F CFA</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; color: #dc2626;">
                     <span><strong>Reste :</strong></span>
-                    <span style="font-size: 1.1rem; font-weight: bold;">${(paiement.resteAPayer || inv.total).toLocaleString('fr-FR')} F CFA</span>
+                    <span style="font-size: 1.1rem; font-weight: bold;">${reste.toLocaleString('fr-FR')} F CFA</span>
                 </div>
             </div>
         `;
@@ -756,7 +790,7 @@ allInvoices.forEach(inv => {
                 </div>
                 <div class="form-group">
                     <label>Montant payé (F CFA)</label>
-                    <input type="number" id="editMontantPaye" class="form-input" value="${paiement.montantPaye || 0}" min="0" step="100">
+                    <input type="number" id="editMontantPaye" class="form-input" value="${montantPaye}" min="0" step="100">
                 </div>
                 <div id="statutPreview" style="margin-top: 10px; padding: 10px; border-radius: 8px; text-align: center;"></div>
             `;
@@ -769,7 +803,7 @@ allInvoices.forEach(inv => {
             const preview = () => {
                 const montant = parseInt(document.getElementById('editMontantPaye').value) || 0;
                 const total = inv.total || 0;
-                const reste = total - montant;
+                const resteCalc = total - montant;
                 const previewDiv = document.getElementById('statutPreview');
                 
                 if (montant === 0) {
@@ -781,7 +815,7 @@ allInvoices.forEach(inv => {
                     previewDiv.style.background = '#d1fae5';
                     previewDiv.style.color = '#059669';
                 } else {
-                    previewDiv.innerHTML = `🟠 Statut : Paiement partiel (reste ${reste.toLocaleString('fr-FR')} F CFA)`;
+                    previewDiv.innerHTML = `🟠 Statut : Paiement partiel (reste ${resteCalc.toLocaleString('fr-FR')} F CFA)`;
                     previewDiv.style.background = '#fef3c7';
                     previewDiv.style.color = '#d97706';
                 }
@@ -833,6 +867,7 @@ allInvoices.forEach(inv => {
         const doc = new jsPDF();
         const inv = currentInvoice;
         const paiement = inv.paiement || {};
+        const reste = (paiement.resteAPayer && paiement.resteAPayer > 0) ? paiement.resteAPayer : 0;
         
         doc.setFontSize(20);
         doc.text("DAKAR CHICKEN EXPRESS", 105, 20, { align: 'center' });
@@ -856,7 +891,7 @@ allInvoices.forEach(inv => {
                 y += 7;
             });
         }
-         
+        
         y += 10;
         doc.line(15, y, 195, y);
         y += 8;
@@ -866,7 +901,7 @@ allInvoices.forEach(inv => {
         y += 10;
         doc.text(`Montant payé: ${(paiement.montantPaye || 0).toLocaleString('fr-FR')} F CFA`, 180, y, { align: 'right' });
         y += 10;
-        doc.text(`Reste à payer: ${(paiement.resteAPayer || inv.total).toLocaleString('fr-FR')} F CFA`, 180, y, { align: 'right' });
+        doc.text(`Reste à payer: ${reste.toLocaleString('fr-FR')} F CFA`, 180, y, { align: 'right' });
         
         doc.save(`Facture_${inv.invoiceNumber || 'dette'}.pdf`);
         showMessage('PDF généré', 'success');
@@ -896,6 +931,7 @@ allInvoices.forEach(inv => {
     document.getElementById('refreshBtn').addEventListener('click', loadDebts);
     document.getElementById('searchInput').addEventListener('input', applyFilters);
     document.getElementById('statusFilter').addEventListener('change', applyFilters);
+    document.getElementById('boutiqueFilter').addEventListener('change', applyFilters);
     document.getElementById('updatePaymentBtn')?.addEventListener('click', updatePayment);
     document.getElementById('printPDFBtn')?.addEventListener('click', generatePDF);
     
