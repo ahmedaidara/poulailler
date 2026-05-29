@@ -1213,40 +1213,61 @@
              
                 <h2 class="section-title"><i class="fas fa-tachometer-alt"></i> Tableau de Bord</h2>
                 
-                <div class="stats-grid">
-                   <div class="stat-card">
-    <div class="stat-icon">
-        <i class="fas fa-egg"></i>
+              <div class="stats-grid">
+               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px;">
+    
+    <!-- Dernière production -->
+    <div class="stat-card" style="border-top: 4px solid #8B5CF6;">
+        <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8B5CF6;">
+            <i class="fas fa-chicken"></i>
+        </div>
+        <div class="stat-value" id="lastStockInitial">0</div>
+        <div class="stat-label">📦 Stock Initial (Dernière production)</div>
     </div>
-    <div class="stat-value" id="productionCount">0</div>
-    <div class="stat-label">Stock restant de la distribution </div>  
-</div>
+    
+    <div class="stat-card" style="border-top: 4px solid #10B981;">
+        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10B981;">
+            <i class="fas fa-boxes"></i>
+        </div>
+        <div class="stat-value" id="lastStockRestant">0</div>
+        <div class="stat-label">✅ Stock Restant (Dernière production)</div>
+    </div>
+    
+    <div class="stat-card" style="border-top: 4px solid #3B82F6;">
+        <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3B82F6;">
+            <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="stat-value" id="lastTotalVentes">0 F CFA</div>
+        <div class="stat-label">💰 Total Ventes (Dernière production)</div>
+    </div>
 
-<div class="stat-card">
-    <div class="stat-icon">
-        <i class="fas fa-box"></i>
-    </div>
-    <div class="stat-value" id="stockCount">0</div>
-    <div class="stat-label">Stock distribué</div>  
-</div>
+    <div style="grid-column: 1/-1; margin: 10px 0; border-top: 2px dashed #ccc;"></div>
 
-<div class="stat-card">
-    <div class="stat-icon">
-        <i class="fas fa-coins"></i>
+    <!-- Stats globales -->
+    <div class="stat-card" style="border-top: 4px solid #1E293B;">
+        <div class="stat-icon" style="background: rgba(30, 41, 59, 0.1); color: #1E293B;">
+            <i class="fas fa-database"></i>
+        </div>
+        <div class="stat-value" id="globalStockTotal">0</div>
+        <div class="stat-label">📊 Stock Total (Toutes productions)</div>
     </div>
-    <div class="stat-value" id="stockValue">0 F CFA</div>
-    <div class="stat-label">Valeur du stock restant</div>  
-</div>
-
-<div class="stat-card">
-    <div class="stat-icon">
-        <i class="fas fa-chart-line"></i>
+    
+    <div class="stat-card" style="border-top: 4px solid #F59E0B;">
+        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #F59E0B;">
+            <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="stat-value" id="globalStockRestant">0</div>
+        <div class="stat-label">📉 Stock Restant Total</div>
     </div>
-    <div class="stat-value" id="revenueCount">0 F CFA</div>
-    <div class="stat-label">Chiffre d'affaires </div> 
+    
+    <div class="stat-card" style="border-top: 4px solid #EF4444;">
+        <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #EF4444;">
+            <i class="fas fa-money-bill-wave"></i>
+        </div>
+        <div class="stat-value" id="globalTotalVentes">0 F CFA</div>
+        <div class="stat-label">🏆 Total Ventes (Toutes productions)</div>
+    </div>
 </div>
-                </div>
-                
                 <h3 class="section-title"><i class="fas fa-bolt"></i> Actions Rapides</h3>
                 
                 <div class="quick-actions">
@@ -3006,7 +3027,10 @@ const stockRestant = Math.max(0, initialStock - totalSold - totalLostGiven);
         <td>${record.newChickens || 0}</td>
         <td>${totalSold}</td>
         <td>${totalLostGiven}</td>
-        <td>${stockRestant}</td>
+        
+        const totalSold = (record.small1Sold || 0) + (record.small2Sold || 0) + (record.medium1Sold || 0) + (record.medium2Sold || 0) + (record.large1Sold || 0) + (record.large2Sold || 0) + (record.xlarge1Sold || 0) + (record.xlarge2Sold || 0);
+const totalLostGiven = (record.lost || 0) + (record.given || 0);
+        <td>${Math.max(0, (record.initialStock || 0) - totalSold - totalLostGiven)}</td>
         <td>
             <div class="action-buttons">
                 <button class="action-btn-small view" data-id="${record.id}" title="Voir">
@@ -3077,66 +3101,130 @@ function formatNumberForPDF(num) {
     return rounded.toString();
 }
          
-function updateStatistics() {
-    console.log("=== MISE À JOUR STATISTIQUES AVEC FACTURES ===");
+async function updateStatistics() {
+    console.log("🔄 Mise à jour du tableau de bord...");
     
-    let totalLostGivenGlobal = 0;
-  
-    let totalPouletsVendus = 0;
-    let totalCA = 0;
-    
-    // 1. Calculer le TOTAL DES VENTES depuis les factures des boutiques
-    db.collection('invoices').get()
-        .then(snapshot => {
-            console.log(`📊 ${snapshot.size} factures trouvées`);
+    try {
+        // 1. Récupérer TOUTES les productions
+        const productionsSnapshot = await db.collection('poulailler_records')
+            .orderBy('startDate', 'desc')
+            .get();
+        
+        if (productionsSnapshot.empty) {
+            console.log("Aucune production trouvée");
+            return;
+        }
+        
+        // 2. Récupérer TOUTES les factures
+        const invoicesSnapshot = await db.collection('invoices').get();
+        
+        // 3. Créer un index des ventes par production (en nombre de poulets)
+        const ventesParProduction = {};
+        
+        invoicesSnapshot.forEach(doc => {
+            const invoice = doc.data();
+            const prodId = invoice.productionId;
             
-            snapshot.forEach(doc => {
-                const facture = doc.data();
-                totalCA += facture.total || 0;
-                
-                // Compter les poulets vendus
-                if (facture.items && Array.isArray(facture.items)) {
-                    facture.items.forEach(item => {
-                        totalPouletsVendus += item.quantity || 0;
-                    });
-                }
+            if (!ventesParProduction[prodId]) {
+                ventesParProduction[prodId] = 0;
+            }
+            
+            // Compter les poulets vendus (pas le montant en F CFA)
+            if (invoice.items) {
+                invoice.items.forEach(item => {
+                    ventesParProduction[prodId] += item.quantity || 0;
+                });
+            }
+        });
+        
+        // 4. Calculer les stats
+        let productionsList = [];
+        let totalStockInitialGlobal = 0;
+        let totalStockRestantGlobal = 0;
+        let totalVentesGlobal = 0; // en F CFA
+        
+        for (const doc of productionsSnapshot.docs) {
+            const prod = doc.data();
+            const prodId = doc.id;
+            
+            const stockInitial = prod.initialStock || 0;
+            const pouletsVendus = ventesParProduction[prodId] || 0;
+            const totalLostGiven = (prod.lost || 0) + (prod.given || 0);
+            
+            // Stock restant = initial - vendus - perdus
+            const stockRestant = Math.max(0, stockInitial - pouletsVendus - totalLostGiven);
+            
+            // Calculer le CA en F CFA
+            let ca = 0;
+            const invoicesForProd = await db.collection('invoices').where('productionId', '==', prodId).get();
+            invoicesForProd.forEach(invDoc => {
+                ca += invDoc.data().total || 0;
             });
             
-            console.log(`💰 CA total factures: ${totalCA} F CFA`);
-            console.log(`🐔 Poulets vendus: ${totalPouletsVendus}`);
+            productionsList.push({
+                id: prodId,
+                startDate: prod.startDate,
+                stockInitial: stockInitial,
+                stockRestant: stockRestant,
+                ventes: ca
+            });
             
-         // 2. Prendre UNIQUEMENT le stock initial de la DERNIÈRE production
-let totalStockInitial = 0;
-if (allRecords.length > 0) {
-    totalStockInitial = allRecords[0].initialStock || 0;
+            totalStockInitialGlobal += stockInitial;
+            totalStockRestantGlobal += stockRestant;
+            totalVentesGlobal += ca;
+        }
+        
+        // 5. Dernière production
+        const derniere = productionsList[0];
+        
+        if (derniere) {
+            document.getElementById('lastStockInitial').textContent = derniere.stockInitial.toLocaleString('fr-FR');
+            document.getElementById('lastStockRestant').textContent = derniere.stockRestant.toLocaleString('fr-FR');
+            document.getElementById('lastTotalVentes').textContent = derniere.ventes.toLocaleString('fr-FR') + ' F CFA';
+        }
+        
+        // 6. Stats globales
+        document.getElementById('globalStockTotal').textContent = totalStockInitialGlobal.toLocaleString('fr-FR');
+        document.getElementById('globalStockRestant').textContent = totalStockRestantGlobal.toLocaleString('fr-FR');
+        document.getElementById('globalTotalVentes').textContent = totalVentesGlobal.toLocaleString('fr-FR') + ' F CFA';
+        
+        console.log("✅ Tableau de bord mis à jour");
+        
+    } catch (error) {
+        console.error("❌ Erreur:", error);
+    }
 }
-const stockRestant = Math.max(0, totalStockInitial - totalPouletsVendus - totalLostGivenGlobal);
-            
-            // 4. Calculer la VALEUR du stock restant (prix moyen)
-            const prixMoyen = 3000; // Prix moyen estimé
-            const valeurStock = stockRestant * prixMoyen;
-            
-            console.log("=== RÉSULTATS FINAUX ===");
-            console.log(`Stock initial total: ${totalStockInitial}`);
-            console.log(`Poulets vendus: ${totalPouletsVendus}`);
-            console.log(`Stock restant: ${stockRestant}`);
-            console.log(`CA total: ${totalCA} F CFA`);
-            console.log(`Valeur stock: ${valeurStock} F CFA`);
-            
-            // 5. MISE À JOUR DE L'INTERFACE
-            document.getElementById('productionCount').textContent = stockRestant.toLocaleString('fr-FR');
-            document.getElementById('stockCount').textContent = totalStockInitial.toLocaleString('fr-FR');
-            document.getElementById('stockValue').textContent = valeurStock.toLocaleString('fr-FR') + ' F CFA';
-            document.getElementById('revenueCount').textContent = totalCA.toLocaleString('fr-FR') + ' F CFA';
-            
-        })
-        .catch(error => {
-            console.error("❌ Erreur chargement factures:", error);
-            // Fallback: utiliser calculateLocalStats()
-            calculateLocalStats();
-        });
+  
+       
+      async function calculerStockRestantReel(productionId) {
+    // Récupérer la production
+    const prodDoc = await db.collection('poulailler_records').doc(productionId).get();
+    if (!prodDoc.exists) return 0;
+    
+    const prod = prodDoc.data();
+    const stockInitial = prod.initialStock || 0;
+    
+    // Récupérer TOUTES les factures de cette production
+    const invoicesSnapshot = await db.collection('invoices')
+        .where('productionId', '==', productionId)
+        .get();
+    
+    // Compter le nombre total de poulets vendus 
+    let totalPouletsVendus = 0;
+    invoicesSnapshot.forEach(doc => {
+        const invoice = doc.data();
+        if (invoice.items) {
+            invoice.items.forEach(item => {
+                totalPouletsVendus += item.quantity || 0;
+            });
+        }
+    });
+    
+    const totalLostGiven = (prod.lost || 0) + (prod.given || 0);
+    const stockRestant = Math.max(0, stockInitial - totalPouletsVendus - totalLostGiven);
+    
+    return stockRestant;
 }
-
       // ==============================================
 // CALCULER LES VENTES RÉELLES DEPUIS LES FACTURES
 // ==============================================
@@ -5884,7 +5972,7 @@ function drawSimpleSalesChart(doc, records, x, y) {
 
 function drawSimpleEvolutionChart(doc, records, x, y) {
     try {
-        // Pr 
+        // Pr  
         const recentRecords = records.slice(0, 5).reverse();
         if (recentRecords.length === 0) return;
         
@@ -6328,7 +6416,7 @@ document.head.appendChild(style);
       
       
       // ==============================================
-// GESTION DE LA DISTRIBUTION DES STOCKS
+// GESTION DE LA DISTRIBUTION DES STOCKS 
 // ==============================================
 
 // Variables globales pour la distribution
@@ -6832,7 +6920,7 @@ function setupDistributionForm() {
         
         container.innerHTML = html;
         
-        // Mettre à jour le total de la boutique
+        // Mettre à jour le total de la boutiqu0
         const totalSpan = document.getElementById(boutique.totalSpanId);
         if (totalSpan) totalSpan.textContent = totalBoutique;
         
