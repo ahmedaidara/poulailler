@@ -2974,16 +2974,19 @@ observer.observe(document.getElementById('appInterface'), {
          filteredRecords.forEach(record => {
     
     // CALCU 
-    const totalSold = (record.small1Sold || 0) + (record.small2Sold || 0) + 
-                     (record.medium1Sold || 0) + (record.medium2Sold || 0) + 
-                     (record.large1Sold || 0) + (record.large2Sold || 0) + 
-                     (record.xlarge1Sold || 0) + (record.xlarge2Sold || 0);
-    
-    const totalLostGiven = (record.lost || 0) + (record.given || 0);
-    
-    // Calcul 
-    const initialStock = record.initialStock || 0;
-    const stockRestant = Math.max(0, initialStock - totalSold - totalLostGiven);
+  // Calcul du stock restant (basé sur les quantités disponibles par catégorie)
+const totalDisponible = (record.small1Quantity || 0) + (record.small2Quantity || 0) + 
+                       (record.medium1Quantity || 0) + (record.medium2Quantity || 0) + 
+                       (record.large1Quantity || 0) + (record.large2Quantity || 0) + 
+                       (record.xlarge1Quantity || 0) + (record.xlarge2Quantity || 0);
+
+const totalSold = (record.small1Sold || 0) + (record.small2Sold || 0) + 
+                 (record.medium1Sold || 0) + (record.medium2Sold || 0) + 
+                 (record.large1Sold || 0) + (record.large2Sold || 0) + 
+                 (record.xlarge1Sold || 0) + (record.xlarge2Sold || 0);
+
+const totalLostGiven = (record.lost || 0) + (record.given || 0);
+const stockRestant = Math.max(0, initialStock - totalSold - totalLostGiven);
     
      
     const startDateFormatted = formatDate(record.startDate);
@@ -4414,6 +4417,7 @@ doc.text(`Chiffre d'affaires total: ${stats.totalRevenue.toLocaleString('fr-FR')
             
            const totalLostGiven = (record.lost || 0) + (record.given || 0);
 const initialStock = record.initialStock || 0;
+          
 const stockRestant = Math.max(0, initialStock - totalSold - totalLostGiven);
 
 tableData.push([
@@ -10642,6 +10646,9 @@ function initStatsStockFilters() {
     console.log("✅ Synchronisation automatique en cours - Plus besoin de F5 !");
 })();
 </script>
+       
+       
+       
 </body>
  </html>
 
