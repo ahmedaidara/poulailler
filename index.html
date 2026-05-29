@@ -1219,7 +1219,7 @@
         <i class="fas fa-egg"></i>
     </div>
     <div class="stat-value" id="productionCount">0</div>
-    <div class="stat-label">Stock total restant</div>  
+    <div class="stat-label">Stock restant de la distribution </div>  
 </div>
 
 <div class="stat-card">
@@ -1227,7 +1227,7 @@
         <i class="fas fa-box"></i>
     </div>
     <div class="stat-value" id="stockCount">0</div>
-    <div class="stat-label">Stock initial total</div>  
+    <div class="stat-label">Stock distribué</div>  
 </div>
 
 <div class="stat-card">
@@ -1243,7 +1243,7 @@
         <i class="fas fa-chart-line"></i>
     </div>
     <div class="stat-value" id="revenueCount">0 F CFA</div>
-    <div class="stat-label">Chiffre d'affaires total</div> 
+    <div class="stat-label">Chiffre d'affaires </div> 
 </div>
                 </div>
                 
@@ -3414,7 +3414,7 @@ const finalLostGiven = isNaN(totalLostGiven) ? 0 : totalLostGiven;
         </div>
         
         <div class="form-group">
-            <label class="form-label">Stock initial</label>
+            <label class="form-label">Stock distribuer</label>
             <div class="form-input" style="background: var(--light-gray);">${record.initialStock || 0}</div>
         </div>
     </div>
@@ -3689,12 +3689,12 @@ if (xlarge2Sold > currentRecordToUpdate.xlarge2Quantity) {
                         </div>
                         
                         <div class="form-group">
-                            <label for="editNewChickens" class="form-label">Nouveaux poulets</label>
+                            <label for="editNewChickens" class="form-label">STock initiale</label>
                             <input type="number" id="editNewChickens" class="form-input" value="${currentRecordToEdit.newChickens || 0}" min="0">
                         </div>
                         
                         <div class="form-group">
-                            <label for="editInitialStock" class="form-label">Répéter</label>
+                            <label for="editInitialStock" class="form-label">Stock distribué</label>
                             <input type="number" id="editInitialStock" class="form-input" value="${currentRecordToEdit.initialStock || 0}" min="0">
                         </div>
                     </div>
@@ -11144,4 +11144,4 @@ function initStatsStockFilters() {
 
 
 
-  
+   
