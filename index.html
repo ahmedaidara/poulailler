@@ -1153,6 +1153,14 @@
 .mobile-nav-bottom {
     display: none;
 }
+      
+      /* Cacher la section statistiques qui s'affiche partout */
+.stats-grid:has(.stat-label:contains("Chiffre d'affaires total")),
+.stats-grid:has(.stat-label:contains("Nombre de factures")),
+.stats-grid:has(.stat-label:contains("Panier moyen")),
+.stats-grid:has(.stat-label:contains("Poulets vendus")) {
+    display: none !important;
+}
     </style>
 </head>
 <body>
@@ -2069,7 +2077,6 @@
     </div>
   
   <h3 style="margin-bottom: var(--space-lg);">
-            <i class="fas fa-store"></i> Statistiques
         </h3>
         <div class="stats-grid" style="margin-bottom: var(--space-xl);">
         <div class="stat-card">
@@ -2104,7 +2111,7 @@
             <div class="stat-label">Poulets vendus</div>
         </div>
     </div>
-   
+   </div>  <!-- Ajoute cette ligne si manquante -->
   
   
 </section>
@@ -11415,7 +11422,17 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log("✅ Synchronisation automatique en cours - Plus besoin de F5 !");
 })();
-         
+         // Supprimer la section statistiques qui s'affiche partout
+setTimeout(() => {
+    const allStatsGrids = document.querySelectorAll('.stats-grid');
+    allStatsGrids.forEach(grid => {
+        // Si cette grille contient "Poulets vendus", on la cache
+        if (grid.innerHTML.includes('Poulets vendus') || 
+            grid.innerHTML.includes('Chiffre d\'affaires total')) {
+            grid.style.display = 'none';
+        }
+    });
+}, 500);
          
 </script>
        
