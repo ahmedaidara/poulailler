@@ -3673,8 +3673,8 @@ if (xlarge2Sold > currentRecordToUpdate.xlarge2Quantity) {
              
             const startDate = currentRecordToEdit.startDate.split('T')[0];
             const endDate = currentRecordToEdit.endDate ? currentRecordToEdit.endDate.split('T')[0] : '';
-            
              
+              
             let form = `
                 <form id="editForm">
                     <div class="form-grid">
@@ -6838,9 +6838,10 @@ function setupDistributionForm() {
         
         // Ajouter les écouteurs pour cette boutique
         container.querySelectorAll('.input-attribution').forEach(input => {
-            input.addEventListener('input', function() {
-                let val = parseInt(this.value) || 0;
-                const max = parseInt(this.getAttribute('data-max')) || 0;
+            input.addEventListener('change', function() {
+    let val = parseInt(this.value) || 0;
+    const max = parseInt(this.getAttribute('data-max')) || 0;
+                
                 const boutiqueId = this.getAttribute('data-boutique');
                 const categoryId = this.getAttribute('data-category');
                 
@@ -11144,4 +11145,4 @@ function initStatsStockFilters() {
 
 
 
-   
+  
