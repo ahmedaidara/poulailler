@@ -1181,9 +1181,9 @@
                 <span class="app-title">DAKAR CHICKEN EXPRESS </span>
             </div>
             <div class="nav-links">
-                <button class="nav-btn active" data-section="dashboard">
-                    <i class="fas fa-chart-line"></i> Tableau de Bord Général
-                </button>
+               <button class="nav-btn" id="btnNewAccueil">
+    <i class="fas fa-home"></i> Accueil
+</button>
               <button class="nav-btn" data-section="boutiques">
     <i class="fas fa-store"></i> Boutiques
 </button>
@@ -2752,7 +2752,7 @@ function createMobileNavigation() {
     
     // Liste des boutons de navigation (adaptez selon vos besoins)
     const navItems = [
-        { icon: 'chart-line', text: 'Dashboard', section: 'dashboard', color: '#3B82F6' },
+        { icon: 'chart-line', text: 'ACCEUIL', section: 'btnNewAccueil', color: '#3B82F6' },
         { icon: 'store', text: 'Boutiques', section: 'boutiques', color: '#10B981' },
         { icon: 'history', text: 'Historique', section: 'records', color: '#8B5CF6' },
         { icon: 'file-pdf', text: 'PDF', section: 'pdf', color: '#F59E0B' },
@@ -10293,6 +10293,35 @@ function fermerDepense() {
     document.body.style.overflow = 'auto';
 }
 
+    // Fonction pour afficher la page d'accueil
+function afficherNouvelAccueil() {
+    let container = document.getElementById('accueilNewContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'accueilNewContainer';
+        container.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:white;z-index:10000;';
+        document.body.appendChild(container);
+    }
+    container.innerHTML = `
+        <iframe src="acceuil.html" style="width:100%;height:100%;border:none;"></iframe>
+        <button onclick="fermerNouvelAccueil()" style="position:fixed;top:10px;right:20px;z-index:10001;padding:10px 20px;background:#EF4444;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">
+            ✕ Fermer
+        </button>
+    `;
+    container.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function fermerNouvelAccueil() {
+    const container = document.getElementById('accueilNewContainer');
+    if (container) container.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Écouteurs
+document.getElementById('btnNewAccueil')?.addEventListener('click', afficherNouvelAccueil);
+document.getElementById('mobileBtnAccueil')?.addEventListener('click', afficherNouvelAccueil);
+    
 document.getElementById('btnDepense').addEventListener('click', afficherDepense);
     
     
