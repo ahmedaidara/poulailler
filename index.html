@@ -1588,143 +1588,124 @@
            <section id="boutiquesSection" class="dashboard-section" style="display: none;">
     <h2 class="section-title"><i class="fas fa-store"></i> Gestion des Boutiques</h2>
     <!-- Section Distribution des Stocks -->
+<!-- Distribution des Stocks aux Boutiques -->
 <div class="table-container" style="margin-top: var(--space-xl);">
     <h3 style="margin-bottom: var(--space-lg); color: var(--primary);">
         <i class="fas fa-truck-loading"></i> Distribution des Stocks aux Boutiques
     </h3>
     
+    <!-- Sélection de la production -->
     <div style="background: var(--light-gray); padding: var(--space-lg); border-radius: var(--radius-lg); margin-bottom: var(--space-lg);">
-        <h4 style="margin-bottom: var(--space-md);">Sélectionner une Production</h4>
         <div class="form-grid">
             <div class="form-group">
-                <label for="selectProductionDist" class="form-label">Production</label>
+                <label for="selectProductionDist" class="form-label">📦 Sélectionner une production</label>
                 <select id="selectProductionDist" class="form-input">
                     <option value="">-- Choisir une production --</option>
                 </select>
             </div>
-            
             <div class="form-group">
-                <label for="stockTotalDispo" class="form-label">Stock disponible total</label>
+                <label class="form-label">📊 Stock total disponible</label>
                 <input type="text" id="stockTotalDispo" class="form-input" readonly value="0">
             </div>
         </div>
     </div>
     
-    <!-- Formulaire de distribution -->
+    <!-- Grille des catégories de poulets -->
+    <div id="distributionCategories" style="margin-bottom: var(--space-xl);">
+        <!-- Les catégories seront affichées ici -->
+    </div>
+    
+    <!-- Distribution par boutique -->
     <div id="distributionForm" style="display: none;">
-        <div class="price-categories">
-            <h4 style="margin-bottom: var(--space-lg);">Répartir les stocks par catégorie</h4>
+        <h4 style="margin-bottom: var(--space-md);">🏪 Répartition par Boutique</h4>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: var(--space-lg);">
             
-            <!-- Les 8 catégories -->
-            <div id="distributionCategories">
-                <!-- Rempli dynamiquement par JavaScript -->
+            <!-- Sacré Coeur 1 -->
+            <div class="price-category" style="border-left: 4px solid #3B82F6;">
+                <h4><i class="fas fa-store" style="color: #3B82F6;"></i> Sacré Coeur 1</h4>
+                <div id="distribSacreCoeur1" class="distrib-boutique"></div>
+                <div style="margin-top: 10px; padding: 8px; background: #eff6ff; border-radius: 8px;">
+                    <strong>Total: <span id="totalSacreCoeur1">0</span> poulets</strong>
+                </div>
+            </div>
+            
+            <!-- Keur Massar -->
+            <div class="price-category" style="border-left: 4px solid #10B981;">
+                <h4><i class="fas fa-store" style="color: #10B981;"></i> Keur Massar</h4>
+                <div id="distribKeurMassar" class="distrib-boutique"></div>
+                <div style="margin-top: 10px; padding: 8px; background: #ecfdf5; border-radius: 8px;">
+                    <strong>Total: <span id="totalKeurMassar">0</span> poulets</strong>
+                </div>
+            </div>
+            
+            <!-- Sebikotane -->
+            <div class="price-category" style="border-left: 4px solid #F59E0B;">
+                <h4><i class="fas fa-store" style="color: #F59E0B;"></i> Sebikotane</h4>
+                <div id="distribSebikotane" class="distrib-boutique"></div>
+                <div style="margin-top: 10px; padding: 8px; background: #fffbeb; border-radius: 8px;">
+                    <strong>Total: <span id="totalSebikotane">0</span> poulets</strong>
+                </div>
+            </div>
+            
+            <!-- Front de Terre -->
+            <div class="price-category" style="border-left: 4px solid #EF4444;">
+                <h4><i class="fas fa-store" style="color: #EF4444;"></i> Front de Terre</h4>
+                <div id="distribFrontTerre" class="distrib-boutique"></div>
+                <div style="margin-top: 10px; padding: 8px; background: #fef2f2; border-radius: 8px;">
+                    <strong>Total: <span id="totalFrontTerre">0</span> poulets</strong>
+                </div>
+            </div>
+            
+            <!-- Sacré Coeur 3 -->
+            <div class="price-category" style="border-left: 4px solid #8B5CF6;">
+                <h4><i class="fas fa-store" style="color: #8B5CF6;"></i> Sacré Coeur 3</h4>
+                <div id="distribSacreCoeur3" class="distrib-boutique"></div>
+                <div style="margin-top: 10px; padding: 8px; background: #f5f3ff; border-radius: 8px;">
+                    <strong>Total: <span id="totalSacreCoeur3">0</span> poulets</strong>
+                </div>
+            </div>
+            
+            <!-- En Ligne (TikTok) -->
+            <div class="price-category" style="border-left: 4px solid #EC4899;">
+                <h4><i class="fab fa-tiktok" style="color: #EC4899;"></i> En Ligne (TikTok)</h4>
+                <div id="distribEnLigne" class="distrib-boutique"></div>
+                <div style="margin-top: 10px; padding: 8px; background: #fdf2f8; border-radius: 8px;">
+                    <strong>Total: <span id="totalEnLigne">0</span> poulets</strong>
+                </div>
             </div>
         </div>
         
-        <!-- Boutiques à distribuer -->
-        <div style="margin-top: var(--space-xl);">
-            <h4 style="margin-bottom: var(--space-md);">Distribution par Boutique</h4>
+        <!-- Résumé global -->
+        <div style="margin-top: var(--space-xl); padding: var(--space-lg); background: #f0f9ff; border-radius: var(--radius-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <strong>📦 Stock disponible total:</strong>
+                    <span id="globalStockTotal" style="font-size: 1.3rem; font-weight: bold; color: #3B82F6;">0</span>
+                </div>
+                <div>
+                    <strong>📤 Total distribué:</strong>
+                    <span id="totalDistributed" style="font-size: 1.3rem; font-weight: bold; color: #10B981;">0</span>
+                </div>
+                <div>
+                    <strong>⚠️ Reste à distribuer:</strong>
+                    <span id="remainingToDistribute" style="font-size: 1.3rem; font-weight: bold; color: #F59E0B;">0</span>
+                </div>
+            </div>
             
-           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-lg);">
-    <!-- Sacré Coeur 1 -->
-    <div class="price-category" style="border-left: 4px solid #3B82F6;">
-        <h4><i class="fas fa-store" style="color: #3B82F6;"></i> Sacré Coeur 1</h4>
-        <div id="distributionSacreCoeur1"></div>
-        <div style="margin-top: var(--space-md);">
-            <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                <span>Total attribué :</span>
-                <span id="totalSacreCoeur1">0</span>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Keur Massar -->
-    <div class="price-category" style="border-left: 4px solid #10B981;">
-        <h4><i class="fas fa-store" style="color: #10B981;"></i> Keur Massar</h4>
-        <div id="distributionKeurMassar"></div>
-        <div style="margin-top: var(--space-md);">
-            <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                <span>Total attribué :</span>
-                <span id="totalKeurMassar">0</span>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Sebikotane -->
-    <div class="price-category" style="border-left: 4px solid #F59E0B;">
-        <h4><i class="fas fa-store" style="color: #F59E0B;"></i> Sebikotane</h4>
-        <div id="distributionSebikotane"></div>
-        <div style="margin-top: var(--space-md);">
-            <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                <span>Total attribué :</span>
-                <span id="totalSebikotane">0</span>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Front de Terre -->
-    <div class="price-category" style="border-left: 4px solid #EF4444;">
-        <h4><i class="fas fa-store" style="color: #EF4444;"></i> Front de Terre</h4>
-        <div id="distributionFrontTerre"></div>
-        <div style="margin-top: var(--space-md);">
-            <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                <span>Total attribué :</span>
-                <span id="totalFrontTerre">0</span>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Sacré Coeur 3 --> 
-    <div class="price-category" style="border-left: 4px solid #8B5CF6;">
-        <h4><i class="fas fa-store" style="color: #8B5CF6;"></i> Sacré Coeur 3</h4>
-        <div id="distributionSacreCoeur3"></div>
-        <div style="margin-top: var(--space-md);">
-            <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                <span>Total attribué :</span>
-                <span id="totalSacreCoeur3">0</span>
-            </div>
-        </div>
-    </div>
-    
-    <!-- En Ligne (TikTok) -->
-    <div class="price-category" style="border-left: 4px solid #EC4899;">
-        <h4><i class="fab fa-tiktok" style="color: #EC4899;"></i> En Ligne (TikTok)</h4>
-        <div id="distributionEnLigne"></div>
-        <div style="margin-top: var(--space-md);">
-            <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                <span>Total attribué :</span>
-                <span id="totalEnLigne">0</span>
+            <div class="modal-actions" style="margin-top: var(--space-lg);">
+                <button id="cancelDistributionBtn" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button id="saveDistributionBtn" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Valider la distribution
+                </button>
             </div>
         </div>
     </div>
 </div>
-            
-            <!-- Total et validation -->
-            <div style="margin-top: var(--space-xl); padding: var(--space-lg); background: #f0f9ff; border-radius: var(--radius-lg);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
-                    <div>
-                        <strong>Stock total disponible :</strong> <span id="globalStockTotal">0</span>
-                    </div>
-                    <div>
-                        <strong>Total distribué :</strong> <span id="totalDistributed">0</span>
-                    </div>
-                    <div style="color: var(--danger);">
-                        <strong>Reste à distribuer :</strong> <span id="remainingToDistribute">0</span>
-                    </div>
-                </div>
-                
-                <div class="modal-actions">
-                    <button id="cancelDistributionBtn" class="btn btn-secondary">
-                        <i class="fas fa-times"></i> Annuler
-                    </button>
-                    <button id="saveDistributionBtn" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Enregistrer la Distribution
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+             </div>
+
              
              <!-- Tableau de bord des stocks attribués -->
 <div class="table-container" style="margin-top: var(--space-2xl);">
@@ -4748,15 +4729,20 @@ function calculateStatisticsForPDF(records) {
         const initialStock = record.initialStock || 0;
         
         // TOTAL VENDUS (8 catégories)
-        const totalSold = (record.small1Sold || 0) + (record.small2Sold || 0) + 
-                         (record.medium1Sold || 0) + (record.medium2Sold || 0) + 
-                         (record.large1Sold || 0) + (record.large2Sold || 0) + 
-                         (record.xlarge1Sold || 0) + (record.xlarge2Sold || 0);
-        
-        const totalLostGiven = (record.lost || 0) + (record.given || 0);
-        
-        // Stock restant = initial - vendus - perdus/donnés
-        const stockRestant = Math.max(0, initialStock - totalSold - totalLostGiven);
+     const totalSold = (record.small1Sold || 0) + (record.small2Sold || 0) + 
+                 (record.medium1Sold || 0) + (record.medium2Sold || 0) + 
+                 (record.large1Sold || 0) + (record.large2Sold || 0) + 
+                 (record.xlarge1Sold || 0) + (record.xlarge2Sold || 0);
+
+const totalLostGiven = (record.lost || 0) + (record.given || 0);
+
+// Solution simple: utiliser la quantité totale disponible dans les catégories
+const totalDisponible = (record.small1Quantity || 0) + (record.small2Quantity || 0) + 
+                       (record.medium1Quantity || 0) + (record.medium2Quantity || 0) + 
+                       (record.large1Quantity || 0) + (record.large2Quantity || 0) + 
+                       (record.xlarge1Quantity || 0) + (record.xlarge2Quantity || 0);
+
+const stockRestant = Math.max(0, totalDisponible - totalSold - totalLostGiven);
         
         // 2. Stock total restant
         totalProduction += stockRestant;
@@ -6395,6 +6381,302 @@ function initDistribution() {
     document.getElementById('saveDistributionBtn').addEventListener('click', saveDistribution);
 }
 
+      function initDistributionModerne() {
+    console.log("🚀 Initialisation distribution moderne");
+    
+    const selectProd = document.getElementById('selectProductionDist');
+    if (!selectProd) return;
+    
+    // Charger les productions
+    db.collection('poulailler_records')
+        .orderBy('startDate', 'desc')
+        .limit(30)
+        .get()
+        .then(snapshot => {
+            selectProd.innerHTML = '<option value="">-- Choisir une production --</option>';
+            
+            snapshot.forEach(doc => {
+                const prod = doc.data();
+                const date = new Date(prod.startDate);
+                const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
+                
+                // Calculer le stock disponible réel
+                let totalDisponible = 0;
+                const categories = ['small1Quantity','small2Quantity','medium1Quantity','medium2Quantity',
+                                   'large1Quantity','large2Quantity','xlarge1Quantity','xlarge2Quantity'];
+                categories.forEach(cat => {
+                    totalDisponible += prod[cat] || 0;
+                });
+                
+                const option = document.createElement('option');
+                option.value = doc.id;
+                option.textContent = `${prod.productionName || 'Production'} (${dateStr}) - ${totalDisponible} poulets`;
+                option.dataset.production = JSON.stringify({
+                    id: doc.id,
+                    data: prod,
+                    stockTotal: totalDisponible
+                });
+                selectProd.appendChild(option);
+            });
+        });
+    
+    // Événement changement production
+    selectProd.addEventListener('change', function() {
+        const selected = this.options[this.selectedIndex];
+        if (selected.value && selected.dataset.production) {
+            const prodData = JSON.parse(selected.dataset.production);
+            currentProductionForDistribution = prodData;
+            document.getElementById('stockTotalDispo').value = prodData.stockTotal;
+            document.getElementById('distributionForm').style.display = 'block';
+            afficherCategoriesDistribution(prodData.data);
+        } else {
+            document.getElementById('distributionForm').style.display = 'none';
+        }
+    });
+    
+    // Boutons
+    document.getElementById('cancelDistributionBtn')?.addEventListener('click', () => {
+        document.getElementById('distributionForm').style.display = 'none';
+        selectProd.value = '';
+    });
+    
+    document.getElementById('saveDistributionBtn')?.addEventListener('click', saveDistributionModerne);
+}
+
+function afficherCategoriesDistribution(production) {
+    const container = document.getElementById('distributionCategories');
+    if (!container) return;
+    
+    const categories = [
+        { id: '1', name: 'Très petits (1-1.1 kg)', field: 'small1Quantity', price: 2000 },
+        { id: '2', name: 'Petits (1.2 kg)', field: 'small2Quantity', price: 2500 },
+        { id: '3', name: 'Moyens-petits (1.3-1.4 kg)', field: 'medium1Quantity', price: 3000 },
+        { id: '4', name: 'Moyens (1.5-1.6 kg)', field: 'medium2Quantity', price: 3300 },
+        { id: '5', name: 'Moyens-grands (1.7-1.9 kg)', field: 'large1Quantity', price: 3500 },
+        { id: '6', name: 'Grands (2 kg)', field: 'large2Quantity', price: 3700 },
+        { id: '7', name: 'Très grands (2.1-2.3 kg)', field: 'xlarge1Quantity', price: 4000 },
+        { id: '8', name: 'Géants (+2.4 kg)', field: 'xlarge2Quantity', price: 4500 }
+    ];
+    
+    let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">';
+    
+    categories.forEach(cat => {
+        const disponible = production[cat.field] || 0;
+        html += `
+            <div style="background: white; border-radius: 10px; padding: 15px; border: 1px solid #e0e0e0;">
+                <div style="font-weight: bold; margin-bottom: 5px;">${cat.name}</div>
+                <div style="color: #666; font-size: 0.9rem;">💰 ${cat.price.toLocaleString('fr-FR')} F CFA</div>
+                <div style="margin-top: 10px; padding: 8px; background: #f0f9ff; border-radius: 5px;">
+                    <span style="color: #3B82F6;">📦 Disponible: <strong>${disponible}</strong></span>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+    
+    // Initialiser les champs pour chaque boutique
+    const boutiques = [
+        'SacreCoeur1', 'KeurMassar', 'Sebikotane', 'FrontTerre', 'SacreCoeur3', 'EnLigne'
+    ];
+    
+    categories.forEach(cat => {
+        const disponible = production[cat.field] || 0;
+        
+        boutiques.forEach(boutique => {
+            const containerDiv = document.getElementById(`distrib${boutique}`);
+            if (containerDiv) {
+                // Vérifier si l'input existe déjà
+                let input = containerDiv.querySelector(`input[data-cat="${cat.id}"]`);
+                if (!input) {
+                    input = document.createElement('input');
+                    input.type = 'number';
+                    input.className = 'form-input distrib-input';
+                    input.setAttribute('data-cat', cat.id);
+                    input.setAttribute('data-name', cat.name);
+                    input.setAttribute('data-price', cat.price);
+                    input.setAttribute('data-boutique', boutique);
+                    input.min = 0;
+                    input.max = disponible;
+                    input.value = 0;
+                    input.style.marginBottom = '8px';
+                    input.style.width = '100%';
+                    input.placeholder = `${cat.name} - Max: ${disponible}`;
+                    
+                    // Label
+                    const label = document.createElement('label');
+                    label.textContent = `${cat.name} (${cat.price.toLocaleString('fr-FR')} F CFA)`;
+                    label.style.fontSize = '0.85rem';
+                    label.style.display = 'block';
+                    label.style.marginBottom = '3px';
+                    
+                    const div = document.createElement('div');
+                    div.appendChild(label);
+                    div.appendChild(input);
+                    containerDiv.appendChild(div);
+                    
+                    input.addEventListener('input', updateDistributionTotaux);
+                } else {
+                    input.max = disponible;
+                    input.placeholder = `${cat.name} - Max: ${disponible}`;
+                }
+            }
+        });
+    });
+}
+
+function updateDistributionTotaux() {
+    const boutiques = ['SacreCoeur1', 'KeurMassar', 'Sebikotane', 'FrontTerre', 'SacreCoeur3', 'EnLigne'];
+    let totalGeneral = 0;
+    
+    boutiques.forEach(boutique => {
+        let total = 0;
+        document.querySelectorAll(`#distrib${boutique} .distrib-input`).forEach(input => {
+            total += parseInt(input.value) || 0;
+        });
+        document.getElementById(`total${boutique}`).textContent = total;
+        totalGeneral += total;
+    });
+    
+    const stockTotal = parseInt(document.getElementById('stockTotalDispo').value) || 0;
+    document.getElementById('totalDistributed').textContent = totalGeneral;
+    document.getElementById('remainingToDistribute').textContent = Math.max(0, stockTotal - totalGeneral);
+}
+
+async function saveDistributionModerne() {
+    if (!currentProductionForDistribution) {
+        showMessage('Sélectionnez une production', 'error');
+        return;
+    }
+    
+    const boutiques = ['SacreCoeur1', 'KeurMassar', 'Sebikotane', 'FrontTerre', 'SacreCoeur3', 'EnLigne'];
+    const distribution = {};
+    let totalDistribue = 0;
+    
+    boutiques.forEach(boutique => {
+        const items = {};
+        let totalBoutique = 0;
+        
+        document.querySelectorAll(`#distrib${boutique} .distrib-input`).forEach(input => {
+            const qty = parseInt(input.value) || 0;
+            if (qty > 0) {
+                const catId = input.getAttribute('data-cat');
+                items[catId] = qty;
+                totalBoutique += qty;
+            }
+        });
+        
+        if (totalBoutique > 0) {
+            distribution[boutique] = items;
+            totalDistribue += totalBoutique;
+        }
+    });
+    
+    if (totalDistribue === 0) {
+        showMessage('Aucune quantité à distribuer', 'error');
+        return;
+    }
+    
+    const stockTotal = currentProductionForDistribution.stockTotal;
+    if (totalDistribue > stockTotal) {
+        showMessage(`Dépassement: ${totalDistribue} > ${stockTotal} disponibles`, 'error');
+        return;
+    }
+    
+    showMessage('Distribution en cours...', 'warning');
+    
+    try {
+        // Sauvegarder la distribution
+        const distributionData = {
+            productionId: currentProductionForDistribution.id,
+            productionName: currentProductionForDistribution.data.productionName || 'Production',
+            date: new Date().toISOString(),
+            distribution: distribution,
+            totalDistribue: totalDistribue,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        await db.collection('stock_distributions').add(distributionData);
+        
+        // Mettre à jour les stocks des boutiques
+        const boutiqueMapping = {
+            'SacreCoeur1': { id: 'sacre-coeur-1', name: 'SACRÉ COEUR 1' },
+            'KeurMassar': { id: 'keur-massar', name: 'KEUR MASSAR' },
+            'Sebikotane': { id: 'sebikotane', name: 'SEBIKOTANE' },
+            'FrontTerre': { id: 'front-terre', name: 'FRONT DE TERRE' },
+            'SacreCoeur3': { id: 'sacre-coeur-3', name: 'SACRÉ COEUR 3' },
+            'EnLigne': { id: 'en-ligne', name: 'EN LIGNE (TikTok)' }
+        };
+        
+        for (const [boutiqueKey, items] of Object.entries(distribution)) {
+            const boutiqueInfo = boutiqueMapping[boutiqueKey];
+            if (!boutiqueInfo) continue;
+            
+            // Calculer le total pour cette boutique
+            let totalBoutique = 0;
+            for (let qty of Object.values(items)) totalBoutique += qty;
+            
+            const stockAttribue = {
+                boutique: boutiqueInfo.id,
+                boutiqueName: boutiqueInfo.name,
+                productionId: currentProductionForDistribution.id,
+                productionName: currentProductionForDistribution.data.productionName || 'Production',
+                date: new Date().toISOString(),
+                categories: items,
+                total: totalBoutique,
+                soldByCategory: { '1':0,'2':0,'3':0,'4':0,'5':0,'6':0,'7':0,'8':0 },
+                totalSold: 0,
+                remaining: totalBoutique,
+                status: 'active',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            await db.collection('stocks_attribues').add(stockAttribue);
+        }
+        
+        // Mettre à jour la production (réduire les quantités)
+        const productionRef = db.collection('poulailler_records').doc(currentProductionForDistribution.id);
+        const updates = {};
+        
+        const categoryFieldMap = {
+            '1': 'small1Quantity', '2': 'small2Quantity', '3': 'medium1Quantity',
+            '4': 'medium2Quantity', '5': 'large1Quantity', '6': 'large2Quantity',
+            '7': 'xlarge1Quantity', '8': 'xlarge2Quantity'
+        };
+        
+        // Calculer les quantités à retirer par catégorie
+        const totalParCategorie = {};
+        for (const [boutiqueKey, items] of Object.entries(distribution)) {
+            for (const [catId, qty] of Object.entries(items)) {
+                totalParCategorie[catId] = (totalParCategorie[catId] || 0) + qty;
+            }
+        }
+        
+        for (const [catId, qty] of Object.entries(totalParCategorie)) {
+            const field = categoryFieldMap[catId];
+            if (field) {
+                const currentValue = currentProductionForDistribution.data[field] || 0;
+                updates[field] = Math.max(0, currentValue - qty);
+            }
+        }
+        
+        updates.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+        await productionRef.update(updates);
+        
+        showMessage(`✅ Distribution terminée! ${totalDistribue} poulets distribués`, 'success');
+        
+        // Réinitialiser
+        document.getElementById('distributionForm').style.display = 'none';
+        document.getElementById('selectProductionDist').value = '';
+        location.reload();
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+        showMessage('Erreur: ' + error.message, 'error');
+    }
+}
+      
 function setupDistributionForm() {
     if (!currentProductionForDistribution) return;
     
