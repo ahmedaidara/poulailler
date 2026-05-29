@@ -1499,7 +1499,7 @@
                 <div class="table-container" style="max-width: 500px;">
                     <div class="form-grid" style="padding: var(--space-xl);">
                         <div class="form-group">
-                            <label for="newCode" class="form-label">Nouveau code (4 chiffres)</label>
+                            <label for="newCode" class="form-label">Nouveau code de ce site admin(4 chiffres)</label>
                             <input type="password" id="newCode" class="form-input" maxlength="8">
                         </div>
                         
@@ -1515,68 +1515,72 @@
                         </button>
                     </div>
                 </div>
-               <div class="table-container" style="max-width: 600px; margin-top: var(--space-xl);">
+              <div class="table-container" style="max-width: 800px; margin-top: var(--space-xl);">
     <h3 style="margin-bottom: var(--space-lg); color: var(--primary);">
-        <i class="fas fa-store"></i> Gestion des Boutiques
+        <i class="fas fa-store"></i> Code d'acces des 6 Boutiques
     </h3>
     
-    <!-- Boutique 1 : Sacré Coeur 3 -->
+    <!-- Boutique Sacré Coeur 1 -->
     <div class="option-group" style="margin-bottom: var(--space-lg);">
-        <h4 style="margin-bottom: var(--space-md); display: flex; align-items: center; gap: var(--space-sm);">
-            <i class="fas fa-map-marker-alt" style="color: #3B82F6;"></i>
-            Boutique SACRÉ COEUR 3
-        </h4>
-        
+        <h4><i class="fas fa-map-marker-alt" style="color: #3B82F6;"></i> Boutique SACRÉ COEUR 1</h4>
         <div class="form-grid">
             <div class="form-group">
-                <label for="codeSacreCoeur" class="form-label">Code d'accès gérante</label>
-                <input type="password" id="codeSacreCoeur" class="form-input" value="8008">
-                <small style="color: var(--gray-text);">Code pour la gérante de Sacré Coeur 3</small>
-            </div>
-            
-            <div class="form-group">
-                <label for="urlSacreCoeur" class="form-label">Lien boutique</label>
-                <div style="display: flex; gap: var(--space-sm);">
-                    <input type="text" id="urlSacreCoeur" class="form-input" 
-                           value=" https://ahmedaidara.github.io/boutiqueschicken" readonly>
-                    <button onclick="copyToClipboard('urlSacreCoeur')" class="btn" style="background: var(--secondary); color: white;">
-                        <i class="fas fa-copy"></i>
-                    </button>
-                </div>
+                <label for="codeSacreCoeur1" class="form-label">Code d'accès</label>
+                <input type="password" id="codeSacreCoeur1" class="form-input" value="1000">
             </div>
         </div>
     </div>
     
-    <!-- Boutique 2 : Keur Massar -->
-    <div class="option-group">
-        <h4 style="margin-bottom: var(--space-md); display: flex; align-items: center; gap: var(--space-sm);">
-            <i class="fas fa-map-marker-alt" style="color: #10B981;"></i>
-            Boutique KEUR MASSAR
-        </h4>
-        
+    <!-- Boutique Keur Massar -->
+    <div class="option-group" style="margin-bottom: var(--space-lg);">
+        <h4><i class="fas fa-map-marker-alt" style="color: #10B981;"></i> Boutique KEUR MASSAR</h4>
         <div class="form-grid">
             <div class="form-group">
-                <label for="codeKeurMassar" class="form-label">Code d'accès gérante</label>
+                <label for="codeKeurMassar" class="form-label">Code d'accès</label>
                 <input type="password" id="codeKeurMassar" class="form-input" value="1001">
-                <small style="color: var(--gray-text);">Code pour la gérante de Keur Massar</small>
-            </div>
-            
-            <div class="form-group">
-                <label for="urlKeurMassar" class="form-label">Lien boutique</label>
-                <div style="display: flex; gap: var(--space-sm);">
-                    <input type="text" id="urlKeurMassar" class="form-input" 
-                           value=" https://ahmedaidara.github.io/boutiqueschicken" readonly>
-                    <button onclick="copyToClipboard('urlKeurMassar')" class="btn" style="background: var(--secondary); color: white;">
-                        <i class="fas fa-copy"></i>
-                    </button>
-                </div>
             </div>
         </div>
     </div>
     
-    <div class="modal-actions" style="margin-top: var(--space-xl);">
+    <!-- Boutique Sebikotane -->
+    <div class="option-group" style="margin-bottom: var(--space-lg);">
+        <h4><i class="fas fa-map-marker-alt" style="color: #F59E0B;"></i> Boutique SEBIKOTANE</h4>
+        <div class="form-group">
+            <label for="codeSebikotane" class="form-label">Code d'accès</label>
+            <input type="password" id="codeSebikotane" class="form-input" value="1002">
+        </div>
+    </div>
+    
+    <!-- Boutique Front de Terre -->
+    <div class="option-group" style="margin-bottom: var(--space-lg);">
+        <h4><i class="fas fa-map-marker-alt" style="color: #EF4444;"></i> Boutique FRONT DE TERRE</h4>
+        <div class="form-group">
+            <label for="codeFrontTerre" class="form-label">Code d'accès</label>
+            <input type="password" id="codeFrontTerre" class="form-input" value="1003">
+        </div>
+    </div>
+    
+    <!-- Boutique Sacré Coeur 3 -->
+    <div class="option-group" style="margin-bottom: var(--space-lg);">
+        <h4><i class="fas fa-map-marker-alt" style="color: #8B5CF6;"></i> Boutique SACRÉ COEUR 3</h4>
+        <div class="form-group">
+            <label for="codeSacreCoeur3" class="form-label">Code d'accès</label>
+            <input type="password" id="codeSacreCoeur3" class="form-input" value="1004">
+        </div>
+    </div>
+    
+    <!-- Boutique En Ligne (TikTok) -->
+    <div class="option-group" style="margin-bottom: var(--space-lg);">
+        <h4><i class="fab fa-tiktok" style="color: #EC4899;"></i> Boutique EN LIGNE (TikTok)</h4>
+        <div class="form-group">
+            <label for="codeEnLigne" class="form-label">Code d'accès</label>
+            <input type="password" id="codeEnLigne" class="form-input" value="1005">
+        </div>
+    </div>
+    
+    <div class="modal-actions">
         <button id="saveBoutiqueCodes" class="btn btn-primary">
-            <i class="fas fa-save"></i> Enregistrer les codes
+            <i class="fas fa-save"></i> Enregistrer tous les codes
         </button>
     </div>
 </div>
@@ -1621,41 +1625,79 @@
         <div style="margin-top: var(--space-xl);">
             <h4 style="margin-bottom: var(--space-md);">Distribution par Boutique</h4>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-lg);">
-                <!-- Sacré Coeur 3 -->
-                <div class="price-category" style="border-left: 4px solid #3B82F6;">
-                    <h4 style="margin-bottom: var(--space-md); display: flex; align-items: center; gap: var(--space-sm);">
-                        <i class="fas fa-store" style="color: #3B82F6;"></i>
-                        Sacré Coeur 3
-                    </h4>
-                    <div id="distributionSacreCoeur">
-                        <!-- Rempli dynamiquement -->
-                    </div>
-                    <div style="margin-top: var(--space-md);">
-                        <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                            <span>Total attribué :</span>
-                            <span id="totalSacreCoeur">0</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Keur Massar -->
-                <div class="price-category" style="border-left: 4px solid #10B981;">
-                    <h4 style="margin-bottom: var(--space-md); display: flex; align-items: center; gap: var(--space-sm);">
-                        <i class="fas fa-store" style="color: #10B981;"></i>
-                        Keur Massar
-                    </h4>
-                    <div id="distributionKeurMassar">
-                        <!-- Rempli dynamiquement -->
-                    </div>
-                    <div style="margin-top: var(--space-md);">
-                        <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                            <span>Total attribué :</span>
-                            <span id="totalKeurMassar">0</span>
-                        </div>
-                    </div>
-                </div>
+           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-lg);">
+    <!-- Sacré Coeur 1 -->
+    <div class="price-category" style="border-left: 4px solid #3B82F6;">
+        <h4><i class="fas fa-store" style="color: #3B82F6;"></i> Sacré Coeur 1</h4>
+        <div id="distributionSacreCoeur1"></div>
+        <div style="margin-top: var(--space-md);">
+            <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                <span>Total attribué :</span>
+                <span id="totalSacreCoeur1">0</span>
             </div>
+        </div>
+    </div>
+    
+    <!-- Keur Massar -->
+    <div class="price-category" style="border-left: 4px solid #10B981;">
+        <h4><i class="fas fa-store" style="color: #10B981;"></i> Keur Massar</h4>
+        <div id="distributionKeurMassar"></div>
+        <div style="margin-top: var(--space-md);">
+            <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                <span>Total attribué :</span>
+                <span id="totalKeurMassar">0</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sebikotane -->
+    <div class="price-category" style="border-left: 4px solid #F59E0B;">
+        <h4><i class="fas fa-store" style="color: #F59E0B;"></i> Sebikotane</h4>
+        <div id="distributionSebikotane"></div>
+        <div style="margin-top: var(--space-md);">
+            <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                <span>Total attribué :</span>
+                <span id="totalSebikotane">0</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Front de Terre -->
+    <div class="price-category" style="border-left: 4px solid #EF4444;">
+        <h4><i class="fas fa-store" style="color: #EF4444;"></i> Front de Terre</h4>
+        <div id="distributionFrontTerre"></div>
+        <div style="margin-top: var(--space-md);">
+            <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                <span>Total attribué :</span>
+                <span id="totalFrontTerre">0</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sacré Coeur 3 --> 
+    <div class="price-category" style="border-left: 4px solid #8B5CF6;">
+        <h4><i class="fas fa-store" style="color: #8B5CF6;"></i> Sacré Coeur 3</h4>
+        <div id="distributionSacreCoeur3"></div>
+        <div style="margin-top: var(--space-md);">
+            <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                <span>Total attribué :</span>
+                <span id="totalSacreCoeur3">0</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- En Ligne (TikTok) -->
+    <div class="price-category" style="border-left: 4px solid #EC4899;">
+        <h4><i class="fab fa-tiktok" style="color: #EC4899;"></i> En Ligne (TikTok)</h4>
+        <div id="distributionEnLigne"></div>
+        <div style="margin-top: var(--space-md);">
+            <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                <span>Total attribué :</span>
+                <span id="totalEnLigne">0</span>
+            </div>
+        </div>
+    </div>
+</div>
             
             <!-- Total et validation -->
             <div style="margin-top: var(--space-xl); padding: var(--space-lg); background: #f0f9ff; border-radius: var(--radius-lg);">
@@ -1716,57 +1758,107 @@
             <i class="fas fa-chart-bar"></i> Factures - Vue d'ensemble
         </h3>
     <!-- Boutiques Cards -->
-    <div class="stats-grid">
-      
-        <!-- Boutique Sacré Coeur 3 -->
-        <div class="stat-card" onclick="selectBoutique('sacre-coeur')" 
-             style="cursor: pointer; border-top: 4px solid #3B82F6;">
-            <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3B82F6;">
-                <i class="fas fa-map-marker-alt"></i>
-            </div>
-            <div class="stat-value" id="statsSacreCoeur">0</div>
-            <div class="stat-label">Factures - Sacré Coeur 3</div>
-            <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
-                <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceSacreCoeur">--/--/----</span>
-            </div>
+   <!-- Stats Grid pour 6 boutiques -->
+<div class="stats-grid" style="margin-bottom: var(--space-xl);">
+    <!-- Sacré Coeur 1 -->
+    <div class="stat-card" onclick="selectBoutique('sacre-coeur-1')" style="cursor: pointer; border-top: 4px solid #3B82F6;">
+        <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3B82F6;">
+            <i class="fas fa-map-marker-alt"></i>
         </div>
-        
-        <!-- Boutique Keur Massar -->
-        <div class="stat-card" onclick="selectBoutique('keur-massar')" 
-             style="cursor: pointer; border-top: 4px solid #10B981;">
-            <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10B981;">
-                <i class="fas fa-map-marker-alt"></i>
-            </div>
-            <div class="stat-value" id="statsKeurMassar">0</div>
-            <div class="stat-label">Factures - Keur Massar</div>
-            <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
-                <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceKeurMassar">--/--/----</span>
-            </div>
-        </div>
-        
-        <!-- Total des deux boutiques -->
-        <div class="stat-card" style="border-top: 4px solid #8B5CF6;">
-            <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8B5CF6;">
-                <i class="fas fa-chart-pie"></i>
-            </div>
-            <div class="stat-value" id="statsTotalBoutiques">0</div>
-            <div class="stat-label">Total factures toutes boutiques</div>
-            <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
-                <i class="fas fa-money-bill-wave"></i> CA total: <span id="totalCA">0 F CFA</span>
-            </div>
+        <div class="stat-value" id="statsSacreCoeur1">0</div>
+        <div class="stat-label">Factures - Sacré Coeur 1</div>
+        <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
+            <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceSacreCoeur1">--/--/----</span>
         </div>
     </div>
+    
+    <!-- Keur Massar -->
+    <div class="stat-card" onclick="selectBoutique('keur-massar')" style="cursor: pointer; border-top: 4px solid #10B981;">
+        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10B981;">
+            <i class="fas fa-map-marker-alt"></i>
+        </div>
+        <div class="stat-value" id="statsKeurMassar">0</div>
+        <div class="stat-label">Factures - Keur Massar</div>
+        <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
+            <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceKeurMassar">--/--/----</span>
+        </div>
+    </div>
+    
+    <!-- Sebikotane -->
+    <div class="stat-card" onclick="selectBoutique('sebikotane')" style="cursor: pointer; border-top: 4px solid #F59E0B;">
+        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #F59E0B;">
+            <i class="fas fa-map-marker-alt"></i>
+        </div>
+        <div class="stat-value" id="statsSebikotane">0</div>
+        <div class="stat-label">Factures - Sebikotane</div>
+        <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
+            <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceSebikotane">--/--/----</span>
+        </div>
+    </div>
+    
+    <!-- Front de Terre -->
+    <div class="stat-card" onclick="selectBoutique('front-terre')" style="cursor: pointer; border-top: 4px solid #EF4444;">
+        <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #EF4444;">
+            <i class="fas fa-map-marker-alt"></i>
+        </div>
+        <div class="stat-value" id="statsFrontTerre">0</div>
+        <div class="stat-label">Factures - Front de Terre</div>
+        <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
+            <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceFrontTerre">--/--/----</span>
+        </div>
+    </div>
+    
+    <!-- Sacré Coeur 3 -->
+    <div class="stat-card" onclick="selectBoutique('sacre-coeur-3')" style="cursor: pointer; border-top: 4px solid #8B5CF6;">
+        <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8B5CF6;">
+            <i class="fas fa-map-marker-alt"></i>
+        </div>
+        <div class="stat-value" id="statsSacreCoeur3">0</div>
+        <div class="stat-label">Factures - Sacré Coeur 3</div>
+        <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
+            <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceSacreCoeur3">--/--/----</span>
+        </div>
+    </div>
+    
+    <!-- En Ligne (TikTok) -->
+    <div class="stat-card" onclick="selectBoutique('en-ligne')" style="cursor: pointer; border-top: 4px solid #EC4899;">
+        <div class="stat-icon" style="background: rgba(236, 72, 153, 0.1); color: #EC4899;">
+            <i class="fab fa-tiktok"></i>
+        </div>
+        <div class="stat-value" id="statsEnLigne">0</div>
+        <div class="stat-label">Factures - En Ligne (TikTok)</div>
+        <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
+            <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceEnLigne">--/--/----</span>
+        </div>
+    </div>
+</div>
+
+<!-- Total des factures -->
+<div class="stat-card" style="border-top: 4px solid #1E293B;">
+    <div class="stat-icon" style="background: rgba(30, 41, 59, 0.1); color: #1E293B;">
+        <i class="fas fa-chart-pie"></i>
+    </div>
+    <div class="stat-value" id="statsTotalBoutiques">0</div>
+    <div class="stat-label">Total factures toutes boutiques</div>
+    <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
+        <i class="fas fa-money-bill-wave"></i> CA total: <span id="totalCA">0 F CFA</span>
+    </div>
+</div>
     
     <!-- Filtres -->
     <div class="table-container" style="margin-top: var(--space-xl);">
         <div class="table-header">
-            <div class="filters">
-                <button class="filter-btn active" data-boutique="all">Toutes boutiques</button>
-                <button class="filter-btn" data-boutique="sacre-coeur">Sacré Coeur 3</button>
-                <button class="filter-btn" data-boutique="keur-massar">Keur Massar</button>
-                <button class="filter-btn" data-boutique="today">Aujourd'hui</button>
-                <button class="filter-btn" data-boutique="week">Cette semaine</button>
-            </div>
+           <div class="filters">
+    <button class="filter-btn active" data-boutique="all">Toutes boutiques</button>
+    <button class="filter-btn" data-boutique="sacre-coeur-1">Sacré Coeur 1</button>
+    <button class="filter-btn" data-boutique="keur-massar">Keur Massar</button>
+    <button class="filter-btn" data-boutique="sebikotane">Sebikotane</button>
+    <button class="filter-btn" data-boutique="front-terre">Front de Terre</button>
+    <button class="filter-btn" data-boutique="sacre-coeur-3">Sacré Coeur 3</button>
+    <button class="filter-btn" data-boutique="en-ligne">En Ligne (TikTok)</button>
+    <button class="filter-btn" data-boutique="today">Aujourd'hui</button>
+    <button class="filter-btn" data-boutique="week">Cette semaine</button>
+</div>
             <div class="search-container">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" id="searchInvoice" class="search-input" placeholder="Rechercher facture...">
@@ -2774,88 +2866,43 @@ observer.observe(document.getElementById('appInterface'), {
         });
 }
         
-         // Fonction pour charger les statistiques boutique
-function loadBoutiqueStats() {
-    console.log('Chargement des stats boutique...');
+      function loadBoutiqueStats() {
+    const boutiques = [
+        { id: 'sacre-coeur-1', name: 'Sacré Coeur 1', statId: 'statsSacreCoeur1', lastId: 'lastInvoiceSacreCoeur1', color: '#3B82F6' },
+        { id: 'keur-massar', name: 'Keur Massar', statId: 'statsKeurMassar', lastId: 'lastInvoiceKeurMassar', color: '#10B981' },
+        { id: 'sebikotane', name: 'Sebikotane', statId: 'statsSebikotane', lastId: 'lastInvoiceSebikotane', color: '#F59E0B' },
+        { id: 'front-terre', name: 'Front de Terre', statId: 'statsFrontTerre', lastId: 'lastInvoiceFrontTerre', color: '#EF4444' },
+        { id: 'sacre-coeur-3', name: 'Sacré Coeur 3', statId: 'statsSacreCoeur3', lastId: 'lastInvoiceSacreCoeur3', color: '#8B5CF6' },
+        { id: 'en-ligne', name: 'En Ligne (TikTok)', statId: 'statsEnLigne', lastId: 'lastInvoiceEnLigne', color: '#EC4899' }
+    ];
     
-    // Sacré Coeur 3
-    db.collection('invoices').where('boutique', '==', 'sacre-coeur')
-        .get()
-        .then(snapshot => {
-            const count = snapshot.size;
-            console.log(`Factures Sacré Coeur: ${count}`);
-            document.getElementById('statsSacreCoeur').textContent = count;
-            
-            // Dernière facture
-            if (count > 0) {
-                const lastInvoice = snapshot.docs[0].data();
-                let date;
+    let totalCA = 0;
+    let totalFactures = 0;
+    
+    boutiques.forEach(b => {
+        db.collection('invoices').where('boutique', '==', b.id).get()
+            .then(snapshot => {
+                const count = snapshot.size;
+                document.getElementById(b.statId).textContent = count;
+                totalFactures += count;
                 
-                if (lastInvoice.date && lastInvoice.date.seconds) {
-                    date = new Date(lastInvoice.date.seconds * 1000);
-                } else if (lastInvoice.date) {
-                    date = new Date(lastInvoice.date);
-                } else {
-                    date = new Date();
+                if (count > 0) {
+                    const lastInvoice = snapshot.docs[0].data();
+                    let date = new Date(lastInvoice.date?.seconds * 1000 || lastInvoice.date);
+                    document.getElementById(b.lastId).textContent = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
                 }
-                
-                document.getElementById('lastInvoiceSacreCoeur').textContent = 
-                    `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-            }
-        })
-        .catch(error => {
-            console.error('Erreur chargement Sacré Coeur:', error);
-            document.getElementById('statsSacreCoeur').textContent = '0';
-        });
-    
-    // Keur Massar
-    db.collection('invoices').where('boutique', '==', 'keur-massar')
-        .get()
-        .then(snapshot => {
-            const count = snapshot.size;
-            console.log(`Factures Keur Massar: ${count}`);
-            document.getElementById('statsKeurMassar').textContent = count;
-            
-            if (count > 0) {
-                const lastInvoice = snapshot.docs[0].data();
-                let date;
-                
-                if (lastInvoice.date && lastInvoice.date.seconds) {
-                    date = new Date(lastInvoice.date.seconds * 1000);
-                } else if (lastInvoice.date) {
-                    date = new Date(lastInvoice.date);
-                } else {
-                    date = new Date();
-                }
-                
-                document.getElementById('lastInvoiceKeurMassar').textContent = 
-                    `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-            }
-        })
-        .catch(error => {
-            console.error('Erreur chargement Keur Massar:', error);
-            document.getElementById('statsKeurMassar').textContent = '0';
-        });
-    
-    // Total et CA
-    db.collection('invoices').get()
-        .then(snapshot => {
-            const total = snapshot.size;
-            console.log(`Total factures: ${total}`);
-            let totalCA = 0;
-            
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                totalCA += data.total || 0;
             });
-            
-            document.getElementById('statsTotalBoutiques').textContent = total;
-            document.getElementById('totalCA').textContent = totalCA.toLocaleString('fr-FR') + ' F CFA';
-        })
-        .catch(error => {
-            console.error('Erreur chargement total:', error);
-            document.getElementById('statsTotalBoutiques').textContent = '0';
-        });
+        
+        // CA par boutique
+        db.collection('invoices').where('boutique', '==', b.id).get()
+            .then(snapshot => {
+                snapshot.forEach(doc => {
+                    totalCA += doc.data().total || 0;
+                });
+                document.getElementById('totalCA').textContent = totalCA.toLocaleString('fr-FR') + ' F CFA';
+                document.getElementById('statsTotalBoutiques').textContent = totalFactures;
+            });
+    });
 }
       
         function applyFilter(filterType) {
@@ -5921,28 +5968,26 @@ function copyToClipboard(elementId) {
 
 // Sauvega 
 document.getElementById('saveBoutiqueCodes').addEventListener('click', function() {
-    const codeSacréCoeur = document.getElementById('codeSacreCoeur').value;
-    const codeKeurMassar = document.getElementById('codeKeurMassar').value;
+    const codes = {
+        sacre_coeur_1: document.getElementById('codeSacreCoeur1').value,
+        keur_massar: document.getElementById('codeKeurMassar').value,
+        sebikotane: document.getElementById('codeSebikotane').value,
+        front_terre: document.getElementById('codeFrontTerre').value,
+        sacre_coeur_3: document.getElementById('codeSacreCoeur3').value,
+        en_ligne: document.getElementById('codeEnLigne').value
+    };
     
     // Validation
-    if (codeSacréCoeur.length < 4 || codeKeurMassar.length < 4) {
-        showMessage('Les codes doivent avoir au moins 4 chiffres', 'error');
-        return;
+    for (let key in codes) {
+        if (codes[key].length < 4) {
+            showMessage(`Le code pour ${key} doit avoir au moins 4 chiffres`, 'error');
+            return;
+        }
     }
     
-    // Sauve 
-    db.collection('poulailler_settings').doc('boutique_codes').set({
-        sacre_coeur: codeSacréCoeur,
-        keur_massar: codeKeurMassar,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    })
-    .then(() => {
-        showMessage('Codes enregistrés avec succès!', 'success');
-    })
-    .catch(error => {
-        console.error('Erreur:', error);
-        showMessage('Erreur lors de l\'enregistrement', 'error');
-    });
+    db.collection('poulailler_settings').doc('boutique_codes').set(codes)
+        .then(() => showMessage('Tous les codes ont été enregistrés!', 'success'))
+        .catch(error => showMessage('Erreur: ' + error.message, 'error'));
 });
 
 // Charger les stati 
