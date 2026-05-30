@@ -10685,11 +10685,15 @@ function showSection(sectionId) {
 function loginSuccess() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appInterface').style.display = 'block';
-    setTimeout(syncSalesFromInvoices, 2000);
-    // Initialiser la synchronisation en temps réel
-    initRealtimeSync();
     
-    showMessage('Connexion réussie! Synchronisation en temps réel activée.', 'success');
+    loadRecords();
+    
+    // Afficher l'Historique en premier
+    showSection('records');
+    document.querySelector('.nav-btn[data-section="records"]').classList.add('active');
+    document.querySelector('.nav-btn[data-section="dashboard"]')?.classList.remove('active');
+    
+    showMessage('Connexion réussie!', 'success');
 }
 
 // ==============================================
