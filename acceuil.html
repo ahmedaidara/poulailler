@@ -118,14 +118,19 @@
     <!-- SECTION DASHBOARD --> 
     <div id="dashboardSection" class="section active-section">
        
-
         <div class="stats-grid" id="dashboardStatsGrid">
-            <div class="stat-card"><h3>📦 STOCK INITIAL (Dernière production)</h3><div class="stat-number" id="statLastProdInitial">0</div><div class="stat-sub">poulets démarrés</div></div>
-            <div class="stat-card"><h3>✅ STOCK RESTANT (Dernière production)</h3><div class="stat-number" id="statLastProdRemaining">0</div><div class="stat-sub">encore disponibles</div></div>
-            <div class="stat-card"><h3>💰 TOTAL VENTES (Dernière production)</h3><div class="stat-number" id="statLastProdSales">0 FCFA</div><div class="stat-sub">CA généré</div></div>
+            <!-- 🟢 CARTES GARDÉES (STOCK TOTAL + STOCK RESTANT TOTAL) -->
             <div class="stat-card"><h3>🏪 STOCK TOTAL (Toutes productions)</h3><div class="stat-number" id="statTotalStockAllProd">0</div><div class="stat-sub">poulets attribués cumulés</div></div>
             <div class="stat-card"><h3>📉 STOCK RESTANT TOTAL</h3><div class="stat-number" id="statTotalRemainingAll">0</div><div class="stat-sub">invendu toutes boutiques</div></div>
+            
+            <!-- 🟢 CARTES AJOUTÉES -->
             <div class="stat-card"><h3>🏆 TOTAL VENTES (Toutes productions)</h3><div class="stat-number" id="statTotalSalesAll">0 FCFA</div><div class="stat-sub">chiffre d'affaires global</div></div>
+            
+            <!-- 🟢 NOUVEAU : Nombre total de ventes -->
+            <div class="stat-card"><h3>📊 NOMBRE TOTAL DE VENTES</h3><div class="stat-number" id="statTotalNbVentes">0</div><div class="stat-sub">factures totales</div></div>
+            
+            <!-- 🟢 NOUVEAU : Montant total de dette -->
+            <div class="stat-card"><h3>💰 MONTANT TOTAL DE DETTE</h3><div class="stat-number" id="statTotalDette">0 FCFA</div><div class="stat-sub">ce qu'on vous doit</div></div>
         </div>
 
         <div class="chart-container">
@@ -246,50 +251,55 @@ function getTotalSalesAll() {
     return allInvoices.reduce((sum, inv) => sum + (inv.paiement?.montantPaye || 0), 0);
 }
 
-  function renderDashboardMetrics() {
-    const lastProd = getLastProduction();
-    let lastProdInitial = 0, lastProdRemaining = 0, lastProdSales = 0, lastProdSoldQty = 0;
-    if(lastProd) {
-        lastProdInitial = getProductionInitialStock(lastProd);
-        lastProdSoldQty = getSoldQuantityForProduction(lastProd.id);
-        lastProdRemaining = lastProdInitial - lastProdSoldQty;
-        // MODIFICATION ICI - Utiliser .paye au lieu de .ca
-        const sales = getSalesForProduction(lastProd.id);
-        lastProdSales = sales.paye;  // ← CHANGEMENT IMPORTANT
-    }
+ function renderDashboardMetrics() {
+    // ========== 1. TOTAUX GLOBAUX ==========
     const totalStockAll = getTotalStockAllProductions();
     const totalRemainingAll = getTotalRemainingAll();
-    const totalSalesAll = getTotalSalesAll();  // Déjà modifié plus haut
+    const totalSalesAll = getTotalSalesAll();
+    
+    // 🔥 NOUVEAU : Nombre total de ventes = nombre de factures
+    const totalNbVentes = allInvoices.length;
+    
+    // 🔥 NOUVEAU : Montant total de dette = somme des (total facture - montant payé)
+    let totalDette = 0;
+    allInvoices.forEach(inv => {
+        const montantFacture = inv.total || 0;
+        const montantPaye = inv.paiement?.montantPaye || 0;
+        totalDette += (montantFacture - montantPaye);
+    });
 
-    document.getElementById("statLastProdInitial").innerText = lastProdInitial.toLocaleString();
-    document.getElementById("statLastProdRemaining").innerText = lastProdRemaining.toLocaleString();
-    document.getElementById("statLastProdSales").innerHTML = lastProdSales.toLocaleString() + " FCFA";
+    // ========== 2. MISE À JOUR DES CARTES ==========
+    // Cartes gardées
     document.getElementById("statTotalStockAllProd").innerText = totalStockAll.toLocaleString();
     document.getElementById("statTotalRemainingAll").innerText = totalRemainingAll.toLocaleString();
     document.getElementById("statTotalSalesAll").innerHTML = totalSalesAll.toLocaleString() + " FCFA";
+    
+    // Nouvelles cartes
+    document.getElementById("statTotalNbVentes").innerText = totalNbVentes.toLocaleString();
+    document.getElementById("statTotalDette").innerHTML = totalDette.toLocaleString() + " FCFA";
 
-        // Graphique 
-        const boutiqueSales = {};
-        allInvoices.forEach(inv => {
-            let shop = inv.boutiqueName || inv.boutique || "inconnue";
-            boutiqueSales[shop] = (boutiqueSales[shop] || 0) + (inv.total || 0);
+    // ========== 3. GRAPHIQUE ==========
+    const boutiqueSales = {};
+    allInvoices.forEach(inv => {
+        let shop = inv.boutiqueName || inv.boutique || "inconnue";
+        boutiqueSales[shop] = (boutiqueSales[shop] || 0) + (inv.total || 0);
+    });
+    const labels = Object.keys(boutiqueSales).slice(0,6);
+    const data = labels.map(l => boutiqueSales[l]);
+    if(chartVentes) chartVentes.destroy();
+    const ctx = document.getElementById('ventesChart').getContext('2d');
+    chartVentes = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'CA par boutique (FCFA)', data, backgroundColor: '#3b8b5e' }] }, options: { responsive: true, maintainAspectRatio: true } });
+
+    // ========== 4. DERNIÈRES FACTURES ==========
+    const lastFive = [...allInvoices].sort((a,b)=> (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0)).slice(0,5);
+    const tbody = document.querySelector("#lastInvoicesTable tbody");
+    if(tbody) {
+        tbody.innerHTML = "";
+        lastFive.forEach(inv => {
+            tbody.innerHTML += `<tr><td>${inv.invoiceNumber || 'N/A'}</td><td>${inv.client?.name || 'NC'}</td><td>${(inv.total||0).toLocaleString()} F</td><td><span class="badge-success">${inv.paiement?.statut || 'N/A'}</span></td><td>${inv.createdAt?.toDate?.().toLocaleDateString() || ''}</td></tr>`;
         });
-        const labels = Object.keys(boutiqueSales).slice(0,6);
-        const data = labels.map(l => boutiqueSales[l]);
-        if(chartVentes) chartVentes.destroy();
-        const ctx = document.getElementById('ventesChart').getContext('2d');
-        chartVentes = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'CA par boutique (FCFA)', data, backgroundColor: '#3b8b5e' }] }, options: { responsive: true, maintainAspectRatio: true } });
-
-        // Dernières factures
-        const lastFive = [...allInvoices].sort((a,b)=> (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0)).slice(0,5);
-        const tbody = document.querySelector("#lastInvoicesTable tbody");
-        if(tbody) {
-            tbody.innerHTML = "";
-            lastFive.forEach(inv => {
-                tbody.innerHTML += `<tr><td>${inv.invoiceNumber || 'N/A'}</td><td>${inv.client?.name || 'NC'}</td><td>${(inv.total||0).toLocaleString()} F</td> <td><span class="badge-success">${inv.paiement?.statut || 'N/A'}</span></td> <td>${inv.createdAt?.toDate?.().toLocaleDateString() || ''}</td> </tr>`;
-            });
-        }
     }
+}
 
     function renderInvoicesTable() {
         const tbody = document.querySelector("#invoicesTableFull tbody");
