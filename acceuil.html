@@ -112,7 +112,7 @@
     </header>
     <div class="nav-bar">
         <button class="nav-btn active" data-section="dashboard">📊 Dashboard</button>
-     
+             <button class="nav-btn" data-section="losses">📉 Pertes</button>
     </div>
 
     <!-- SECTION DASHBOARD --> 
@@ -144,6 +144,80 @@
     <div id="stocksSection" class="section"><h2>📊 Stocks attribués par boutique</h2><div class="table-wrapper"><table id="stocksTable"><thead><tr><th>Boutique</th><th>Production</th><th>Total reçu</th><th>Vendus</th><th>Restant</th><th>Statut</th></tr></thead><tbody></tbody></table></div></div>
     <div id="expensesSection" class="section"><h2>💸 Charges & dépenses</h2><div class="table-wrapper"><table id="expensesTable"><thead><tr><th>Production ID</th><th>Date</th><th>Total dépenses</th><th>Bénéfice net</th><th>Détails</th></tr></thead><tbody></tbody></table></div></div>
     <div id="pdfSection" class="section"><h2>📑 Exporter rapport complet</h2><button id="generateFullPdfBtn" style="background:#2c3e66;">📥 Générer rapport global PDF</button><div id="pdfContentPreview" style="margin-top:20px; background:#f9f9f9; padding:16px; border-radius:20px;"></div></div>
+      <!-- ahmed -->
+    <div id="lossesSection" class="section">
+        <h2>📉 Gestion des pertes</h2>
+        
+        <!-- Formulaire d'ajout/modification -->
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 15px; margin-bottom: 20px;">
+            <h3 id="lossFormTitle">➕ Ajouter une perte</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                <div>
+                    <label>📅 Date</label>
+                    <input type="date" id="lossDate" style="width: 100%; padding: 8px;">
+                </div>
+                <div>
+                    <label>🐓 Production *</label>
+                    <select id="lossProductionId" style="width: 100%; padding: 8px;">
+                        <option value="">Sélectionner une production</option>
+                    </select>
+                </div>
+                <div>
+                    <label>🔢 Nombre de pertes *</label>
+                    <input type="number" id="lossQuantity" placeholder="Ex: 5" style="width: 100%; padding: 8px;">
+                </div>
+                <div>
+                    <label>⚠️ Motif</label>
+                    <select id="lossReason" style="width: 100%; padding: 8px;">
+                        <option value="Décès">💀 Décès</option>
+                        <option value="Maladie">🦠 Maladie</option>
+                        <option value="Vol">🚔 Vol</option>
+                        <option value="Évasion">🏃 Évasion</option>
+                        <option value="Autre">❓ Autre</option>
+                    </select>
+                </div>
+                <div>
+                    <label>📝 Commentaire</label>
+                    <input type="text" id="lossComment" placeholder="Optionnel" style="width: 100%; padding: 8px;">
+                </div>
+            </div>
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <button id="saveLossBtn" style="background: #2c7a4d;">💾 Enregistrer</button>
+                <button id="cancelLossBtn" style="background: #6c757d;">❌ Annuler</button>
+            </div>
+            <input type="hidden" id="editLossId" value="">
+        </div>
+
+        <!-- Graphique des pertes -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div style="background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <h3>📊 Taux de perte par production</h3>
+                <canvas id="lossesChart" width="400" height="250"></canvas>
+            </div>
+            <div style="background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <h3>🥧 Répartition des motifs</h3>
+                <canvas id="reasonsChart" width="400" height="250"></canvas>
+            </div>
+        </div>
+
+        <!-- Tableau des pertes -->
+        <div class="table-wrapper">
+            <table id="lossesTable">
+                <thead>
+                    <tr>
+                        <th>📅 Date</th>
+                        <th>🐓 Production</th>
+                        <th>🔢 Nombre</th>
+                        <th>⚠️ Motif</th>
+                        <th>📝 Commentaire</th>
+                        <th>⚙️ Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="lossesTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+     <!-- aidara -->
 </div>
 
 <script>
@@ -159,7 +233,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let allInvoices = [], allProductions = [], allStocks = [], allExpenses = [];
+    let allInvoices = [], allProductions = [], allStocks = [], allExpenses = [], allLosses = [];
     let chartVentes = null;
 
     // CHARGEMENT DIRECT - PLUS DE CODE D'ENTREE
@@ -168,18 +242,22 @@
         setupEventListeners();
     });
 
-    async function loadAllData() {
+       async function loadAllData() {
         await Promise.all([
             db.collection("invoices").get().then(snap => allInvoices = snap.docs.map(d=>({id:d.id, ...d.data()}))),
             db.collection("poulailler_records").get().then(snap => allProductions = snap.docs.map(d=>({id:d.id, ...d.data()}))),
             db.collection("stocks_attribues").get().then(snap => allStocks = snap.docs.map(d=>({id:d.id, ...d.data()}))),
-            db.collection("production_expenses").get().then(snap => allExpenses = snap.docs.map(d=>({id:d.id, ...d.data()})))
+            db.collection("production_expenses").get().then(snap => allExpenses = snap.docs.map(d=>({id:d.id, ...d.data()}))),
+            db.collection("losses").get().then(snap => allLosses = snap.docs.map(d=>({id:d.id, ...d.data()})))  // NOUVEAU
         ]);
         renderDashboardMetrics();
         renderInvoicesTable();
         renderProductionsTable();
         renderStocksTable();
         renderExpensesTable();
+        renderLossesTable();  // NOUVEAU
+        updateLossesCharts();  // NOUVEAU
+        populateProductionSelect();  // NOUVEAU
     }
 
     function getLastProduction() {
@@ -251,16 +329,12 @@ function getTotalSalesAll() {
     return allInvoices.reduce((sum, inv) => sum + (inv.paiement?.montantPaye || 0), 0);
 }
 
- function renderDashboardMetrics() {
-    // ========== 1. TOTAUX GLOBAUX ==========
+function renderDashboardMetrics() {
     const totalStockAll = getTotalStockAllProductions();
-    const totalRemainingAll = getTotalRemainingAll();
+    const totalRemainingAll = getTotalRemainingAll();  // Prend en compte les pertes
     const totalSalesAll = getTotalSalesAll();
-    
-    // 🔥 NOUVEAU : Nombre total de ventes = nombre de factures
     const totalNbVentes = allInvoices.length;
     
-    // 🔥 NOUVEAU : Montant total de dette = somme des (total facture - montant payé)
     let totalDette = 0;
     allInvoices.forEach(inv => {
         const montantFacture = inv.total || 0;
@@ -268,17 +342,13 @@ function getTotalSalesAll() {
         totalDette += (montantFacture - montantPaye);
     });
 
-    // ========== 2. MISE À JOUR DES CARTES ==========
-    // Cartes gardées
     document.getElementById("statTotalStockAllProd").innerText = totalStockAll.toLocaleString();
     document.getElementById("statTotalRemainingAll").innerText = totalRemainingAll.toLocaleString();
     document.getElementById("statTotalSalesAll").innerHTML = totalSalesAll.toLocaleString() + " FCFA";
-    
-    // Nouvelles cartes
     document.getElementById("statTotalNbVentes").innerText = totalNbVentes.toLocaleString();
     document.getElementById("statTotalDette").innerHTML = totalDette.toLocaleString() + " FCFA";
 
-    // ========== 3. GRAPHIQUE ==========
+    // Graphique
     const boutiqueSales = {};
     allInvoices.forEach(inv => {
         let shop = inv.boutiqueName || inv.boutique || "inconnue";
@@ -289,16 +359,6 @@ function getTotalSalesAll() {
     if(chartVentes) chartVentes.destroy();
     const ctx = document.getElementById('ventesChart').getContext('2d');
     chartVentes = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'CA par boutique (FCFA)', data, backgroundColor: '#3b8b5e' }] }, options: { responsive: true, maintainAspectRatio: true } });
-
-    // ========== 4. DERNIÈRES FACTURES ==========
-    const lastFive = [...allInvoices].sort((a,b)=> (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0)).slice(0,5);
-    const tbody = document.querySelector("#lastInvoicesTable tbody");
-    if(tbody) {
-        tbody.innerHTML = "";
-        lastFive.forEach(inv => {
-            tbody.innerHTML += `<tr><td>${inv.invoiceNumber || 'N/A'}</td><td>${inv.client?.name || 'NC'}</td><td>${(inv.total||0).toLocaleString()} F</td><td><span class="badge-success">${inv.paiement?.statut || 'N/A'}</span></td><td>${inv.createdAt?.toDate?.().toLocaleDateString() || ''}</td></tr>`;
-        });
-    }
 }
 
     function renderInvoicesTable() {
@@ -382,19 +442,332 @@ function getTotalSalesAll() {
         return html;
     }
 
-    function setupEventListeners() {
-        document.getElementById("refreshStatsBtn").addEventListener("click", () => renderDashboardMetrics());
-        document.getElementById("generateFullPdfBtn").addEventListener("click", generateFullReportPDF);
+      // ========== FONCTIONS PERTES ==========
+    
+    // Remplir le select des productions
+    function populateProductionSelect() {
+        const select = document.getElementById("lossProductionId");
+        if(!select) return;
+        select.innerHTML = '<option value="">Sélectionner une production</option>';
+        allProductions.forEach(prod => {
+            select.innerHTML += `<option value="${prod.id}">${prod.productionName || prod.id} (${prod.newChickens || 0} poussins)</option>`;
+        });
+    }
+    
+    // Afficher le tableau des pertes
+    function renderLossesTable() {
+        const tbody = document.getElementById("lossesTableBody");
+        if(!tbody) return;
+        
+        tbody.innerHTML = "";
+        // Trier par date décroissante
+        const sortedLosses = [...allLosses].sort((a,b) => new Date(b.date) - new Date(a.date));
+        
+        sortedLosses.forEach(loss => {
+            // Trouver le nom de la production
+            const production = allProductions.find(p => p.id === loss.productionId);
+            const prodName = production ? (production.productionName || production.id) : loss.productionId;
+            
+            tbody.innerHTML += `
+                <tr>
+                    <td>${loss.date || ''}</td>
+                    <td>${prodName}</td>
+                    <td style="color: #dc2626; font-weight: bold;">${loss.quantity || 0}</td>
+                    <td>${loss.reason || '-'}</td>
+                    <td>${loss.comment || '-'}</td>
+                    <td>
+                        <button onclick="editLoss('${loss.id}')" style="background:#f59e0b; color:white; border:none; padding:5px 10px; border-radius:5px; margin-right:5px;">✏️</button>
+                        <button onclick="deleteLoss('${loss.id}')" style="background:#dc2626; color:white; border:none; padding:5px 10px; border-radius:5px;">🗑️</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    
+    // Mettre à jour les graphiques des pertes
+    function updateLossesCharts() {
+        // Graphique 1 : Taux de perte par production
+        const lossesByProd = {};
+        const initialStockByProd = {};
+        
+        allLosses.forEach(loss => {
+            lossesByProd[loss.productionId] = (lossesByProd[loss.productionId] || 0) + loss.quantity;
+        });
+        
+        allProductions.forEach(prod => {
+            initialStockByProd[prod.id] = prod.newChickens || 0;
+        });
+        
+        const prodLabels = [];
+        const lossRates = [];
+        
+        allProductions.forEach(prod => {
+            const initial = initialStockByProd[prod.id] || 0;
+            const losses = lossesByProd[prod.id] || 0;
+            if(initial > 0) {
+                const rate = (losses / initial) * 100;
+                prodLabels.push(prod.productionName || prod.id.substring(0,8));
+                lossRates.push(rate.toFixed(1));
+            }
+        });
+        
+        // Détruire l'ancien graphique s'il existe
+        if(window.lossesChartInstance) window.lossesChartInstance.destroy();
+        const ctx1 = document.getElementById('lossesChart')?.getContext('2d');
+        if(ctx1) {
+            window.lossesChartInstance = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: prodLabels,
+                    datasets: [{
+                        label: 'Taux de perte (%)',
+                        data: lossRates,
+                        backgroundColor: '#ef4444',
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Pourcentage (%)' }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Graphique 2 : Répartition des motifs
+        const reasonsCount = {};
+        allLosses.forEach(loss => {
+            const reason = loss.reason || 'Non spécifié';
+            reasonsCount[reason] = (reasonsCount[reason] || 0) + loss.quantity;
+        });
+        
+        if(window.reasonsChartInstance) window.reasonsChartInstance.destroy();
+        const ctx2 = document.getElementById('reasonsChart')?.getContext('2d');
+        if(ctx2) {
+            window.reasonsChartInstance = new Chart(ctx2, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(reasonsCount),
+                    datasets: [{
+                        data: Object.values(reasonsCount),
+                        backgroundColor: ['#ef4444', '#f59e0b', '#8b5cf6', '#10b981', '#6b7280']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+    }
+    
+    // Calculer le total des pertes
+    function getTotalLosses() {
+        return allLosses.reduce((sum, loss) => sum + (loss.quantity || 0), 0);
+    }
+    
+    // Sauvegarder une perte
+    async function saveLoss() {
+        const date = document.getElementById("lossDate").value;
+        const productionId = document.getElementById("lossProductionId").value;
+        const quantity = parseInt(document.getElementById("lossQuantity").value);
+        const reason = document.getElementById("lossReason").value;
+        const comment = document.getElementById("lossComment").value;
+        const editId = document.getElementById("editLossId").value;
+        
+        // Validation
+        if(!productionId) {
+            alert("Veuillez sélectionner une production");
+            return;
+        }
+        if(!quantity || quantity <= 0) {
+            alert("Veuillez entrer un nombre de pertes valide");
+            return;
+        }
+        
+        // Vérifier qu'on ne dépasse pas le stock
+        const production = allProductions.find(p => p.id === productionId);
+        if(production) {
+            const totalVendus = getSoldQuantityForProduction(productionId);
+            const totalPertes = allLosses.filter(l => l.productionId === productionId && l.id !== editId).reduce((sum, l) => sum + l.quantity, 0);
+            const stockInitial = production.newChickens || 0;
+            const stockRestantReel = stockInitial - totalVendus - totalPertes;
+            
+            if(quantity > stockRestantReel + (editId ? (allLosses.find(l => l.id === editId)?.quantity || 0) : 0)) {
+                alert(`Impossible ! Stock restant disponible : ${stockRestantReel} poulets`);
+                return;
+            }
+        }
+        
+        const lossData = {
+            date: date || new Date().toISOString().split('T')[0],
+            productionId: productionId,
+            quantity: quantity,
+            reason: reason,
+            comment: comment,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        try {
+            if(editId) {
+                await db.collection("losses").doc(editId).update(lossData);
+                alert("Perte modifiée !");
+            } else {
+                await db.collection("losses").add(lossData);
+                alert("Perte ajoutée !");
+            }
+            // Recharger les données
+            await db.collection("losses").get().then(snap => allLosses = snap.docs.map(d=>({id:d.id, ...d.data()})));
+            renderLossesTable();
+            updateLossesCharts();
+            renderDashboardMetrics();  // Mettre à jour le stock restant total
+            resetLossForm();
+        } catch(error) {
+            console.error("Erreur:", error);
+            alert("Erreur lors de l'enregistrement");
+        }
+    }
+    
+    // Modifier une perte
+    window.editLoss = function(id) {
+        const loss = allLosses.find(l => l.id === id);
+        if(!loss) return;
+        
+        document.getElementById("lossDate").value = loss.date || '';
+        document.getElementById("lossProductionId").value = loss.productionId;
+        document.getElementById("lossQuantity").value = loss.quantity;
+        document.getElementById("lossReason").value = loss.reason || 'Décès';
+        document.getElementById("lossComment").value = loss.comment || '';
+        document.getElementById("editLossId").value = id;
+        document.getElementById("lossFormTitle").innerHTML = "✏️ Modifier une perte";
+        document.getElementById("saveLossBtn").style.background = "#f59e0b";
+    }
+    
+    // Supprimer une perte
+    window.deleteLoss = async function(id) {
+        if(!confirm("Supprimer définitivement cette perte ?")) return;
+        
+        try {
+            await db.collection("losses").doc(id).delete();
+            allLosses = allLosses.filter(l => l.id !== id);
+            renderLossesTable();
+            updateLossesCharts();
+            renderDashboardMetrics();
+            alert("Perte supprimée !");
+        } catch(error) {
+            console.error("Erreur:", error);
+            alert("Erreur lors de la suppression");
+        }
+    }
+    
+    // Réinitialiser le formulaire
+    function resetLossForm() {
+        document.getElementById("lossDate").value = new Date().toISOString().split('T')[0];
+        document.getElementById("lossProductionId").value = "";
+        document.getElementById("lossQuantity").value = "";
+        document.getElementById("lossReason").value = "Décès";
+        document.getElementById("lossComment").value = "";
+        document.getElementById("editLossId").value = "";
+        document.getElementById("lossFormTitle").innerHTML = "➕ Ajouter une perte";
+        document.getElementById("saveLossBtn").style.background = "#2c7a4d";
+    }
+    
+    // MODIFIER getTotalRemainingAll pour soustraire les pertes !
+    function getTotalRemainingAll() {
+        const stockInitialTotal = getTotalStockAllProductions();
+        let quantiteVendue = 0;
+        allInvoices.forEach(inv => {
+            if(inv.items) {
+                inv.items.forEach(item => {
+                    quantiteVendue += (item.quantity || 0);
+                });
+            }
+        });
+        const totalPertes = getTotalLosses();  // ← AJOUT
+        return stockInitialTotal - quantiteVendue - totalPertes;  // ← MODIFIÉ
+    }
+  
+     function setupEventListeners() {
+        // Rafraîchir les stats
+        const refreshBtn = document.getElementById("refreshStatsBtn");
+        if(refreshBtn) refreshBtn.addEventListener("click", () => renderDashboardMetrics());
+        
+        // Générer PDF
+        const pdfBtn = document.getElementById("generateFullPdfBtn");
+        if(pdfBtn) pdfBtn.addEventListener("click", generateFullReportPDF);
+        
+        // Navigation entre les sections (Dashboard, Pertes, etc.)
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const sectionId = this.getAttribute('data-section');
-                document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active-section'));
-                document.getElementById(`${sectionId}Section`).classList.add('active-section');
-                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                console.log("Changement de section vers:", sectionId); // Pour déboguer
+                
+                // Cacher toutes les sections
+                document.querySelectorAll('.section').forEach(sec => {
+                    sec.classList.remove('active-section');
+                });
+                
+                // Afficher la section sélectionnée
+                const targetSection = document.getElementById(`${sectionId}Section`);
+                if(targetSection) {
+                    targetSection.classList.add('active-section');
+                } else {
+                    console.log("Section non trouvée:", sectionId + "Section");
+                }
+                
+                // Mettre à jour le bouton actif
+                document.querySelectorAll('.nav-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
                 this.classList.add('active');
-                if(sectionId === 'pdf') document.getElementById('pdfContentPreview').innerHTML = `<p>✅ Données prêtes : ${allInvoices.length} factures, ${allProductions.length} productions. Cliquez sur "Générer rapport global PDF".</p>`;
+                
+                // Actions spéciales selon la section
+                if(sectionId === 'losses') {
+                    // Mettre à jour les données des pertes quand on ouvre l'onglet
+                    if(typeof updateLossesCharts === 'function') {
+                        updateLossesCharts();
+                    }
+                    if(typeof populateProductionSelect === 'function') {
+                        populateProductionSelect();
+                    }
+                }
+                if(sectionId === 'pdf') {
+                    const previewDiv = document.getElementById('pdfContentPreview');
+                    if(previewDiv) {
+                        previewDiv.innerHTML = `<p>✅ Données prêtes : ${allInvoices.length} factures, ${allProductions.length} productions, ${allLosses.length} pertes. Cliquez sur "Générer rapport global PDF".</p>`;
+                    }
+                }
             });
         });
+        
+        // ========== ÉCOUTEURS POUR LES PERTES ==========
+        const saveBtn = document.getElementById("saveLossBtn");
+        const cancelBtn = document.getElementById("cancelLossBtn");
+        
+        if(saveBtn) {
+            // Enlever les anciens écouteurs pour éviter les doublons
+            const newSaveBtn = saveBtn.cloneNode(true);
+            saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+            newSaveBtn.addEventListener("click", saveLoss);
+        }
+        
+        if(cancelBtn) {
+            const newCancelBtn = cancelBtn.cloneNode(true);
+            cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+            newCancelBtn.addEventListener("click", resetLossForm);
+        }
+        
+        // Date par défaut pour le formulaire des pertes
+        const dateInput = document.getElementById("lossDate");
+        if(dateInput && !dateInput.value) {
+            dateInput.value = new Date().toISOString().split('T')[0];
+        }
     }
   
   
@@ -737,4 +1110,4 @@ function getTotalSalesAll() {
     </script>
    
 </body>
-</html>   
+</html>     
