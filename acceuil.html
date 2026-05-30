@@ -101,6 +101,88 @@
         button { background: #2c7a4d; color: white; border: none; padding: 8px 18px; border-radius: 40px; cursor: pointer; font-weight: 500; }
         .chart-container { max-width: 550px; margin: 20px auto; }
         @media (max-width: 700px) { .section { padding: 16px; } .stat-number { font-size: 1.5rem; } }
+      
+      /* Boutons d'action */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.btn-delete-order {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.7rem;
+}
+.btn-delete-order:hover {
+    background: #b91c1c;
+}
+.btn-delete-all {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+.btn-delete-all:hover {
+    background: #b91c1c;
+}
+.confirm-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+.confirm-content {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+}
+.confirm-content input {
+    width: 100%;
+    padding: 12px;
+    margin: 20px 0;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+}
+.btn-confirm {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+.btn-cancel {
+    background: #666;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+.warning-text {
+    color: #dc2626;
+    font-weight: bold;
+    margin: 15px 0;
+}
     </style>
 </head>
 <body>
@@ -284,6 +366,9 @@
 
         <!-- Tableau des commandes TikTok -->
         <h3 style="margin: 30px 0 15px;">📋 LISTE DES COMMANDES TIKTOK</h3>
+       <button id="deleteAllTikTokBtn" class="btn-delete-all">
+        <i class="fas fa-trash-alt"></i> 🗑️ TOUT SUPPRIMER
+    </button>
         <div class="table-wrapper">
             <table id="tiktokOrdersTable">
                 <thead>
@@ -296,6 +381,7 @@
                         <th>Statut</th>
                         <th>Paiement</th>
                         <th>Montant payé</th>
+                      <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="tiktokOrdersBody">
@@ -829,55 +915,60 @@ function renderDashboardMetrics() {
     }
 
     function renderTikTokOrdersTable() {
-        const tbody = document.getElementById('tiktokOrdersBody');
-        if (!tbody) return;
+    const tbody = document.getElementById('tiktokOrdersBody');
+    if (!tbody) return;
+    
+    if (allTikTokOrders.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Aucune commande TikTok</td></tr>';
+        return;
+    }
+    
+    // Trier par date décroissante
+    const sortedOrders = [...allTikTokOrders].sort((a, b) => {
+        let dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+        let dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+        return dateB - dateA;
+    });
+    
+    tbody.innerHTML = sortedOrders.map(order => {
+        const date = order.createdAt?.toDate() || new Date();
+        const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
         
-        if (allTikTokOrders.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Aucune commande TikTok</td></tr>';
-            return;
+        let statusText = '', statusColor = '';
+        switch(order.status) {
+            case 'en_attente': statusText = '⏳ En attente'; statusColor = '#f59e0b'; break;
+            case 'en_livraison': statusText = '🚚 En livraison'; statusColor = '#3b82f6'; break;
+            case 'livre': statusText = '✅ Livrée'; statusColor = '#10b981'; break;
+            case 'annulee': statusText = '❌ Annulée'; statusColor = '#dc2626'; break;
+            default: statusText = order.status; statusColor = '#666';
         }
         
-        // Trier par date décroissante
-        const sortedOrders = [...allTikTokOrders].sort((a, b) => {
-            let dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
-            let dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
-            return dateB - dateA;
-        });
+        let paymentText = '', paymentColor = '';
+        switch(order.paymentStatus) {
+            case 'paye': paymentText = '✅ Payé'; paymentColor = '#10b981'; break;
+            case 'partiel': paymentText = `💰 Partiel (${(order.paymentReceived || 0).toLocaleString('fr-FR')}F)`; paymentColor = '#f59e0b'; break;
+            default: paymentText = '⏳ Impayé'; paymentColor = '#dc2626';
+        }
         
-        tbody.innerHTML = sortedOrders.map(order => {
-            const date = order.createdAt?.toDate() || new Date();
-            const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
-            
-            let statusText = '', statusColor = '';
-            switch(order.status) {
-                case 'en_attente': statusText = '⏳ En attente'; statusColor = '#f59e0b'; break;
-                case 'en_livraison': statusText = '🚚 En livraison'; statusColor = '#3b82f6'; break;
-                case 'livre': statusText = '✅ Livrée'; statusColor = '#10b981'; break;
-                case 'annulee': statusText = '❌ Annulée'; statusColor = '#dc2626'; break;
-                default: statusText = order.status; statusColor = '#666';
-            }
-            
-            let paymentText = '', paymentColor = '';
-            switch(order.paymentStatus) {
-                case 'paye': paymentText = '✅ Payé'; paymentColor = '#10b981'; break;
-                case 'partiel': paymentText = `💰 Partiel (${(order.paymentReceived || 0).toLocaleString('fr-FR')}F)`; paymentColor = '#f59e0b'; break;
-                default: paymentText = '⏳ Impayé'; paymentColor = '#dc2626';
-            }
-            
-            return `
-                <tr style="${order.status === 'annulee' ? 'opacity: 0.6; background: #fee2e2;' : ''}">
-                    <td><strong>${order.orderNumber || order.id.slice(0,8)}</strong></td>
-                    <td>${dateStr}</td>
-                    <td>${order.client?.name || 'N/A'}</td>
-                    <td>${order.client?.phone || 'N/A'}</td>
-                    <td><strong>${(order.total || 0).toLocaleString('fr-FR')} F</strong></td>
-                    <td style="color: ${statusColor}; font-weight: bold;">${statusText}</td>
-                    <td style="color: ${paymentColor};">${paymentText}</td>
-                    <td>${(order.paymentReceived || 0).toLocaleString('fr-FR')} F</td>
-                </tr>
-            `;
-        }).join('');
-    }
+        return `
+            <tr style="${order.status === 'annulee' ? 'opacity: 0.6; background: #fee2e2;' : ''}">
+                <td><strong>${order.orderNumber || order.id.slice(0,8)}</strong></td>
+                <td>${dateStr}</td>
+                <td>${order.client?.name || 'N/A'}</td>
+                <td>${order.client?.phone || 'N/A'}</td>
+                <td><strong>${(order.total || 0).toLocaleString('fr-FR')} F</strong></td>
+                <td style="color: ${statusColor}; font-weight: bold;">${statusText}</td>
+                <td style="color: ${paymentColor};">${paymentText}</td>
+                <td>${(order.paymentReceived || 0).toLocaleString('fr-FR')} F</td>
+                <td>
+                    <button class="btn-delete-order" onclick="deleteSingleTikTokOrder('${order.id}', '${order.orderNumber || order.id.slice(0,8)}')">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
 
     function updateTikTokChart() {
         // Regrouper par date (dernières 7 jours)
@@ -939,6 +1030,132 @@ function renderDashboardMetrics() {
         }
     }
   
+      // ========== FONCTIONS DE SUPPRESSION TIKTOK ==========
+    
+    // Supprimer une seule commande
+    window.deleteSingleTikTokOrder = async (orderId, orderNumber) => {
+        const confirmation = prompt(`⚠️ SUPPRESSION DÉFINITIVE ⚠️\n\nCommande: ${orderNumber}\n\nCette action est IRRÉVERSIBLE !\n\nTapez "SUPPRIMER" pour confirmer :`);
+        
+        if (confirmation !== "SUPPRIMER") {
+            alert('❌ Suppression annulée');
+            return;
+        }
+        
+        try {
+            // Supprimer la commande
+            await db.collection('orders').doc(orderId).delete();
+            
+            // Supprimer la facture associée si elle existe
+            const invoicesSnapshot = await db.collection('invoices')
+                .where('orderId', '==', orderId)
+                .get();
+            
+            for (const doc of invoicesSnapshot.docs) {
+                await db.collection('invoices').doc(doc.id).delete();
+            }
+            
+            alert(`✅ Commande ${orderNumber} supprimée avec succès !`);
+            
+            // La liste se mettra à jour automatiquement via onSnapshot
+            
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('❌ Erreur: ' + error.message);
+        }
+    };
+    
+    // Supprimer TOUTES les commandes TikTok
+    window.deleteAllTikTokOrders = async () => {
+        // Créer la modal de confirmation
+        const modal = document.createElement('div');
+        modal.className = 'confirm-modal';
+        modal.innerHTML = `
+            <div class="confirm-content">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #dc2626; margin-bottom: 15px;"></i>
+                <h2 style="color: #1a1a2e;">⚠️ SUPPRESSION TOTALE</h2>
+                <p style="margin: 15px 0; color: #666;">Cette action est <strong style="color:#dc2626;">IRRÉVERSIBLE</strong> et va supprimer :</p>
+                <ul style="text-align: left; margin: 15px 0; padding-left: 20px; color: #666;">
+                    <li>📦 TOUTES les commandes TikTok Shop</li>
+                    <li>🧾 TOUTES les factures associées</li>
+                    <li>💰 TOUS les paiements enregistrés</li>
+                </ul>
+                <div class="warning-text">⚠️ Cette action est définitive ! ⚠️<br>Pour confirmer, tapez : <strong>"SUPPRIMER TOUT"</strong></div>
+                <input type="text" id="confirmDeleteAllInput" placeholder="Tapez SUPPRIMER TOUT ici" autocomplete="off">
+                <div style="margin-top: 20px;">
+                    <button class="btn-confirm" id="confirmDeleteAllBtn">🗑️ OUI, TOUT SUPPRIMER</button>
+                    <button class="btn-cancel" id="cancelDeleteAllBtn">Annuler</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Gestionnaire pour Annuler
+        document.getElementById('cancelDeleteAllBtn').onclick = () => {
+            modal.remove();
+            alert('❌ Suppression annulée');
+        };
+        
+        // Fermer en cliquant en dehors
+        modal.onclick = (e) => {
+            if (e.target === modal) {
+                modal.remove();
+                alert('❌ Suppression annulée');
+            }
+        };
+        
+        // Gestionnaire pour Confirmer
+        document.getElementById('confirmDeleteAllBtn').onclick = async () => {
+            const input = document.getElementById('confirmDeleteAllInput');
+            const confirmationText = input.value.trim();
+            
+            if (confirmationText !== 'SUPPRIMER TOUT') {
+                alert('❌ Tapez exactement "SUPPRIMER TOUT" pour confirmer');
+                input.style.borderColor = '#dc2626';
+                return;
+            }
+            
+            const confirmBtn = document.getElementById('confirmDeleteAllBtn');
+            const cancelBtn = document.getElementById('cancelDeleteAllBtn');
+            confirmBtn.disabled = true;
+            cancelBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Suppression...';
+            
+            try {
+                // Récupérer TOUTES les commandes TikTok
+                const ordersSnapshot = await db.collection('orders')
+                    .where('boutique', '==', 'en-ligne')
+                    .get();
+                
+                let deletedOrders = 0;
+                let deletedInvoices = 0;
+                
+                // Supprimer chaque commande
+                for (const doc of ordersSnapshot.docs) {
+                    await db.collection('orders').doc(doc.id).delete();
+                    deletedOrders++;
+                }
+                
+                // Supprimer les factures associées
+                const invoicesSnapshot = await db.collection('invoices')
+                    .where('boutique', '==', 'en-ligne')
+                    .get();
+                
+                for (const doc of invoicesSnapshot.docs) {
+                    await db.collection('invoices').doc(doc.id).delete();
+                    deletedInvoices++;
+                }
+                
+                modal.remove();
+                alert(`✅ SUPPRESSION COMPLÈTE !\n\n📦 ${deletedOrders} commande(s) supprimée(s)\n🧾 ${deletedInvoices} facture(s) supprimée(s)`);
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('❌ Erreur: ' + error.message);
+                modal.remove();
+            }
+        };
+    };
+  
      function setupEventListeners() {
         // Rafraîchir les stats
         const refreshBtn = document.getElementById("refreshStatsBtn");
@@ -998,6 +1215,14 @@ function renderDashboardMetrics() {
             });
         });
         
+       // Bouton supprimer toutes les commandes TikTok
+const deleteAllBtn = document.getElementById('deleteAllTikTokBtn');
+if (deleteAllBtn) {
+    const newDeleteAllBtn = deleteAllBtn.cloneNode(true);
+    deleteAllBtn.parentNode.replaceChild(newDeleteAllBtn, deleteAllBtn);
+    newDeleteAllBtn.addEventListener('click', window.deleteAllTikTokOrders);
+}
+       
         // ========== ÉCOUTEURS POUR LES PERTES ==========
         const saveBtn = document.getElementById("saveLossBtn");
         const cancelBtn = document.getElementById("cancelLossBtn");
