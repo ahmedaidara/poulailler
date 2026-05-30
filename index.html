@@ -1161,6 +1161,41 @@
 .stats-grid:has(.stat-label:contains("Poulets vendus")) {
     display: none !important;
 }
+      
+      
+      .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    display: none !important;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.modal-overlay.active {
+    display: flex !important;
+}
+
+.modal {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.active .modal {
+    transform: scale(1);
+}
     </style>
 </head>
 <body>
@@ -1295,17 +1330,22 @@
                 
                 <div class="table-container">
                     <div class="table-header">
-                        <div class="filters">
-                            <button class="filter-btn active" data-filter="all">Tous</button>
-                            <button class="filter-btn" data-filter="today">Aujourd'hui</button>
-                            <button class="filter-btn" data-filter="week">Cette semaine</button>
-                            <button class="filter-btn" data-filter="month">Ce mois</button>
-                        </div>
-                        <div class="search-container">
-                            <i class="fas fa-search search-icon"></i>
-                            <input type="text" id="searchInput" class="search-input" placeholder="Rechercher une date ou une note...">
-                        </div>
-                    </div>
+    <div class="filters">
+        <button class="filter-btn active" data-filter="all">Tous</button>
+        <button class="filter-btn" data-filter="today">Aujourd'hui</button>
+        <button class="filter-btn" data-filter="week">Cette semaine</button>
+        <button class="filter-btn" data-filter="month">Ce mois</button>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button id="newRecordFromHistoryBtn" class="btn btn-primary" style="padding: 8px 16px;">
+            <i class="fas fa-plus"></i> Nouvel enregistrement
+        </button>
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Rechercher une date ou une note...">
+        </div>
+    </div>
+</div>
                     
                     <div class="table-wrapper">
                         <table class="records-table">
@@ -2549,7 +2589,10 @@ let currentStatsEndDate = null;
             });
             
             
-            document.getElementById('newRecordBtn').addEventListener('click', () => showModal('recordModal'));
+            document.getElementById('newRecordBtn').addEventListener('click', function() {
+    console.log("Clic sur Nouvel enregistrement");
+    showModal('recordModal');
+});
             document.getElementById('generatePdfBtn').addEventListener('click', () => showSection('pdf'));
             document.getElementById('addFirstRecordBtn').addEventListener('click', () => showModal('recordModal'));
             document.getElementById('generatePdfActionBtn').addEventListener('click', generatePDF);
@@ -2849,31 +2892,38 @@ observer.observe(document.getElementById('appInterface'), {
     attributeFilter: ['style']
 });
       
-        function showModal(modalId) {
-            const modal = document.getElementById(modalId);
-            modal.classList.add('active');
-            
-             
-            if (modalId === 'recordModal') {
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('startDate').value = today;
-                document.getElementById('endDate').value = today;
-            }
-        }
+      function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) {
+        console.error("Modal non trouvé:", modalId);
+        return;
+    }
+    
+    modal.classList.add('active');
+    modal.style.display = 'flex';
+    modal.style.visibility = 'visible';
+    modal.style.opacity = '1';
+    
+    // Si c'est le modal d'enregistrement, pré-remplir les dates
+    if (modalId === 'recordModal') {
+        const today = new Date().toISOString().split('T')[0];
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        if (startDateInput) startDateInput.value = today;
+        if (endDateInput) endDateInput.value = today;
+    }
+}
         
          
         function hideModal(modalId) {
-            const modal = document.getElementById(modalId);
-            modal.classList.remove('active');
-            
-             
-            if (modalId === 'deleteModal') {
-                document.getElementById('confirmDeleteInput').value = '';
-                document.getElementById('confirmDeleteInput2').value = '';
-                document.getElementById('confirmDeleteInput3').value = '';
-                document.getElementById('confirmDeleteBtn').disabled = true;
-            }
-        }
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    
+    modal.classList.remove('active');
+    modal.style.display = 'none';
+    modal.style.visibility = 'hidden';
+    modal.style.opacity = '0';
+}
         
          
        function loadRecords() {
@@ -2967,7 +3017,7 @@ observer.observe(document.getElementById('appInterface'), {
                 }
             });
             
-             
+              
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             if (searchTerm) {
                 filteredRecords = filteredRecords.filter(record => {
@@ -2990,108 +3040,69 @@ observer.observe(document.getElementById('appInterface'), {
         }
         
         
-        function updateRecordsTable() {
-            const tbody = document.getElementById('recordsTableBody');
-            const emptyState = document.getElementById('emptyState');
-            
-            
-            tbody.innerHTML = '';
-            
-            if (filteredRecords.length === 0) {
-                // Afficher l'état vide
-                tbody.style.display = 'none';
-                emptyState.style.display = 'block';
-                return;
-            }
-            
-             
-            tbody.style.display = 'table-row-group';
-            emptyState.style.display = 'none';
-            
-            
-         filteredRecords.forEach(record => {
+       function updateRecordsTable() {
+    const tbody = document.getElementById('recordsTableBody');
+    const emptyState = document.getElementById('emptyState');
     
-    // CALCU 
-  // Calcul du stock restant (basé sur les quantités disponibles par catégorie)
-const totalDisponible = (record.small1Quantity || 0) + (record.small2Quantity || 0) + 
-                       (record.medium1Quantity || 0) + (record.medium2Quantity || 0) + 
-                       (record.large1Quantity || 0) + (record.large2Quantity || 0) + 
-                       (record.xlarge1Quantity || 0) + (record.xlarge2Quantity || 0);
-
-const totalSold = (record.small1Sold || 0) + (record.small2Sold || 0) + 
-                 (record.medium1Sold || 0) + (record.medium2Sold || 0) + 
-                 (record.large1Sold || 0) + (record.large2Sold || 0) + 
-                 (record.xlarge1Sold || 0) + (record.xlarge2Sold || 0);
-
-const totalLostGiven = (record.lost || 0) + (record.given || 0);
-const stockRestant = Math.max(0, initialStock - totalSold - totalLostGiven);
+    tbody.innerHTML = '';
     
-     
-    const startDateFormatted = formatDate(record.startDate);
-    const endDateFormatted = record.endDate ? formatDate(record.endDate) : '-';
+    if (filteredRecords.length === 0) {
+        tbody.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+    }
     
-    const row = document.createElement('tr');
-    row.innerHTML = `
-    <td><strong>${record.productionName || formatDate(record.startDate)}</strong><br><small style="color:#666;">${startDateFormatted}</small></td>
-    <td>${endDateFormatted}</td>
-        <td>${record.newChickens || 0}</td>
-        <td>${totalSold}</td>
-        <td>${totalLostGiven}</td>
+    tbody.style.display = 'table-row-group';
+    emptyState.style.display = 'none';
+    
+    filteredRecords.forEach(record => {
+        const startDateFormatted = formatDate(record.startDate);
+        const endDateFormatted = record.endDate ? formatDate(record.endDate) : '-';
         
-        const totalSold = (record.small1Sold || 0) + (record.small2Sold || 0) + (record.medium1Sold || 0) + (record.medium2Sold || 0) + (record.large1Sold || 0) + (record.large2Sold || 0) + (record.xlarge1Sold || 0) + (record.xlarge2Sold || 0);
-const totalLostGiven = (record.lost || 0) + (record.given || 0);
-        <td>${Math.max(0, (record.initialStock || 0) - totalSold - totalLostGiven)}</td>
-        <td>
-            <div class="action-buttons">
-                <button class="action-btn-small view" data-id="${record.id}" title="Voir">
-                    <i class="fas fa-eye"></i>
-                </button>
-                <button class="action-btn-small update" data-id="${record.id}" title="Mettre à jour">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
-                <button class="action-btn-small edit" data-id="${record.id}" title="Modifier">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="action-btn-small delete" data-id="${record.id}" title="Supprimer">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-        </td>
-    `;
+        // Calcul des variables AVANT le innerHTML
+        const totalSold = (record.small1Sold || 0) + (record.small2Sold || 0) + 
+                         (record.medium1Sold || 0) + (record.medium2Sold || 0) + 
+                         (record.large1Sold || 0) + (record.large2Sold || 0) + 
+                         (record.xlarge1Sold || 0) + (record.xlarge2Sold || 0);
+        
+        const totalLostGiven = (record.lost || 0) + (record.given || 0);
+        const stockRestant = Math.max(0, (record.initialStock || 0) - totalSold - totalLostGiven);
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><strong>${record.productionName || formatDate(record.startDate)}</strong><br><small style="color:#666;">${startDateFormatted}</small></td>
+            <td>${endDateFormatted}</td>
+            <td>${record.newChickens || 0}</td>
+            <td>${totalSold}</td>
+            <td>${(record.lost || 0) + (record.given || 0)}</td>
+            <td>${stockRestant}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="action-btn-small view" data-id="${record.id}" title="Voir"><i class="fas fa-eye"></i></button>
+                    <button class="action-btn-small update" data-id="${record.id}" title="Mettre à jour"><i class="fas fa-sync-alt"></i></button>
+                    <button class="action-btn-small edit" data-id="${record.id}" title="Modifier"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn-small delete" data-id="${record.id}" title="Supprimer"><i class="fas fa-trash"></i></button>
+                </div>
+            </td>
+        `;
+        
+        tbody.appendChild(row);
+    });
     
-    tbody.appendChild(row);
-});
-            
-            
-            
-            document.querySelectorAll('.action-btn-small.view').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const recordId = this.getAttribute('data-id');
-                    viewRecord(recordId);
-                });
-            });
-            
-            document.querySelectorAll('.action-btn-small.update').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const recordId = this.getAttribute('data-id');
-                    showUpdateModal(recordId);
-                });
-            });
-            
-            document.querySelectorAll('.action-btn-small.edit').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const recordId = this.getAttribute('data-id');
-                    showEditModal(recordId);
-                });
-            });
-            
-            document.querySelectorAll('.action-btn-small.delete').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const recordId = this.getAttribute('data-id');
-                    showDeleteModal(recordId);
-                });
-            });
-        }
+    // Réattacher les événements
+    document.querySelectorAll('.action-btn-small.view').forEach(btn => {
+        btn.addEventListener('click', function() { viewRecord(this.getAttribute('data-id')); });
+    });
+    document.querySelectorAll('.action-btn-small.update').forEach(btn => {
+        btn.addEventListener('click', function() { showUpdateModal(this.getAttribute('data-id')); });
+    });
+    document.querySelectorAll('.action-btn-small.edit').forEach(btn => {
+        btn.addEventListener('click', function() { showEditModal(this.getAttribute('data-id')); });
+    });
+    document.querySelectorAll('.action-btn-small.delete').forEach(btn => {
+        btn.addEventListener('click', function() { showDeleteModal(this.getAttribute('data-id')); });
+    });
+}
         
          
         function formatDate(dateString) {
