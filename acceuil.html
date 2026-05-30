@@ -715,11 +715,11 @@ function getTotalSalesAll() {
             newHistoryBtn.addEventListener('click', showBoutiqueHistoryLive);
         }
     } 
-    
+     
     document.addEventListener('DOMContentLoaded', function() {
         setTimeout(setupLiveButtons, 500);
     });
-    
+      
     function cleanupLiveListeners() {
         if (liveStatsUnsubscribe) liveStatsUnsubscribe();
         if (liveHistoryUnsubscribeGlobal) liveHistoryUnsubscribeGlobal();
