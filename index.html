@@ -2684,16 +2684,19 @@ let currentStatsEndDate = null;
         }
         
          
-        function loginSuccess() {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('appInterface').style.display = 'block';
-            
-             
-            loadRecords();
-            
-            
-            showMessage('Connexion réussie!', 'success');
-        }
+      function loginSuccess() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appInterface').style.display = 'block';
+    
+    loadRecords();
+    
+    // Afficher l'Historique en premier
+    showSection('records');
+    document.querySelector('.nav-btn[data-section="records"]').classList.add('active');
+    document.querySelector('.nav-btn[data-section="dashboard"]')?.classList.remove('active');
+    
+    showMessage('Connexion réussie!', 'success');
+}
         
         
         function showLoginError() {
@@ -7066,41 +7069,7 @@ function resetDistributionInputs() {
 }
       
 // Mettre à jour les totaux de distribution
-function updateDistributionTotals() {
-    let totalSacreCoeur = 0;
-    let totalKeurMassar = 0;
-    
-    // Compter Sacré Coeur
-    document.querySelectorAll('.distribution-input[data-boutique="sacreCoeur"]').forEach(input => {
-        totalSacreCoeur += parseInt(input.value) || 0;
-    });
-    
-    // Compter Keur Massar
-    document.querySelectorAll('.distribution-input[data-boutique="keurMassar"]').forEach(input => {
-        totalKeurMassar += parseInt(input.value) || 0;
-    });
-    
-    // Mettre à jour l'affichage
-    document.getElementById('totalSacreCoeur').textContent = totalSacreCoeur;
-    document.getElementById('totalKeurMassar').textContent = totalKeurMassar;
-    
-    const totalDistributed = totalSacreCoeur + totalKeurMassar;
-    const stockTotal = currentProductionForDistribution.stockRestant;
-    const remaining = stockTotal - totalDistributed;
-    
-    document.getElementById('globalStockTotal').textContent = stockTotal;
-    document.getElementById('totalDistributed').textContent = totalDistributed;
-    document.getElementById('remainingToDistribute').textContent = remaining;
-    
-    // Colorer en rouge si dépassement
-    if (remaining < 0) {
-        document.getElementById('remainingToDistribute').style.color = 'var(--danger)';
-        document.getElementById('saveDistributionBtn').disabled = true;
-    } else {
-        document.getElementById('remainingToDistribute').style.color = remaining > 0 ? 'var(--warning)' : 'var(--secondary)';
-        document.getElementById('saveDistributionBtn').disabled = false;
-    }
-}
+ 
 
 async function saveDistribution() {
     if (!currentProductionForDistribution) return;
@@ -7176,7 +7145,7 @@ async function saveDistribution() {
         };
         
         const updatesProduction = {};
-        
+         
         for (const [boutiqueId, categories] of Object.entries(distributions)) {
             const totalBoutique = Object.values(categories).reduce((a, b) => a + b, 0);
             
@@ -10685,15 +10654,11 @@ function showSection(sectionId) {
 function loginSuccess() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appInterface').style.display = 'block';
+    setTimeout(syncSalesFromInvoices, 2000);
+    // Initialiser la synchronisation en temps réel
+    initRealtimeSync();
     
-    loadRecords();
-    
-    // Afficher l'Historique en premier
-    showSection('records');
-    document.querySelector('.nav-btn[data-section="records"]').classList.add('active');
-    document.querySelector('.nav-btn[data-section="dashboard"]')?.classList.remove('active');
-    
-    showMessage('Connexion réussie!', 'success');
+    showMessage('Connexion réussie! Synchronisation en temps réel activée.', 'success');
 }
 
 // ==============================================
@@ -11438,6 +11403,13 @@ setTimeout(() => {
     });
 }, 500);
          
+         
+         setTimeout(function() {
+    document.getElementById('recordsSection').style.display = 'block';
+    document.getElementById('dashboardSection').style.display = 'none';
+    document.querySelector('.nav-btn[data-section="records"]').classList.add('active');
+    document.querySelector('.nav-btn[data-section="dashboard"]')?.classList.remove('active');
+}, 100);
 </script>
        
        
