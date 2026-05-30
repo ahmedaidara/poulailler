@@ -3,1588 +3,1382 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Poulailler Manager - Tableau de bord complet</title>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <!-- html2pdf -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>DAKAR CHICKEN EXPRESS - Commande en ligne</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
         }
+
         body {
-            background: #f0f4f8;
+            background: linear-gradient(135deg, #f5f0e6 0%, #fff5e8 100%);
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
             padding: 20px;
-        }
-        /* App */
-        .app-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: #fff;
-            border-radius: 32px;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        header {
-            background: linear-gradient(135deg, #1e3c2c, #2a5a3a);
-            color: white;
-            padding: 20px 28px;
-        }
-        header h1 { font-size: 1.8rem; display: flex; align-items: center; gap: 12px; }
-        .sub { opacity: 0.8; font-size: 0.85rem; margin-top: 6px; }
-        .nav-bar {
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
             display: flex;
+            justify-content: space-between;
+            align-items: center;
             flex-wrap: wrap;
-            gap: 6px;
-            background: #e9ecef;
-            padding: 12px 24px;
-            border-bottom: 1px solid #ccc;
         }
-        .nav-btn {
-            background: transparent;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-weight: 600;
+
+        .header-left {
+            flex: 1;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .logo-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #f5a623;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+        }
+
+        .logo span {
+            color: #f5a623;
+        }
+
+        .slogan {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .account-icon {
+            position: relative;
             cursor: pointer;
-            transition: 0.2s;
-            color: #2c3e50;
+            background: rgba(255,255,255,0.1);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            margin-left: 15px;
         }
-        .nav-btn.active {
-            background: #2c7a4d;
-            color: white;
+
+        .account-icon:hover {
+            background: rgba(245,166,35,0.3);
+            transform: scale(1.05);
         }
-        .section {
+
+        .account-icon i {
+            font-size: 1.8rem;
+            color: #f5a623;
+        }
+
+        /* Session de suivi de commande */
+        .order-tracking-section {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
             display: none;
-            padding: 28px;
-            animation: fade 0.2s ease;
         }
-        .section.active-section { display: block; }
-        @keyframes fade { from { opacity:0; } to { opacity:1; } }
-        /* Cartes stats */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
+
+        .order-tracking-section h3 {
+            color: #1a1a2e;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .order-number {
+            font-size: 0.8rem;
+            color: #f5a623;
+            margin-left: 10px;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
             margin-bottom: 30px;
         }
-        .stat-card {
-            background: linear-gradient(145deg, #ffffff, #f5f7fa);
-            border-radius: 24px;
+
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 25px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #e0e0e0;
+            z-index: 1;
+        }
+
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            cursor: pointer;
+        }
+
+        .step-circle {
+            width: 50px;
+            height: 50px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            transition: all 0.3s;
+            font-weight: bold;
+            color: #888;
+        }
+
+        .step-circle.active {
+            background: #f5a623;
+            color: white;
+            box-shadow: 0 0 0 5px rgba(245,166,35,0.3);
+        }
+
+        .step-circle.completed {
+            background: #10b981;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .step-label.active {
+            color: #f5a623;
+            font-weight: bold;
+        }
+
+        .step-label.completed {
+            color: #10b981;
+        }
+
+        .progress-bar-container {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #f5a623, #e67e22);
+            width: 0%;
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .order-info-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .info-item {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .info-item .label {
+            font-size: 0.7rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .info-item .value {
+            font-weight: bold;
+            color: #1a1a2e;
+            margin-top: 5px;
+        }
+
+        .refresh-tracking {
+            background: none;
+            border: none;
+            color: #f5a623;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .status-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .status-message.en_attente { background: #fef3c7; color: #d97706; }
+        .status-message.en_livraison { background: #dbeafe; color: #2563eb; }
+        .status-message.livre { background: #d1fae5; color: #059669; }
+
+        .account-modal, .cart-modal, .form-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1002;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .account-modal.active, .cart-modal.active, .form-modal.active {
+            display: flex;
+        }
+
+        .account-content, .cart-content, .form-content {
+            background: white;
+            width: 90%;
+            max-width: 550px;
+            border-radius: 20px;
+            padding: 25px;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        .cart-content {
+            max-width: 500px;
+            padding: 0;
+        }
+
+        .cart-header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
             padding: 20px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-            border-left: 6px solid #2c7a4d;
-            transition: transform 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .stat-card:hover { transform: translateY(-3px); }
-        .stat-card h3 { font-size: 0.85rem; text-transform: uppercase; color: #4b5563; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 800;
+
+        .cart-items {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-total {
+            padding: 20px;
+            background: #f8f9fa;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .checkout-btn, .submit-order, .save-account-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .checkout-btn { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+        .submit-order { background: linear-gradient(135deg, #f5a623, #e67e22); color: white; border-radius: 10px; margin-top: 10px; }
+        .save-account-btn { background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 10px; margin-top: 10px; }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        .required-field::after {
+            content: " *";
+            color: #ef4444;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
             margin-top: 8px;
-            color: #1f2937;
         }
-        .stat-sub { font-size: 0.7rem; color: #6c757d; margin-top: 6px; }
-        .badge-success { background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: 40px; font-size: 0.7rem; font-weight: bold; }
-        .table-wrapper { overflow-x: auto; background: white; border-radius: 20px; border: 1px solid #e2e8f0; margin-top: 20px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
-        th { background: #f1f5f9; font-weight: 700; }
-        .filter-bar { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; align-items: center; }
-        select, input { padding: 8px 12px; border-radius: 40px; border: 1px solid #cbd5e1; background: white; }
-        button { background: #2c7a4d; color: white; border: none; padding: 8px 18px; border-radius: 40px; cursor: pointer; font-weight: 500; }
-        .chart-container { max-width: 550px; margin: 20px auto; }
-        @media (max-width: 700px) { .section { padding: 16px; } .stat-number { font-size: 1.5rem; } }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .categories-title {
+            text-align: center;
+            margin: 30px 0;
+            font-size: 1.8rem;
+            color: #1a1a2e;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #f5a623;
+            color: #1a1a2e;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #1a1a2e;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #f5a623;
+            margin: 10px 0;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 15px 0;
+        }
+
+        .quantity-btn {
+            background: #f0f0f0;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .add-to-cart {
+            width: 100%;
+            background: linear-gradient(135deg, #f5a623, #e67e22);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .cart-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #f5a623, #e67e22);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 200;
+        }
+
+        .cart-fab i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4757;
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            z-index: 2000;
+            display: none;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: #1a1a2e;
+            color: #888;
+            margin-top: 50px;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
       
-      /* Boutons d'action */
-.action-buttons {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-.btn-delete-order {
-    background: #dc2626;
+      /* Message d'annulation */
+.cancellation-message {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
     color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.7rem;
-}
-.btn-delete-order:hover {
-    background: #b91c1c;
-}
-.btn-delete-all {
-    background: #dc2626;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 10px;
-    cursor: pointer;
-    margin-bottom: 15px;
-    font-weight: bold;
-}
-.btn-delete-all:hover {
-    background: #b91c1c;
-}
-.confirm-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.7);
+    padding: 15px 20px;
+    border-radius: 15px;
+    text-align: center;
+    margin: 20px 0;
+    animation: slideDown 0.5s ease;
     display: flex;
     align-items: center;
-    justify-content: center;
-    z-index: 2000;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
 }
-.confirm-content {
-    background: white;
+
+.cancellation-message i {
+    font-size: 1.5rem;
+}
+
+.cancellation-message .close-cancel {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    padding: 5px 12px;
     border-radius: 20px;
-    padding: 30px;
-    max-width: 500px;
-    width: 90%;
-    text-align: center;
-}
-.confirm-content input {
-    width: 100%;
-    padding: 12px;
-    margin: 20px 0;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    font-size: 1rem;
-}
-.btn-confirm {
-    background: #dc2626;
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 10px;
     cursor: pointer;
-    margin-right: 10px;
+    font-size: 0.8rem;
 }
-.btn-cancel {
-    background: #666;
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 10px;
-    cursor: pointer;
+
+.cancellation-message .close-cancel:hover {
+    background: rgba(255,255,255,0.3);
 }
-.warning-text {
-    color: #dc2626;
-    font-weight: bold;
-    margin: 15px 0;
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
     </style>
 </head>
 <body>
-
-<div id="appMain" class="app-container">
-    <header>
-        <h1>🐓 CHICKEN EXPRESS</h1>
-        <div class="sub"> </div>
-    </header>
-    <div class="nav-bar">
-        <button class="nav-btn active" data-section="dashboard">📊 Dashboard</button>
-             <button class="nav-btn" data-section="losses">📉 Pertes</button>
-      <button class="nav-btn" data-section="tiktokstats">📱 TikTok Shop</button>
-    </div>
-
-    <!-- SECTION DASHBOARD --> 
-    <div id="dashboardSection" class="section active-section">
-       
-        <div class="stats-grid" id="dashboardStatsGrid">
-            <!-- 🟢 CARTES GARDÉES (STOCK TOTAL + STOCK RESTANT TOTAL) -->
-            <div class="stat-card"><h3>🏪 STOCK TOTAL (Toutes productions)</h3><div class="stat-number" id="statTotalStockAllProd">0</div><div class="stat-sub">poulets attribués cumulés</div></div>
-            <div class="stat-card"><h3>📉 STOCK RESTANT TOTAL</h3><div class="stat-number" id="statTotalRemainingAll">0</div><div class="stat-sub">invendu toutes boutiques</div></div>
-            
-            <!-- 🟢 CARTES AJOUTÉES -->
-            <div class="stat-card"><h3>🏆 TOTAL VENTES (Toutes productions)</h3><div class="stat-number" id="statTotalSalesAll">0 FCFA</div><div class="stat-sub">chiffre d'affaires global</div></div>
-            
-            <!-- 🟢 NOUVEAU : Nombre total de ventes -->
-            <div class="stat-card"><h3>📊 NOMBRE TOTAL DE VENTES</h3><div class="stat-number" id="statTotalNbVentes">0</div><div class="stat-sub">factures totales</div></div>
-            
-            <!-- 🟢 NOUVEAU : Montant total de dette -->
-            <div class="stat-card"><h3>💰 MONTANT TOTAL DE DETTE</h3><div class="stat-number" id="statTotalDette">0 FCFA</div><div class="stat-sub">ce qu'on vous doit</div></div>
-        </div>
-
-        <div class="chart-container">
-            <canvas id="ventesChart" width="400" height="250"></canvas>
-        </div>
-         
-    </div>
-
-    <div id="invoicesSection" class="section"><h2>🧾 Toutes les factures</h2><div class="table-wrapper"><table id="invoicesTableFull"><thead><tr><th>N°</th><th>Boutique</th><th>Client</th><th>Montant</th><th>Statut</th><th>Date</th></tr></thead><tbody></tbody></table></div></div>
-    <div id="productionsSection" class="section"><h2>📦 Productions enregistrées</h2><div class="table-wrapper"><table id="productionsTable"><thead><tr><th>Nom prod</th><th>Start</th><th>End</th><th>Poussins</th><th>Petits vendus</th><th>CA prod</th></tr></thead><tbody></tbody></table></div></div>
-    <div id="stocksSection" class="section"><h2>📊 Stocks attribués par boutique</h2><div class="table-wrapper"><table id="stocksTable"><thead><tr><th>Boutique</th><th>Production</th><th>Total reçu</th><th>Vendus</th><th>Restant</th><th>Statut</th></tr></thead><tbody></tbody></table></div></div>
-    <div id="expensesSection" class="section"><h2>💸 Charges & dépenses</h2><div class="table-wrapper"><table id="expensesTable"><thead><tr><th>Production ID</th><th>Date</th><th>Total dépenses</th><th>Bénéfice net</th><th>Détails</th></tr></thead><tbody></tbody></table></div></div>
-    <div id="pdfSection" class="section"><h2>📑 Exporter rapport complet</h2><button id="generateFullPdfBtn" style="background:#2c3e66;">📥 Générer rapport global PDF</button><div id="pdfContentPreview" style="margin-top:20px; background:#f9f9f9; padding:16px; border-radius:20px;"></div></div>
-      <!-- ahmed -->
-    <div id="lossesSection" class="section">
-        <h2>📉 Gestion des pertes</h2>
-        
-        <!-- Formulaire d'ajout/modification -->
-        <div style="background: #f8f9fa; padding: 20px; border-radius: 15px; margin-bottom: 20px;">
-            <h3 id="lossFormTitle">➕ Ajouter une perte</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
-                <div>
-                    <label>📅 Date</label>
-                    <input type="date" id="lossDate" style="width: 100%; padding: 8px;">
-                </div>
-                <div>
-                    <label>🐓 Production *</label>
-                    <select id="lossProductionId" style="width: 100%; padding: 8px;">
-                        <option value="">Sélectionner une production</option>
-                    </select>
-                </div>
-                <div>
-                    <label>🔢 Nombre de pertes *</label>
-                    <input type="number" id="lossQuantity" placeholder="Ex: 5" style="width: 100%; padding: 8px;">
-                </div>
-                <div>
-                    <label>⚠️ Motif</label>
-                    <select id="lossReason" style="width: 100%; padding: 8px;">
-                        <option value="Décès">💀 Décès</option>
-                        <option value="Maladie">🦠 Maladie</option>
-                        <option value="Vol">🚔 Vol</option>
-                        <option value="Évasion">🏃 Évasion</option>
-                        <option value="Autre">❓ Autre</option>
-                    </select>
-                </div>
-                <div>
-                    <label>📝 Commentaire</label>
-                    <input type="text" id="lossComment" placeholder="Optionnel" style="width: 100%; padding: 8px;">
-                </div>
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">
+                <img src="https://i.postimg.cc/0QBKNcGj/photo-5782651308169956527-x.jpg" alt="Logo" class="logo-img">
+                <h1>DAKAR <span>CHICKEN</span> EXPRESS</h1>
             </div>
-            <div style="margin-top: 15px; display: flex; gap: 10px;">
-                <button id="saveLossBtn" style="background: #2c7a4d;">💾 Enregistrer</button>
-                <button id="cancelLossBtn" style="background: #6c757d;">❌ Annuler</button>
-            </div>
-            <input type="hidden" id="editLossId" value="">
+            <div class="slogan">Le goût authentique du poulet local - Livraison rapide à Dakar</div>
         </div>
-
-        <!-- Graphique des pertes -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-            <div style="background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                <h3>📊 Taux de perte par production</h3>
-                <canvas id="lossesChart" width="400" height="250"></canvas>
-            </div>
-            <div style="background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                <h3>🥧 Répartition des motifs</h3>
-                <canvas id="reasonsChart" width="400" height="250"></canvas>
-            </div>
-        </div>
-
-        <!-- Tableau des pertes -->
-        <div class="table-wrapper">
-            <table id="lossesTable">
-                <thead>
-                    <tr>
-                        <th>📅 Date</th>
-                        <th>🐓 Production</th>
-                        <th>🔢 Nombre</th>
-                        <th>⚠️ Motif</th>
-                        <th>📝 Commentaire</th>
-                        <th>⚙️ Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="lossesTableBody"></tbody>
-            </table>
+        <div class="account-icon" id="accountIcon">
+            <i class="fas fa-user-circle"></i>
         </div>
     </div>
-     <!-- aidara -->
-      <!-- SECTION TIKTOK SHOP STATS -->
-    <div id="tiktokstatsSection" class="section">
-        <h2 style="margin-bottom: 20px;">📱 TIKTOK SHOP - STATISTIQUES</h2>
-        
-        <!-- Cartes statistiques TikTok -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
-            <div class="stat-card" style="border-left-color: #f5a623;">
-                <h3>📦 TOTAL COMMANDES</h3>
-                <div class="stat-number" id="tikTotalOrders">0</div>
-                <div class="stat-sub">toutes commandes confondues</div>
-            </div>
-            <div class="stat-card" style="border-left-color: #10b981;">
-                <h3>✅ COMMANDES VALIDÉES</h3>
-                <div class="stat-number" id="tikValidOrders">0</div>
-                <div class="stat-sub">en traitement + livraison + livrées</div>
-            </div>
-            <div class="stat-card" style="border-left-color: #f59e0b;">
-                <h3>⏳ EN TRAITEMENT</h3>
-                <div class="stat-number" id="tikEnAttenteOrders">0</div>
-                <div class="stat-sub">en attente de validation</div>
-            </div>
-            <div class="stat-card" style="border-left-color: #3b82f6;">
-                <h3>🚚 EN LIVRAISON</h3>
-                <div class="stat-number" id="tikEnLivraisonOrders">0</div>
-                <div class="stat-sub">en cours de livraison</div>
-            </div>
-            <div class="stat-card" style="border-left-color: #10b981;">
-                <h3>✅ LIVRÉES</h3>
-                <div class="stat-number" id="tikLivreOrders">0</div>
-                <div class="stat-sub">commandes livrées</div>
-            </div>
-            <div class="stat-card" style="border-left-color: #dc2626;">
-                <h3>❌ ANNULÉES</h3>
-                <div class="stat-number" id="tikAnnuleeOrders">0</div>
-                <div class="stat-sub">commandes annulées</div>
+
+    <div class="container">
+        <!-- Section suivi commande -->
+        <div class="order-tracking-section" id="orderTrackingSection">
+            <h3>
+                <i class="fas fa-truck"></i> Suivi de ma commande
+                <span class="order-number" id="currentOrderNumber"></span>
+                <button class="refresh-tracking" onclick="refreshOrderStatus()">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </h3>
+            <div class="progress-container">
+                <div class="progress-steps">
+                    <div class="progress-step">
+                        <div class="step-circle" id="step1Circle">1</div>
+                        <div class="step-label" id="step1Label">📝 En traitement</div>
+                    </div>
+                    <div class="progress-step">
+                        <div class="step-circle" id="step2Circle">2</div>
+                        <div class="step-label" id="step2Label">🚚 En livraison</div>
+                    </div>
+                    <div class="progress-step">
+                        <div class="step-circle" id="step3Circle">3</div>
+                        <div class="step-label" id="step3Label">✅ Livré</div>
+                    </div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progressFill"></div>
+                </div>
+                <div class="order-info-card">
+                    
+                    <div class="info-item">
+                        <div class="label">Date</div>
+                        <div class="value" id="trackOrderDate">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">Total</div>
+                        <div class="value" id="trackOrderTotal">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">Paiement</div>
+                        <div class="value" id="trackPaymentStatus">-</div>
+                    </div>
+                </div>
+                <div class="status-message" id="statusMessage"></div>
             </div>
         </div>
 
-        <!-- Cartes paiements -->
-        <h3 style="margin: 20px 0 15px;">💰 STATUT PAIEMENT</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
-            <div class="stat-card" style="border-left-color: #10b981;">
-                <h3>✅ PAYÉES</h3>
-                <div class="stat-number" id="tikPayeOrders">0</div>
-                <div class="stat-sub">commandes entièrement payées</div>
-            </div>
-            <div class="stat-card" style="border-left-color: #f59e0b;">
-                <h3>💰 PAYÉES PARTIELLEMENT</h3>
-                <div class="stat-number" id="tikPartielOrders">0</div>
-                <div class="stat-sub">acompte versé</div>
-            </div>
-            <div class="stat-card" style="border-left-color: #dc2626;">
-                <h3>⏳ IMPAYÉES</h3>
-                <div class="stat-number" id="tikImpayeOrders">0</div>
-                <div class="stat-sub">aucun paiement reçu</div>
-            </div>
-        </div>
+        <h2 class="categories-title">Nos Poulets</h2>
+        <div class="products-grid" id="productsGrid"></div>
+    </div>
 
-        <!-- Graphique d'évolution -->
-        <div class="chart-container">
-            <canvas id="tiktokChart" width="400" height="250"></canvas>
-        </div>
+    <div class="cart-fab" id="cartFab">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count" id="cartCount">0</span>
+    </div>
 
-        <!-- Tableau des commandes TikTok -->
-        <h3 style="margin: 30px 0 15px;">📋 LISTE DES COMMANDES TIKTOK</h3>
-       <button id="deleteAllTikTokBtn" class="btn-delete-all">
-        <i class="fas fa-trash-alt"></i> 🗑️ TOUT SUPPRIMER
-    </button>
-        <div class="table-wrapper">
-            <table id="tiktokOrdersTable">
-                <thead>
-                    <tr style="background: #f5a62320;">
-                        <th>N° commande</th>
-                        <th>Date</th>
-                        <th>Client</th>
-                        <th>Téléphone</th>
-                        <th>Total</th>
-                        <th>Statut</th>
-                        <th>Paiement</th>
-                        <th>Montant payé</th>
-                      <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="tiktokOrdersBody">
-                    <tr><td colspan="8" style="text-align: center;">Chargement...</td></tr>
-                </tbody>
-            </table>
+    <!-- Modal compte -->
+    <div class="account-modal" id="accountModal">
+        <div class="account-content">
+            <h2><i class="fas fa-user-circle"></i> Mon compte</h2>
+            <form id="accountForm">
+                <div class="form-group">
+                    <label>Nom complet</label>
+                    <input type="text" id="accNom" placeholder="Ex: Alioune Diop">
+                </div>
+                <div class="form-group">
+                    <label class="required-field">Téléphone 1 *</label>
+                    <input type="tel" id="accTel1" required placeholder="Ex: 77 777 77 77">
+                </div>
+                <div class="form-group">
+                    <label>Téléphone 2</label>
+                    <input type="tel" id="accTel2" placeholder="Ex: 78 888 88 88">
+                </div>
+                <div class="form-group">
+                    <label class="required-field">Adresse *</label>
+                    <textarea id="accAdresse" rows="2" required placeholder="Ex: Dakar, Yoff, Villa N°123"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Type d'adresse</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="adresseType" value="domicile" checked> Domicile</label>
+                        <label><input type="radio" name="adresseType" value="bureau"> Bureau</label>
+                        <label><input type="radio" name="adresseType" value="autre"> Autre</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Précision / Point de repère</label>
+                    <textarea id="accPrecision" rows="2" placeholder="Près de la mosquée..."></textarea>
+                </div>
+                <button type="submit" class="save-account-btn"><i class="fas fa-save"></i> Enregistrer</button>
+            </form>
         </div>
     </div>
-</div>
 
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyAAQ9G3w94aM7iGc_ufHMzdCvrwzzEzlhI",
-        authDomain: "poulailler-3515e.firebaseapp.com",
-        projectId: "poulailler-3515e",
-        storageBucket: "poulailler-3515e.firebasestorage.app",
-        messagingSenderId: "482441929117",
-        appId: "1:482441929117:web:7970df401b0125560acf74",
-        measurementId: "G-ZKH1QG9JW0"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    <!-- Modal panier -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h3><i class="fas fa-shopping-cart"></i> Mon panier</h3>
+                <button class="close-cart" id="closeCartBtn" style="background:none; border:none; color:white; font-size:1.5rem;">&times;</button>
+            </div>
+            <div class="cart-items" id="cartItems"></div>
+            <div class="cart-total">TOTAL: <span id="cartTotal">0 F CFA</span></div>
+            <button class="checkout-btn" id="checkoutBtn">📦 Passer commande</button>
+        </div>
+    </div>
 
-    let allInvoices = [], allProductions = [], allStocks = [], allExpenses = [], allLosses = [];
-    let chartVentes = null;
+    <!-- Modal confirmation commande -->
+    <div class="form-modal" id="formModal">
+        <div class="form-content">
+            <h2>Confirmation commande</h2>
+            <form id="orderForm">
+                <div class="form-group">
+                    <label>Nom complet</label>
+                    <input type="text" id="fullName" placeholder="Nom complet">
+                </div>
+                <div class="form-group">
+                    <label class="required-field">Téléphone *</label>
+                    <input type="tel" id="phone" required placeholder="77 777 77 77">
+                </div>
+                <div class="form-group">
+                    <label>Téléphone 2</label>
+                    <input type="tel" id="phone2" placeholder="78 888 88 88">
+                </div>
+                <div class="form-group">
+                    <label class="required-field">Adresse *</label>
+                    <textarea id="address" rows="2" required placeholder="Adresse complète"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Précision</label>
+                    <textarea id="precision" rows="2" placeholder="Point de repère..."></textarea>
+                </div>
+                <button type="submit" class="submit-order">✅ Confirmer</button>
+            </form>
+        </div>
+    </div>
 
-    // CHARGEMENT DIRECT - PLUS DE CODE D'ENTREE
-    document.addEventListener('DOMContentLoaded', function() {
-        loadAllData();
-        setupEventListeners();
-    });
+    <div class="notification" id="notification">✓ Ajouté au panier !</div>
 
-       async function loadAllData() {
-        await Promise.all([
-            db.collection("invoices").get().then(snap => allInvoices = snap.docs.map(d=>({id:d.id, ...d.data()}))),
-            db.collection("poulailler_records").get().then(snap => allProductions = snap.docs.map(d=>({id:d.id, ...d.data()}))),
-            db.collection("stocks_attribues").get().then(snap => allStocks = snap.docs.map(d=>({id:d.id, ...d.data()}))),
-            db.collection("production_expenses").get().then(snap => allExpenses = snap.docs.map(d=>({id:d.id, ...d.data()}))),
-            db.collection("losses").get().then(snap => allLosses = snap.docs.map(d=>({id:d.id, ...d.data()})))  // NOUVEAU
-        ]);
-        renderDashboardMetrics();
-        renderInvoicesTable();
-        renderProductionsTable();
-        renderStocksTable();
-        renderExpensesTable();
-        renderLossesTable();  // NOUVEAU
-        updateLossesCharts();  // NOUVEAU
-        populateProductionSelect();  // NOUVEAU
-         listenToTikTokOrders();
-    }
+    <footer>
+        <p>&copy; 2026 DAKAR CHICKEN EXPRESS</p>
+    </footer>
 
-    function getLastProduction() {
-        if(!allProductions.length) return null;
-        return [...allProductions].sort((a,b)=> {
-            let dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.startDate || 0);
-            let dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.startDate || 0);
-            return dateB - dateA;
-        })[0];
-    }
-
-    function getProductionInitialStock(prod) {
-        return prod.newChickens || 0;
-    }
-
-function getSalesForProduction(productionId) {
-    const invoicesForProd = allInvoices.filter(inv => inv.productionId === productionId);
-    let totalCA = 0;
-    let totalPaye = 0;  // NOUVEAU
-    invoicesForProd.forEach(inv => { 
-        totalCA += (inv.total || 0);
-        totalPaye += (inv.paiement?.montantPaye || 0);  // NOUVEAU - montant réellement payé
-    });
-    return { ca: totalCA, paye: totalPaye };  // MODIFIÉ
-}
-
-    // Stock vendu (Dernière production) = quantité totale vendue
-    function getSoldQuantityForProduction(productionId) {
-        let totalVendus = 0;
-        allInvoices.forEach(inv => {
-            if(inv.productionId === productionId && inv.items) {
-                inv.items.forEach(item => {
-                    totalVendus += (item.quantity || 0);
-                });
-            }
-        });
-        return totalVendus;
-    }
-
-    // Stock restant = Stock initial - Stock vendu
-    function getRemainingStockForProduction(productionId) {
-        const prod = allProductions.find(p => p.id === productionId);
-        if(!prod) return 0;
-        const stockInitial = prod.newChickens || 0;
-        const totalVendus = getSoldQuantityForProduction(productionId);
-        return stockInitial - totalVendus;
-    }
-
-    function getTotalStockAllProductions() {
-        return allProductions.reduce((sum, p) => sum + (p.newChickens || 0), 0);
-    }
-
-    // Stock restant total = Stock initial total - Quantité totale vendue
-    function getTotalRemainingAll() {
-        const stockInitialTotal = getTotalStockAllProductions();
-        let quantiteVendue = 0;
-        allInvoices.forEach(inv => {
-            if(inv.items) {
-                inv.items.forEach(item => {
-                    quantiteVendue += (item.quantity || 0);
-                });
-            }
-        });
-        return stockInitialTotal - quantiteVendue;
-    }
-
-function getTotalSalesAll() {
-    // Retourne la somme des MONTANTS PAYÉS, pas des totaux facture
-    return allInvoices.reduce((sum, inv) => sum + (inv.paiement?.montantPaye || 0), 0);
-}
-
-function renderDashboardMetrics() {
-    const totalStockAll = getTotalStockAllProductions();
-    const totalRemainingAll = getTotalRemainingAll();  // Prend en compte les pertes
-    const totalSalesAll = getTotalSalesAll();
-    const totalNbVentes = allInvoices.length;
-    
-    let totalDette = 0;
-    allInvoices.forEach(inv => {
-        const montantFacture = inv.total || 0;
-        const montantPaye = inv.paiement?.montantPaye || 0;
-        totalDette += (montantFacture - montantPaye);
-    });
-
-    document.getElementById("statTotalStockAllProd").innerText = totalStockAll.toLocaleString();
-    document.getElementById("statTotalRemainingAll").innerText = totalRemainingAll.toLocaleString();
-    document.getElementById("statTotalSalesAll").innerHTML = totalSalesAll.toLocaleString() + " FCFA";
-    document.getElementById("statTotalNbVentes").innerText = totalNbVentes.toLocaleString();
-    document.getElementById("statTotalDette").innerHTML = totalDette.toLocaleString() + " FCFA";
-
-    // Graphique
-    const boutiqueSales = {};
-    allInvoices.forEach(inv => {
-        let shop = inv.boutiqueName || inv.boutique || "inconnue";
-        boutiqueSales[shop] = (boutiqueSales[shop] || 0) + (inv.total || 0);
-    });
-    const labels = Object.keys(boutiqueSales).slice(0,6);
-    const data = labels.map(l => boutiqueSales[l]);
-    if(chartVentes) chartVentes.destroy();
-    const ctx = document.getElementById('ventesChart').getContext('2d');
-    chartVentes = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'CA par boutique (FCFA)', data, backgroundColor: '#3b8b5e' }] }, options: { responsive: true, maintainAspectRatio: true } });
-}
-
-    function renderInvoicesTable() {
-        const tbody = document.querySelector("#invoicesTableFull tbody");
-        if(tbody) {
-            tbody.innerHTML = "";
-            allInvoices.forEach(inv => {
-                tbody.innerHTML += `<tr><td>${inv.invoiceNumber || '-'}</td> <td>${inv.boutiqueName || inv.boutique || '-'}</td> <td>${inv.client?.name || 'Anonyme'}</td> <td>${(inv.total||0).toLocaleString()} F</td> <td>${inv.paiement?.statut || '?'}</td> <td>${inv.createdAt?.toDate?.().toLocaleString() || ''}</td> </tr>`;
-            });
-        }
-    }
-
-    function renderProductionsTable() {
-        const tbody = document.querySelector("#productionsTable tbody");
-        if(tbody) {
-            tbody.innerHTML = "";
-            allProductions.forEach(prod => {
-                const smallSold = prod.small1Sold || 0;
-                const caProd = (smallSold * (prod.small1Price || 0)) + ((prod.medium1Sold||0)*(prod.medium1Price||0)) + ((prod.large1Sold||0)*(prod.large1Price||0));
-                tbody.innerHTML += `<tr><td>${prod.productionName || 'Prod'}</td> <td>${prod.startDate || '-'}</td> <td>${prod.endDate || '-'}</td> <td>${prod.newChickens || 0}</td> <td>${smallSold}</td> <td>${caProd.toLocaleString()} F</td> </tr>`;
-            });
-        }
-    }
-
-    function renderStocksTable() {
-        const tbody = document.querySelector("#stocksTable tbody");
-        if(tbody) {
-            tbody.innerHTML = "";
-            allStocks.forEach(s => {
-                tbody.innerHTML += `<tr><td>${s.boutiqueName || s.boutique}</td> <td>${s.productionName || '-'}</td> <td>${s.total || 0}</td> <td>${s.totalSold || 0}</td> <td>${s.remaining || 0}</td> <td><span class="badge-success">${s.status || 'active'}</span></td> </tr>`;
-            });
-        }
-    }
-
-    function renderExpensesTable() {
-        const tbody = document.querySelector("#expensesTable tbody");
-        if(tbody) {
-            tbody.innerHTML = "";
-            allExpenses.forEach(exp => {
-                let details = (exp.expenses || []).map(e=>`${e.nom}:${e.quantite}`).join(', ');
-                tbody.innerHTML += `<tr><td>${exp.productionId || '-'}</td> <td>${exp.date ? new Date(exp.date).toLocaleDateString() : '-'}</td> <td>${(exp.totalExpenses||0).toLocaleString()} F</td> <td>${(exp.beneficeNet||0).toLocaleString()} F</td> <td>${details.substring(0,60)}</td> </tr>`;
-            });
-        }
-    }
-
-    async function generateFullReportPDF() {
-        const element = document.createElement('div');
-        element.style.padding = '24px';
-        element.style.fontFamily = 'sans-serif';
-        element.innerHTML = `
-            <h1>📊 RAPPORT COMPLET - CHICKEN EXPRESS</h1>
-            <p>Généré le ${new Date().toLocaleString()}</p>
-            <hr/>
-            <h2>🎯 INDICATEURS CLÉS</h2>
-            <ul>
-                <li><strong>📦 Stock Initial (Dernière production):</strong> ${document.getElementById("statLastProdInitial").innerText}</li>
-                <li><strong>✅ Stock Restant (Dernière production):</strong> ${document.getElementById("statLastProdRemaining").innerText}</li>
-                <li><strong>💰 Total Ventes (Dernière production):</strong> ${document.getElementById("statLastProdSales").innerText}</li>
-                <li><strong>🏪 Stock Total (Toutes productions):</strong> ${document.getElementById("statTotalStockAllProd").innerText}</li>
-                <li><strong>📉 Stock Restant Total:</strong> ${document.getElementById("statTotalRemainingAll").innerText}</li>
-                <li><strong>🏆 Total Ventes (Toutes productions):</strong> ${document.getElementById("statTotalSalesAll").innerText}</li>
-            </ul>
-            <h2>📜 Dernières Factures</h2>
-            ${generateSimpleTable(allInvoices.slice(0,15).map(i=>[i.invoiceNumber, i.client?.name || 'Client', (i.total||0)+' F', i.paiement?.statut]))}
-            <footer><p>Rapport exporté</p></footer>
-        `;
-        document.body.appendChild(element);
-        try {
-            await html2pdf().set({ margin: 0.5, filename: 'rapport_chicken_express.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }).from(element).save();
-        } catch(e) { alert("Erreur génération PDF"); }
-        document.body.removeChild(element);
-    }
-
-    function generateSimpleTable(data) {
-        if(!data.length) return "<p>Aucune donnée</p>";
-        let html = "<table border='1' cellpadding='5' style='border-collapse:collapse; width:100%'><thead><tr>";
-        for(let i=0; i<data[0].length; i++) html += "<th>Colonne "+(i+1)+"</th>";
-        html += "</tr></thead><tbody>";
-        data.forEach(row => { html += "<tr>" + row.map(cell => `<td>${cell}</td>`).join('') + "</tr>"; });
-        html += "</tbody></table>";
-        return html;
-    }
-
-      // ========== FONCTIONS PERTES ==========
-    
-    // Remplir le select des productions
-    function populateProductionSelect() {
-        const select = document.getElementById("lossProductionId");
-        if(!select) return;
-        select.innerHTML = '<option value="">Sélectionner une production</option>';
-        allProductions.forEach(prod => {
-            select.innerHTML += `<option value="${prod.id}">${prod.productionName || prod.id} (${prod.newChickens || 0} poussins)</option>`;
-        });
-    }
-    
-    // Afficher le tableau des pertes
-    function renderLossesTable() {
-        const tbody = document.getElementById("lossesTableBody");
-        if(!tbody) return;
-        
-        tbody.innerHTML = "";
-        // Trier par date décroissante
-        const sortedLosses = [...allLosses].sort((a,b) => new Date(b.date) - new Date(a.date));
-        
-        sortedLosses.forEach(loss => {
-            // Trouver le nom de la production
-            const production = allProductions.find(p => p.id === loss.productionId);
-            const prodName = production ? (production.productionName || production.id) : loss.productionId;
-            
-            tbody.innerHTML += `
-                <tr>
-                    <td>${loss.date || ''}</td>
-                    <td>${prodName}</td>
-                    <td style="color: #dc2626; font-weight: bold;">${loss.quantity || 0}</td>
-                    <td>${loss.reason || '-'}</td>
-                    <td>${loss.comment || '-'}</td>
-                    <td>
-                        <button onclick="editLoss('${loss.id}')" style="background:#f59e0b; color:white; border:none; padding:5px 10px; border-radius:5px; margin-right:5px;">✏️</button>
-                        <button onclick="deleteLoss('${loss.id}')" style="background:#dc2626; color:white; border:none; padding:5px 10px; border-radius:5px;">🗑️</button>
-                    </td>
-                </tr>
-            `;
-        });
-    }
-    
-    // Mettre à jour les graphiques des pertes
-    function updateLossesCharts() {
-        // Graphique 1 : Taux de perte par production
-        const lossesByProd = {};
-        const initialStockByProd = {};
-        
-        allLosses.forEach(loss => {
-            lossesByProd[loss.productionId] = (lossesByProd[loss.productionId] || 0) + loss.quantity;
-        });
-        
-        allProductions.forEach(prod => {
-            initialStockByProd[prod.id] = prod.newChickens || 0;
-        });
-        
-        const prodLabels = [];
-        const lossRates = [];
-        
-        allProductions.forEach(prod => {
-            const initial = initialStockByProd[prod.id] || 0;
-            const losses = lossesByProd[prod.id] || 0;
-            if(initial > 0) {
-                const rate = (losses / initial) * 100;
-                prodLabels.push(prod.productionName || prod.id.substring(0,8));
-                lossRates.push(rate.toFixed(1));
-            }
-        });
-        
-        // Détruire l'ancien graphique s'il existe
-        if(window.lossesChartInstance) window.lossesChartInstance.destroy();
-        const ctx1 = document.getElementById('lossesChart')?.getContext('2d');
-        if(ctx1) {
-            window.lossesChartInstance = new Chart(ctx1, {
-                type: 'bar',
-                data: {
-                    labels: prodLabels,
-                    datasets: [{
-                        label: 'Taux de perte (%)',
-                        data: lossRates,
-                        backgroundColor: '#ef4444',
-                        borderRadius: 5
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'Pourcentage (%)' }
-                        }
-                    }
-                }
-            });
-        }
-        
-        // Graphique 2 : Répartition des motifs
-        const reasonsCount = {};
-        allLosses.forEach(loss => {
-            const reason = loss.reason || 'Non spécifié';
-            reasonsCount[reason] = (reasonsCount[reason] || 0) + loss.quantity;
-        });
-        
-        if(window.reasonsChartInstance) window.reasonsChartInstance.destroy();
-        const ctx2 = document.getElementById('reasonsChart')?.getContext('2d');
-        if(ctx2) {
-            window.reasonsChartInstance = new Chart(ctx2, {
-                type: 'pie',
-                data: {
-                    labels: Object.keys(reasonsCount),
-                    datasets: [{
-                        data: Object.values(reasonsCount),
-                        backgroundColor: ['#ef4444', '#f59e0b', '#8b5cf6', '#10b981', '#6b7280']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: 'bottom' }
-                    }
-                }
-            });
-        }
-    }
-    
-    // Calculer le total des pertes
-    function getTotalLosses() {
-        return allLosses.reduce((sum, loss) => sum + (loss.quantity || 0), 0);
-    }
-    
-    // Sauvegarder une perte
-    async function saveLoss() {
-        const date = document.getElementById("lossDate").value;
-        const productionId = document.getElementById("lossProductionId").value;
-        const quantity = parseInt(document.getElementById("lossQuantity").value);
-        const reason = document.getElementById("lossReason").value;
-        const comment = document.getElementById("lossComment").value;
-        const editId = document.getElementById("editLossId").value;
-        
-        // Validation
-        if(!productionId) {
-            alert("Veuillez sélectionner une production");
-            return;
-        }
-        if(!quantity || quantity <= 0) {
-            alert("Veuillez entrer un nombre de pertes valide");
-            return;
-        }
-        
-        // Vérifier qu'on ne dépasse pas le stock
-        const production = allProductions.find(p => p.id === productionId);
-        if(production) {
-            const totalVendus = getSoldQuantityForProduction(productionId);
-            const totalPertes = allLosses.filter(l => l.productionId === productionId && l.id !== editId).reduce((sum, l) => sum + l.quantity, 0);
-            const stockInitial = production.newChickens || 0;
-            const stockRestantReel = stockInitial - totalVendus - totalPertes;
-            
-            if(quantity > stockRestantReel + (editId ? (allLosses.find(l => l.id === editId)?.quantity || 0) : 0)) {
-                alert(`Impossible ! Stock restant disponible : ${stockRestantReel} poulets`);
-                return;
-            }
-        }
-        
-        const lossData = {
-            date: date || new Date().toISOString().split('T')[0],
-            productionId: productionId,
-            quantity: quantity,
-            reason: reason,
-            comment: comment,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    <script>
+        // Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAAQ9G3w94aM7iGc_ufHMzdCvrwzzEzlhI",
+            authDomain: "poulailler-3515e.firebaseapp.com",
+            projectId: "poulailler-3515e",
+            storageBucket: "poulailler-3515e.firebasestorage.app",
+            messagingSenderId: "482441929117",
+            appId: "1:482441929117:web:7970df401b0125560acf74"
         };
-        
-        try {
-            if(editId) {
-                await db.collection("losses").doc(editId).update(lossData);
-                alert("Perte modifiée !");
-            } else {
-                await db.collection("losses").add(lossData);
-                alert("Perte ajoutée !");
-            }
-            // Recharger les données
-            await db.collection("losses").get().then(snap => allLosses = snap.docs.map(d=>({id:d.id, ...d.data()})));
-            renderLossesTable();
-            updateLossesCharts();
-            renderDashboardMetrics();  // Mettre à jour le stock restant total
-            resetLossForm();
-        } catch(error) {
-            console.error("Erreur:", error);
-            alert("Erreur lors de l'enregistrement");
-        }
-    }
-    
-    // Modifier une perte
-    window.editLoss = function(id) {
-        const loss = allLosses.find(l => l.id === id);
-        if(!loss) return;
-        
-        document.getElementById("lossDate").value = loss.date || '';
-        document.getElementById("lossProductionId").value = loss.productionId;
-        document.getElementById("lossQuantity").value = loss.quantity;
-        document.getElementById("lossReason").value = loss.reason || 'Décès';
-        document.getElementById("lossComment").value = loss.comment || '';
-        document.getElementById("editLossId").value = id;
-        document.getElementById("lossFormTitle").innerHTML = "✏️ Modifier une perte";
-        document.getElementById("saveLossBtn").style.background = "#f59e0b";
-    }
-    
-    // Supprimer une perte
-    window.deleteLoss = async function(id) {
-        if(!confirm("Supprimer définitivement cette perte ?")) return;
-        
-        try {
-            await db.collection("losses").doc(id).delete();
-            allLosses = allLosses.filter(l => l.id !== id);
-            renderLossesTable();
-            updateLossesCharts();
-            renderDashboardMetrics();
-            alert("Perte supprimée !");
-        } catch(error) {
-            console.error("Erreur:", error);
-            alert("Erreur lors de la suppression");
-        }
-    }
-    
-    // Réinitialiser le formulaire
-    function resetLossForm() {
-        document.getElementById("lossDate").value = new Date().toISOString().split('T')[0];
-        document.getElementById("lossProductionId").value = "";
-        document.getElementById("lossQuantity").value = "";
-        document.getElementById("lossReason").value = "Décès";
-        document.getElementById("lossComment").value = "";
-        document.getElementById("editLossId").value = "";
-        document.getElementById("lossFormTitle").innerHTML = "➕ Ajouter une perte";
-        document.getElementById("saveLossBtn").style.background = "#2c7a4d";
-    }
-    
-    // MODIFIER getTotalRemainingAll pour soustraire les pertes !
-    function getTotalRemainingAll() {
-        const stockInitialTotal = getTotalStockAllProductions();
-        let quantiteVendue = 0;
-        allInvoices.forEach(inv => {
-            if(inv.items) {
-                inv.items.forEach(item => {
-                    quantiteVendue += (item.quantity || 0);
-                });
-            }
-        });
-        const totalPertes = getTotalLosses();  // ← AJOUT
-        return stockInitialTotal - quantiteVendue - totalPertes;  // ← MODIFIÉ
-    }
-  
-      // ========== FONCTIONS TIKTOK SHOP STATS ==========
-    let allTikTokOrders = [];
-    let tiktokChart = null;
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-    // Charger et écouter les commandes TikTok en temps réel
-    function listenToTikTokOrders() {
-        db.collection('orders')
-            .where('boutique', '==', 'en-ligne')
-            .onSnapshot((snapshot) => {
-                console.log("📱 Mise à jour TikTok:", snapshot.size);
-                allTikTokOrders = [];
-                snapshot.forEach(doc => {
-                    allTikTokOrders.push({ id: doc.id, ...doc.data() });
-                });
-                renderTikTokStats();
-                renderTikTokOrdersTable();
-                updateTikTokChart();
-            }, (error) => {
-                console.error("Erreur TikTok:", error);
+ const categories = [
+    { id: 1, name: "Très petits", weight: "1.0 - 1.1 kg", price: 2000, image: "https://cdn.pixabay.com/photo/2016/02/05/12/31/chicken-1180628_640.jpg" },
+    { id: 2, name: "Petits", weight: "1.2 kg", price: 2500, image: "https://cdn.pixabay.com/photo/2019/03/20/20/39/chicken-4068653_640.jpg" },
+    { id: 3, name: "Moyens-petits", weight: "1.3 - 1.4 kg", price: 3000, image: "https://cdn.pixabay.com/photo/2016/08/30/13/21/rotisserie-chicken-1631133_640.jpg" },
+    { id: 4, name: "Moyens", weight: "1.5 - 1.6 kg", price: 3300, image: "https://cdn.pixabay.com/photo/2017/02/01/12/12/roast-chicken-2029664_640.jpg" },
+    { id: 5, name: "Moyens-grands", weight: "1.7 - 1.9 kg", price: 3500, image: "https://cdn.pixabay.com/photo/2014/11/05/15/57/chicken-518874_640.jpg" },
+    { id: 6, name: "Grands", weight: "2.0 kg", price: 3700, image: "https://cdn.pixabay.com/photo/2018/05/25/10/16/chicken-3428504_640.jpg" },
+    { id: 7, name: "Très grands", weight: "2.1 - 2.3 kg", price: 4000, image: "https://cdn.pixabay.com/photo/2015/11/17/15/39/grilled-chicken-1047768_640.jpg" },
+    { id: 8, name: "Géants", weight: "+2.4 kg", price: 4500, image: "https://cdn.pixabay.com/photo/2020/09/18/21/54/chicken-5583818_640.jpg" }
+];
+
+        let cart = [];
+        let quantities = {};
+
+        // ========== SUIVI COMMANDE ==========
+        let currentOrderId = null;
+        let trackingListener = null;
+
+        function saveLastOrder(orderId, orderData) {
+            localStorage.setItem('lastOrderId', orderId);
+            localStorage.setItem('lastOrderData', JSON.stringify(orderData));
+            currentOrderId = orderId;
+            startTracking(orderId);
+        }
+
+        function startTracking(orderId) {
+            if (trackingListener) {
+                trackingListener();
+            }
+            trackingListener = db.collection('orders').doc(orderId).onSnapshot(doc => {
+                if (doc.exists) {
+                    updateTrackingUI({ id: doc.id, ...doc.data() });
+                }
             });
-    }
+        }
 
-    function renderTikTokStats() {
-        // Statistiques par statut
-        const total = allTikTokOrders.length;
-        const validees = allTikTokOrders.filter(o => o.status !== 'annulee').length;
-        const enAttente = allTikTokOrders.filter(o => o.status === 'en_attente').length;
-        const enLivraison = allTikTokOrders.filter(o => o.status === 'en_livraison').length;
-        const livre = allTikTokOrders.filter(o => o.status === 'livre').length;
-        const annulee = allTikTokOrders.filter(o => o.status === 'annulee').length;
-        
-        // Statistiques par paiement
-        const paye = allTikTokOrders.filter(o => o.paymentStatus === 'paye').length;
-        const partiel = allTikTokOrders.filter(o => o.paymentStatus === 'partiel').length;
-        const impaye = allTikTokOrders.filter(o => o.paymentStatus === 'impaye').length;
-        
-        // Mise à jour des éléments HTML
-        document.getElementById('tikTotalOrders').innerText = total;
-        document.getElementById('tikValidOrders').innerText = validees;
-        document.getElementById('tikEnAttenteOrders').innerText = enAttente;
-        document.getElementById('tikEnLivraisonOrders').innerText = enLivraison;
-        document.getElementById('tikLivreOrders').innerText = livre;
-        document.getElementById('tikAnnuleeOrders').innerText = annulee;
-        document.getElementById('tikPayeOrders').innerText = paye;
-        document.getElementById('tikPartielOrders').innerText = partiel;
-        document.getElementById('tikImpayeOrders').innerText = impaye;
-    }
-
-    function renderTikTokOrdersTable() {
-    const tbody = document.getElementById('tiktokOrdersBody');
-    if (!tbody) return;
+       function updateTrackingUI(order) {
+    const section = document.getElementById('orderTrackingSection');
     
-    if (allTikTokOrders.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Aucune commande TikTok</td></tr>';
+    // Vérifier si la commande est ANNULÉE
+    if (order.status === 'annulee') {
+        if (section) {
+            section.style.display = 'block';
+            // Afficher un message d'annulation à la place du suivi normal
+            section.innerHTML = `
+                <div class="cancellation-message" id="cancelMessage">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <i class="fas fa-ban"></i>
+                        <div>
+                            <strong>❌ DERNIÈRE COMMANDE ANNULÉE AVEC SUCCÈS</strong><br>
+                            <small>Commande #${order.orderNumber || order.id.slice(0,8)} annulée le ${new Date(order.cancelledAt?.toDate() || Date.now()).toLocaleDateString('fr-FR')}</small>
+                        </div>
+                    </div>
+                    <button class="close-cancel" onclick="closeCancellationMessage()">
+                        <i class="fas fa-times"></i> Fermer
+                    </button>
+                </div>
+            `;
+        }
         return;
     }
     
-    // Trier par date décroissante
-    const sortedOrders = [...allTikTokOrders].sort((a, b) => {
-        let dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
-        let dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
-        return dateB - dateA;
-    });
-    
-    tbody.innerHTML = sortedOrders.map(order => {
-        const date = order.createdAt?.toDate() || new Date();
-        const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
-        
-        let statusText = '', statusColor = '';
-        switch(order.status) {
-            case 'en_attente': statusText = '⏳ En attente'; statusColor = '#f59e0b'; break;
-            case 'en_livraison': statusText = '🚚 En livraison'; statusColor = '#3b82f6'; break;
-            case 'livre': statusText = '✅ Livrée'; statusColor = '#10b981'; break;
-            case 'annulee': statusText = '❌ Annulée'; statusColor = '#dc2626'; break;
-            default: statusText = order.status; statusColor = '#666';
-        }
-        
-        let paymentText = '', paymentColor = '';
-        switch(order.paymentStatus) {
-            case 'paye': paymentText = '✅ Payé'; paymentColor = '#10b981'; break;
-            case 'partiel': paymentText = `💰 Partiel (${(order.paymentReceived || 0).toLocaleString('fr-FR')}F)`; paymentColor = '#f59e0b'; break;
-            default: paymentText = '⏳ Impayé'; paymentColor = '#dc2626';
-        }
-        
-        return `
-            <tr style="${order.status === 'annulee' ? 'opacity: 0.6; background: #fee2e2;' : ''}">
-                <td><strong>${order.orderNumber || order.id.slice(0,8)}</strong></td>
-                <td>${dateStr}</td>
-                <td>${order.client?.name || 'N/A'}</td>
-                <td>${order.client?.phone || 'N/A'}</td>
-                <td><strong>${(order.total || 0).toLocaleString('fr-FR')} F</strong></td>
-                <td style="color: ${statusColor}; font-weight: bold;">${statusText}</td>
-                <td style="color: ${paymentColor};">${paymentText}</td>
-                <td>${(order.paymentReceived || 0).toLocaleString('fr-FR')} F</td>
-                <td>
-                    <button class="btn-delete-order" onclick="deleteSingleTikTokOrder('${order.id}', '${order.orderNumber || order.id.slice(0,8)}')">
-                        <i class="fas fa-trash"></i> Supprimer
-                    </button>
-                </td>
-            </tr>
-        `;
-    }).join('');
-}
-
-    function updateTikTokChart() {
-        // Regrouper par date (dernières 7 jours)
-        const last7Days = [];
-        for (let i = 6; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            last7Days.push(d.toISOString().split('T')[0]);
-        }
-        
-        const dailyCounts = {};
-        allTikTokOrders.forEach(order => {
-            if (order.status === 'annulee') return; // Exclure les annulées du graphique
-            const date = order.createdAt?.toDate() || new Date();
-            const dateStr = date.toISOString().split('T')[0];
-            if (last7Days.includes(dateStr)) {
-                dailyCounts[dateStr] = (dailyCounts[dateStr] || 0) + 1;
-            }
-        });
-        
-        const data = last7Days.map(day => dailyCounts[day] || 0);
-        const labels = last7Days.map(day => {
-            const d = new Date(day);
-            return `${d.getDate()}/${d.getMonth()+1}`;
-        });
-        
-        if (tiktokChart) tiktokChart.destroy();
-        const ctx = document.getElementById('tiktokChart')?.getContext('2d');
-        if (ctx) {
-            tiktokChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Commandes TikTok (7 derniers jours)',
-                        data: data,
-                        borderColor: '#f5a623',
-                        backgroundColor: 'rgba(245, 166, 35, 0.1)',
-                        fill: true,
-                        tension: 0.3,
-                        pointBackgroundColor: '#f5a623',
-                        pointBorderColor: '#fff',
-                        pointRadius: 5,
-                        pointHoverRadius: 7
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: 'top' },
-                        tooltip: { callbacks: { label: (ctx) => `${ctx.raw} commande(s)` } }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Nombre de commandes' }, grid: { color: '#e2e8f0' } },
-                        x: { title: { display: true, text: 'Date' }, grid: { display: false } }
-                    }
-                }
-            });
-        }
+    // Si commande livrée ET payée, ne pas afficher
+    if (order.status === 'livre' && (order.paymentStatus === 'paye' || order.paymentStatus === 'payé')) {
+        if (section) section.style.display = 'none';
+        return;
     }
-  
-      // ========== FONCTIONS DE SUPPRESSION TIKTOK ==========
     
-    // Supprimer une seule commande
-    window.deleteSingleTikTokOrder = async (orderId, orderNumber) => {
-        const confirmation = prompt(`⚠️ SUPPRESSION DÉFINITIVE ⚠️\n\nCommande: ${orderNumber}\n\nCette action est IRRÉVERSIBLE !\n\nTapez "SUPPRIMER" pour confirmer :`);
-        
-        if (confirmation !== "SUPPRIMER") {
-            alert('❌ Suppression annulée');
-            return;
-        }
-        
-        try {
-            // Supprimer la commande
-            await db.collection('orders').doc(orderId).delete();
-            
-            // Supprimer la facture associée si elle existe
-            const invoicesSnapshot = await db.collection('invoices')
-                .where('orderId', '==', orderId)
-                .get();
-            
-            for (const doc of invoicesSnapshot.docs) {
-                await db.collection('invoices').doc(doc.id).delete();
-            }
-            
-            alert(`✅ Commande ${orderNumber} supprimée avec succès !`);
-            
-            // La liste se mettra à jour automatiquement via onSnapshot
-            
-        } catch (error) {
-            console.error('Erreur:', error);
-            alert('❌ Erreur: ' + error.message);
-        }
-    };
-    
-    // Supprimer TOUTES les commandes TikTok
-    window.deleteAllTikTokOrders = async () => {
-        // Créer la modal de confirmation
-        const modal = document.createElement('div');
-        modal.className = 'confirm-modal';
-        modal.innerHTML = `
-            <div class="confirm-content">
-                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #dc2626; margin-bottom: 15px;"></i>
-                <h2 style="color: #1a1a2e;">⚠️ SUPPRESSION TOTALE</h2>
-                <p style="margin: 15px 0; color: #666;">Cette action est <strong style="color:#dc2626;">IRRÉVERSIBLE</strong> et va supprimer :</p>
-                <ul style="text-align: left; margin: 15px 0; padding-left: 20px; color: #666;">
-                    <li>📦 TOUTES les commandes TikTok Shop</li>
-                    <li>🧾 TOUTES les factures associées</li>
-                    <li>💰 TOUS les paiements enregistrés</li>
-                </ul>
-                <div class="warning-text">⚠️ Cette action est définitive ! ⚠️<br>Pour confirmer, tapez : <strong>"SUPPRIMER TOUT"</strong></div>
-                <input type="text" id="confirmDeleteAllInput" placeholder="Tapez SUPPRIMER TOUT ici" autocomplete="off">
-                <div style="margin-top: 20px;">
-                    <button class="btn-confirm" id="confirmDeleteAllBtn">🗑️ OUI, TOUT SUPPRIMER</button>
-                    <button class="btn-cancel" id="cancelDeleteAllBtn">Annuler</button>
+    // Restaure l'affichage normal si la section a été modifiée
+    if (section && section.innerHTML.indexOf('cancellation-message') !== -1) {
+        // Reconstruire la section normale
+        section.innerHTML = `
+            <h3>
+                <i class="fas fa-truck"></i> Suivi de ma commande
+                <span class="order-number" id="currentOrderNumber"></span>
+                <button class="refresh-tracking" onclick="refreshOrderStatus()">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </h3>
+            <div class="progress-container">
+                <div class="progress-steps">
+                    <div class="progress-step"><div class="step-circle" id="step1Circle">1</div><div class="step-label" id="step1Label">📝 En traitement</div></div>
+                    <div class="progress-step"><div class="step-circle" id="step2Circle">2</div><div class="step-label" id="step2Label">🚚 En livraison</div></div>
+                    <div class="progress-step"><div class="step-circle" id="step3Circle">3</div><div class="step-label" id="step3Label">✅ Livré</div></div>
                 </div>
+                <div class="progress-bar-container"><div class="progress-bar-fill" id="progressFill"></div></div>
+                <div class="order-info-card">
+                    <div class="info-item"><div class="label">Date</div><div class="value" id="trackOrderDate">-</div></div>
+                    <div class="info-item"><div class="label">Total</div><div class="value" id="trackOrderTotal">-</div></div>
+                    <div class="info-item"><div class="label">Paiement</div><div class="value" id="trackPaymentStatus">-</div></div>
+                </div>
+                <div class="status-message" id="statusMessage"></div>
             </div>
         `;
-        document.body.appendChild(modal);
-        
-        // Gestionnaire pour Annuler
-        document.getElementById('cancelDeleteAllBtn').onclick = () => {
-            modal.remove();
-            alert('❌ Suppression annulée');
+    }
+    
+    if (section) section.style.display = 'block';
+    
+    const status = order.status || 'en_attente';
+    const steps = ['en_attente', 'en_livraison', 'livre'];
+    const currentIndex = steps.indexOf(status);
+    
+    for (let i = 0; i < 3; i++) {
+        const circle = document.getElementById(`step${i+1}Circle`);
+        const label = document.getElementById(`step${i+1}Label`);
+        if (!circle) continue;
+        if (i < currentIndex) {
+            circle.classList.add('completed');
+            circle.classList.remove('active');
+            if(label) label.classList.add('completed');
+            circle.innerHTML = '<i class="fas fa-check"></i>';
+        } else if (i === currentIndex) {
+            circle.classList.add('active');
+            circle.classList.remove('completed');
+            if(label) label.classList.add('active');
+            circle.innerHTML = (i+1).toString();
+        } else {
+            circle.classList.remove('active', 'completed');
+            if(label) label.classList.remove('active', 'completed');
+            circle.innerHTML = (i+1).toString();
+        }
+    }
+    
+    const progressPercent = (currentIndex / 2) * 100;
+    const fill = document.getElementById('progressFill');
+    if (fill) fill.style.width = `${progressPercent}%`;
+    
+    const date = order.createdAt?.toDate() || new Date();
+    const orderNumElem = document.getElementById('trackOrderNumber');
+    if (orderNumElem) orderNumElem.textContent = order.orderNumber || order.id.slice(0, 8);
+    const orderDateElem = document.getElementById('trackOrderDate');
+    if (orderDateElem) orderDateElem.textContent = date.toLocaleDateString('fr-FR');
+    const orderTotalElem = document.getElementById('trackOrderTotal');
+    if (orderTotalElem) orderTotalElem.textContent = (order.total || 0).toLocaleString('fr-FR') + ' F CFA';
+    
+    let paymentText = '';
+    if (order.paymentStatus === 'paye') {
+        paymentText = '✅ Payé';
+    } else if (order.paymentStatus === 'partiel') {
+        const recu = order.paymentReceived || 0;
+        const reste = order.paymentRemaining || (order.total - recu);
+        paymentText = `💰 Partiel: ${recu.toLocaleString('fr-FR')}F reçu | Reste: ${reste.toLocaleString('fr-FR')}F`;
+    } else {
+        paymentText = '⏳ Impayé';
+    }
+    const paymentElem = document.getElementById('trackPaymentStatus');
+    if (paymentElem) paymentElem.textContent = paymentText;
+    
+    const msgDiv = document.getElementById('statusMessage');
+    if (msgDiv) {
+        let statusText = '';
+        if (status === 'en_attente') statusText = '⏳ Votre commande est en cours de traitement, contacter 771234567 pour une prise en charge plus rapide';
+        else if (status === 'en_livraison') statusText = '🚚 Votre commande est en route, encore peu de temps !';
+        else statusText = '🎉 Votre commande a été livrée, merci pour la confiance !';
+        msgDiv.className = `status-message ${status}`;
+        msgDiv.innerHTML = statusText;
+    }
+    
+    const orderSpan = document.getElementById('currentOrderNumber');
+    if (orderSpan) orderSpan.textContent = `#${order.orderNumber || order.id.slice(0,8)}`;
+}
+
+// Fonction pour fermer le message d'annulation
+function closeCancellationMessage() {
+    const section = document.getElementById('orderTrackingSection');
+    if (section) {
+        section.style.display = 'none';
+    }
+    // Optionnel: supprimer aussi le localStorage pour ne plus voir l'ancienne commande
+    // localStorage.removeItem('lastOrderId');
+}
+
+        function refreshOrderStatus() {
+            if (currentOrderId) {
+                startTracking(currentOrderId);
+                showNotification('Actualisation...', 'success');
+            }
+        }
+
+        function checkLastOrder() {
+            const lastOrderId = localStorage.getItem('lastOrderId');
+            if (lastOrderId) {
+                currentOrderId = lastOrderId;
+                startTracking(lastOrderId);
+            }
+        }
+
+        // ========== GESTION COMPTE LOCALSTORAGE ==========
+        function loadUserInfoFromStorage() {
+            const saved = localStorage.getItem('dakar_chicken_user_info');
+            if (saved) {
+                const data = JSON.parse(saved);
+                document.getElementById('accNom').value = data.nom || '';
+                document.getElementById('accTel1').value = data.tel1 || '';
+                document.getElementById('accTel2').value = data.tel2 || '';
+                document.getElementById('accAdresse').value = data.adresse || '';
+                if (data.adresseType) {
+                    const radio = document.querySelector(`input[name="adresseType"][value="${data.adresseType}"]`);
+                    if (radio) radio.checked = true;
+                }
+                document.getElementById('accPrecision').value = data.precision || '';
+            }
+        }
+
+        function fillOrderFormWithUserInfo() {
+            const saved = localStorage.getItem('dakar_chicken_user_info');
+            if (saved) {
+                const data = JSON.parse(saved);
+                document.getElementById('fullName').value = data.nom || '';
+                document.getElementById('phone').value = data.tel1 || '';
+                document.getElementById('phone2').value = data.tel2 || '';
+                document.getElementById('address').value = data.adresse || '';
+                document.getElementById('precision').value = data.precision || '';
+            }
+        }
+
+        // ========== PRODUITS ==========
+        function loadProducts() {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+            categories.forEach(cat => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div class="product-image" style="background-image: url('${cat.image}'); background-size:cover; background-position:center;">
+                        <div class="product-badge">${cat.weight}</div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">${cat.name}</div>
+                        <div class="product-price">${cat.price.toLocaleString('fr-FR')} F CFA</div>
+                        <div class="quantity-control">
+                            <button class="quantity-btn" onclick="changeQuantity(${cat.id}, -1)">-</button>
+                            <span class="quantity-value" id="qty-${cat.id}">0</span>
+                            <button class="quantity-btn" onclick="changeQuantity(${cat.id}, 1)">+</button>
+                        </div>
+                        <button class="add-to-cart" onclick="addToCart(${cat.id})">
+                            <i class="fas fa-cart-plus"></i> Ajouter
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        window.changeQuantity = (id, delta) => {
+            quantities[id] = (quantities[id] || 0) + delta;
+            if (quantities[id] < 0) quantities[id] = 0;
+            const qtySpan = document.getElementById(`qty-${id}`);
+            if (qtySpan) qtySpan.textContent = quantities[id];
         };
-        
-        // Fermer en cliquant en dehors
-        modal.onclick = (e) => {
-            if (e.target === modal) {
-                modal.remove();
-                alert('❌ Suppression annulée');
+
+        window.addToCart = (id) => {
+            const qty = quantities[id] || 0;
+            if (qty === 0) {
+                showNotification('Choisissez une quantité', 'error');
+                return;
+            }
+            const cat = categories.find(c => c.id === id);
+            const existing = cart.find(item => item.id === id);
+            if (existing) existing.quantity += qty;
+            else cart.push({ id: cat.id, name: cat.name, price: cat.price, quantity: qty });
+            quantities[id] = 0;
+            const qtySpan = document.getElementById(`qty-${id}`);
+            if (qtySpan) qtySpan.textContent = '0';
+            updateCartUI();
+          saveCartToLocal();
+            showNotification(`${qty} x ${cat.name} ajouté`);
+        };
+
+        function updateCartUI() {
+            const count = cart.reduce((s, i) => s + i.quantity, 0);
+            const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+            document.getElementById('cartCount').textContent = count;
+            document.getElementById('cartTotal').textContent = total.toLocaleString('fr-FR') + ' F CFA';
+            const container = document.getElementById('cartItems');
+            if (cart.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:40px;">Panier vide</div>';
+                return;
+            }
+            container.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <div><strong>${item.name}</strong><br>${item.price.toLocaleString('fr-FR')} F CFA</div>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <button onclick="updateCartItem(${item.id}, -1)">-</button>
+                        <span>${item.quantity}</span>
+                        <button onclick="updateCartItem(${item.id}, 1)">+</button>
+                        <button onclick="removeCartItem(${item.id})" style="background:#fee2e2; color:#ef4444; border:none; padding:5px 10px; border-radius:5px;">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.updateCartItem = (id, delta) => {
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                item.quantity += delta;
+                if (item.quantity <= 0) cart = cart.filter(i => i.id !== id);
+               saveCartToLocal(); 
+                updateCartUI();
             }
         };
-        
-        // Gestionnaire pour Confirmer
-        document.getElementById('confirmDeleteAllBtn').onclick = async () => {
-            const input = document.getElementById('confirmDeleteAllInput');
-            const confirmationText = input.value.trim();
-            
-            if (confirmationText !== 'SUPPRIMER TOUT') {
-                alert('❌ Tapez exactement "SUPPRIMER TOUT" pour confirmer');
-                input.style.borderColor = '#dc2626';
+        window.removeCartItem = (id) => {
+            cart = cart.filter(i => i.id !== id);
+            updateCartUI();
+          saveCartToLocal();
+        };
+// Sauvegarder le panier dans localStorage
+function saveCartToLocal() {
+    localStorage.setItem('dakar_chicken_cart', JSON.stringify(cart));
+    localStorage.setItem('dakar_chicken_quantities', JSON.stringify(quantities));
+}
+
+// Charger le panier depuis localStorage
+function loadCartFromLocal() {
+    const savedCart = localStorage.getItem('dakar_chicken_cart');
+    const savedQuantities = localStorage.getItem('dakar_chicken_quantities');
+    
+    if (savedCart) {
+        cart = JSON.parse(savedCart);
+        updateCartUI();
+    }
+    if (savedQuantities) {
+        quantities = JSON.parse(savedQuantities);
+        // Mettre à jour l'affichage des quantités sur les produits
+        for (let id in quantities) {
+            const qtySpan = document.getElementById(`qty-${id}`);
+            if (qtySpan) qtySpan.textContent = quantities[id];
+        }
+    }
+}
+
+// Vider le panier après commande (optionnel) 
+function clearCartAfterOrder() {
+    cart = [];
+    quantities = {};
+    updateCartUI();
+    localStorage.removeItem('dakar_chicken_cart');
+    localStorage.removeItem('dakar_chicken_quantities');
+}
+        function showNotification(msg, type = 'success') {
+            const notif = document.getElementById('notification');
+            notif.style.background = type === 'success' ? '#10b981' : '#ef4444';
+            notif.textContent = msg;
+            notif.style.display = 'block';
+            setTimeout(() => notif.style.display = 'none', 2000);
+        }
+
+        // ========== MODALS ==========
+        document.getElementById('accountIcon').onclick = () => {
+            loadUserInfoFromStorage();
+            document.getElementById('accountModal').classList.add('active');
+        };
+        document.getElementById('cartFab').onclick = () => document.getElementById('cartModal').classList.add('active');
+        document.getElementById('closeCartBtn').onclick = () => document.getElementById('cartModal').classList.remove('active');
+        document.getElementById('checkoutBtn').onclick = () => {
+            if (cart.length === 0) { showNotification('Panier vide', 'error'); return; }
+            document.getElementById('cartModal').classList.remove('active');
+            fillOrderFormWithUserInfo();
+            document.getElementById('formModal').classList.add('active');
+        };
+        [document.getElementById('accountModal'), document.getElementById('cartModal'), document.getElementById('formModal')].forEach(modal => {
+            if(modal) modal.onclick = (e) => { if(e.target === modal) modal.classList.remove('active'); };
+        });
+ 
+        // ========== SAUVEGARDE COMPTE ========== 
+        document.getElementById('accountForm').onsubmit = (e) => {
+            e.preventDefault();
+            const tel1 = document.getElementById('accTel1').value.trim();
+            const adresse = document.getElementById('accAdresse').value.trim();
+            if (!tel1 || !adresse) {
+                showNotification('Téléphone et Adresse obligatoires', 'error');
+                return;
+            }
+            const userData = {
+                nom: document.getElementById('accNom').value,
+                tel1: tel1,
+                tel2: document.getElementById('accTel2').value,
+                adresse: adresse,
+                adresseType: document.querySelector('input[name="adresseType"]:checked')?.value,
+                precision: document.getElementById('accPrecision').value
+            };
+            localStorage.setItem('dakar_chicken_user_info', JSON.stringify(userData));
+            showNotification('Informations sauvegardées', 'success');
+            document.getElementById('accountModal').classList.remove('active');
+        };
+
+        // ========== ENVOI COMMANDE (CORRIGÉ) ==========
+        document.getElementById('orderForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const phone = document.getElementById('phone').value.trim();
+            const address = document.getElementById('address').value.trim();
+            if (!phone || !address) {
+                showNotification('Téléphone et Adresse obligatoires', 'error');
                 return;
             }
             
-            const confirmBtn = document.getElementById('confirmDeleteAllBtn');
-            const cancelBtn = document.getElementById('cancelDeleteAllBtn');
-            confirmBtn.disabled = true;
-            cancelBtn.disabled = true;
-            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Suppression...';
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                       const order = {
+                boutique: 'en-ligne',  // ← AJOUTEZ CETTE LIGNE ICI
+                client: {
+                    name: document.getElementById('fullName').value.trim() || 'Client',
+                    phone: phone,
+                    phone2: document.getElementById('phone2').value.trim(),
+                    address: address,
+                    precision: document.getElementById('precision').value.trim()
+                },
+                items: cart.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                    subtotal: item.price * item.quantity
+                })),
+                total: total,
+                status: 'en_attente',
+                paymentStatus: 'impaye',
+                paymentReceived: 0,
+                paymentRemaining: total,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                orderNumber: 'CMD-' + Date.now() + '-' + Math.floor(Math.random() * 1000)
+            };
             
             try {
-                // Récupérer TOUTES les commandes TikTok
-                const ordersSnapshot = await db.collection('orders')
-                    .where('boutique', '==', 'en-ligne')
-                    .get();
-                
-                let deletedOrders = 0;
-                let deletedInvoices = 0;
-                
-                // Supprimer chaque commande
-                for (const doc of ordersSnapshot.docs) {
-                    await db.collection('orders').doc(doc.id).delete();
-                    deletedOrders++;
-                }
-                
-                // Supprimer les factures associées
-                const invoicesSnapshot = await db.collection('invoices')
-                    .where('boutique', '==', 'en-ligne')
-                    .get();
-                
-                for (const doc of invoicesSnapshot.docs) {
-                    await db.collection('invoices').doc(doc.id).delete();
-                    deletedInvoices++;
-                }
-                
-                modal.remove();
-                alert(`✅ SUPPRESSION COMPLÈTE !\n\n📦 ${deletedOrders} commande(s) supprimée(s)\n🧾 ${deletedInvoices} facture(s) supprimée(s)`);
-                
+                const docRef = await db.collection('orders').add(order);
+                saveLastOrder(docRef.id, order);
+                showNotification('Commande envoyée avec succès !', 'success');
+              
+               localStorage.removeItem('dakar_chicken_cart');
+    localStorage.removeItem('dakar_chicken_quantities');
+              
+                cart = [];
+                quantities = {};
+                updateCartUI();
+                document.getElementById('orderForm').reset();
+                document.getElementById('formModal').classList.remove('active');
+                categories.forEach(cat => {
+                    const qtySpan = document.getElementById(`qty-${cat.id}`);
+                    if (qtySpan) qtySpan.textContent = '0';
+                });
             } catch (error) {
-                console.error('Erreur:', error);
-                alert('❌ Erreur: ' + error.message);
-                modal.remove();
+                console.error('Erreur Firebase:', error);
+                showNotification('Erreur: ' + error.message, 'error');
             }
         };
-    };
-  
-     function setupEventListeners() {
-        // Rafraîchir les stats
-        const refreshBtn = document.getElementById("refreshStatsBtn");
-        if(refreshBtn) refreshBtn.addEventListener("click", () => renderDashboardMetrics());
-        
-        // Générer PDF
-        const pdfBtn = document.getElementById("generateFullPdfBtn");
-        if(pdfBtn) pdfBtn.addEventListener("click", generateFullReportPDF);
-        
-        // Navigation entre les sections (Dashboard, Pertes, etc.)
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const sectionId = this.getAttribute('data-section');
-                console.log("Changement de section vers:", sectionId); // Pour déboguer
+         // ========== GESTION DES STOCKS TIKTOK SHOP ==========
+        let currentStockData = null;
+        let currentProductionData = null;
+
+        // Charger le stock disponible pour TikTok Shop
+        async function loadTikTokStock() {
+            try {
+                const stockSnapshot = await db.collection('stocks_attribues')
+                    .where('boutique', '==', 'en-ligne')
+                    .where('status', '==', 'active')
+                    .limit(1)
+                    .get();
                 
-                // Cacher toutes les sections
-                document.querySelectorAll('.section').forEach(sec => {
-                    sec.classList.remove('active-section');
-                });
-                
-                // Afficher la section sélectionnée
-                const targetSection = document.getElementById(`${sectionId}Section`);
-                if(targetSection) {
-                    targetSection.classList.add('active-section');
-                } else {
-                    console.log("Section non trouvée:", sectionId + "Section");
+                if (stockSnapshot.empty) {
+                    console.log('Aucun stock trouvé pour TikTok Shop');
+                    return null;
                 }
                 
-                // Mettre à jour le bouton actif
-                document.querySelectorAll('.nav-btn').forEach(b => {
-                    b.classList.remove('active');
-                });
-                this.classList.add('active');
+                const stockDoc = stockSnapshot.docs[0];
+                currentStockData = { id: stockDoc.id, ...stockDoc.data() };
                 
-                // Actions spéciales selon la section
-                if(sectionId === 'losses') {
-                    // Mettre à jour les données des pertes quand on ouvre l'onglet
-                    if(typeof updateLossesCharts === 'function') {
-                        updateLossesCharts();
-                    }
-                    if(typeof populateProductionSelect === 'function') {
-                        populateProductionSelect();
-                    }
+                const prodDoc = await db.collection('poulailler_records').doc(currentStockData.productionId).get();
+                if (prodDoc.exists) {
+                    currentProductionData = prodDoc.data();
                 }
-              if(sectionId === 'tiktokstats') {
-    // Mettre à jour les graphiques quand on ouvre l'onglet
-    if(typeof updateTikTokChart === 'function') {
-        updateTikTokChart();
-    }
-}
-                if(sectionId === 'pdf') {
-                    const previewDiv = document.getElementById('pdfContentPreview');
-                    if(previewDiv) {
-                        previewDiv.innerHTML = `<p>✅ Données prêtes : ${allInvoices.length} factures, ${allProductions.length} productions, ${allLosses.length} pertes. Cliquez sur "Générer rapport global PDF".</p>`;
-                    }
-                }
+                
+                console.log('Stock TikTok chargé:', currentStockData);
+                return currentStockData;
+                
+            } catch (error) {
+                console.error('Erreur chargement stock:', error);
+                return null;
+            }
+        }
+
+        // Obtenir le stock restant pour une catégorie
+        function getRemainingStockForCategory(categoryId) {
+            if (!currentStockData || !currentStockData.categories) return 0;
+            const attribue = currentStockData.categories[categoryId] || 0;
+            const vendu = currentStockData.soldByCategory?.[categoryId] || 0;
+            return Math.max(0, attribue - vendu);
+        }
+
+        // Obtenir le total restant
+        function getTotalRemainingStock() {
+            if (!currentStockData || !currentStockData.categories) return 0;
+            let total = 0;
+            for (let i = 1; i <= 8; i++) {
+                total += getRemainingStockForCategory(i.toString());
+            }
+            return total;
+        }
+
+        // Afficher les produits avec les stocks réels
+        async function loadProductsWithStock() {
+            await loadTikTokStock();
+            
+            const grid = document.getElementById('productsGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            
+            if (!currentStockData) {
+                grid.innerHTML = `
+                    <div style="text-align: center; padding: 50px; background: white; border-radius: 20px; grid-column: 1/-1;">
+                        <i class="fas fa-box-open" style="font-size: 3rem; color: #f5a623;"></i>
+                        <h3>Stock temporairement indisponible</h3>
+                        <p>Veuillez revenir plus tard</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const totalRestant = getTotalRemainingStock();
+            
+            // Bandeau récapitulatif
+            
+            
+            // Filtrer les catégories avec stock
+            const categoriesAvecStock = categories.filter(cat => {
+                return getRemainingStockForCategory(cat.id.toString()) > 0;
             });
-        });
-        
-       // Bouton supprimer toutes les commandes TikTok
-const deleteAllBtn = document.getElementById('deleteAllTikTokBtn');
-if (deleteAllBtn) {
-    const newDeleteAllBtn = deleteAllBtn.cloneNode(true);
-    deleteAllBtn.parentNode.replaceChild(newDeleteAllBtn, deleteAllBtn);
-    newDeleteAllBtn.addEventListener('click', window.deleteAllTikTokOrders);
-}
-       
-        // ========== ÉCOUTEURS POUR LES PERTES ==========
-        const saveBtn = document.getElementById("saveLossBtn");
-        const cancelBtn = document.getElementById("cancelLossBtn");
-        
-        if(saveBtn) {
-            // Enlever les anciens écouteurs pour éviter les doublons   
-            const newSaveBtn = saveBtn.cloneNode(true);
-            saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
-            newSaveBtn.addEventListener("click", saveLoss);
-        }
-        
-        if(cancelBtn) {
-            const newCancelBtn = cancelBtn.cloneNode(true);
-            cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-            newCancelBtn.addEventListener("click", resetLossForm);
-        }
-        
-        // Date par défaut pour le formulaire des pertes
-        const dateInput = document.getElementById("lossDate");
-        if(dateInput && !dateInput.value) {
-            dateInput.value = new Date().toISOString().split('T')[0];
-        }
-    }
-  
-  
-    </script>
-    
-    <script>
-    // ==============================================
-    // MISE À JOUR EN TEMPS RÉEL - LIVE STATS & HISTORIQUE
-    // ==============================================
-    
-    let liveStatsUnsubscribe = null;
-    let liveHistoryUnsubscribeGlobal = null;
-    
-    // Fonction pour démarrer l'écoute en temps réel des statistiques
-    function startLiveStats() {
-        if (liveStatsUnsubscribe) {
-            liveStatsUnsubscribe();
-            liveStatsUnsubscribe = null;
-        }
-        
-        if (!currentBoutique) return;
-        
-        console.log("🟢 Démarrage écoute en temps réel des statistiques...");
-        
-        liveStatsUnsubscribe = db.collection('invoices')
-            .where('boutique', '==', currentBoutique.id)
-            .onSnapshot((snapshot) => {
-                console.log("📡 Changement détecté dans les factures - Mise à jour stats en direct");
-                
-                let totalFactures = snapshot.size;
-                let totalCA = 0;
-                let totalFacturesMontant = 0;
-                let totalPoulets = 0;
-                let clientsUniques = new Set();
-                
-                snapshot.forEach(doc => {
-                    const invoice = doc.data();
-                    totalCA += invoice.paiement?.montantPaye || 0;
-                    totalFacturesMontant += invoice.total || 0;
-                    
-                    if (invoice.items) {
-                        invoice.items.forEach(item => {
-                            totalPoulets += item.quantity || 0;
-                        });
-                    }
-                    
-                    if (invoice.client?.name && invoice.client.name !== 'Client non renseigné') {
-                        clientsUniques.add(invoice.client.name);
-                    }
-                });
-                
-                const resteADuire = totalFacturesMontant - totalCA;
-                const avgPanier = totalFactures > 0 ? totalCA / totalFactures : 0;
-                
-                updateStatsDisplay(totalFactures, totalCA, resteADuire, totalFacturesMontant, totalPoulets, clientsUniques.size, avgPanier);
-            }, (error) => {
-                console.error("❌ Erreur écoute stats:", error);
-            });
-    }
-    
-    function updateStatsDisplay(nbFactures, ca, reste, totalFacturesMontant, nbPoulets, nbClients, panierMoyen) {
-        const statsModal = document.querySelector('#statsModal');
-        if (!statsModal) return;
-        
-        const contentDiv = statsModal.querySelector('.stats-content');
-        if (!contentDiv) return;
-        
-        contentDiv.innerHTML = `
-            <div style="background: white; padding: 20px; border-radius: 15px; margin-top: 20px;">
-                <h3 style="margin-bottom: 20px; color: #333;">
-                    <i class="fas fa-chart-bar"></i> Statistiques - ${currentBoutique?.name || ''}
-                </h3>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center;">
-                        <div style="font-size: 2rem; font-weight: bold; color: #667eea;">${nbFactures}</div>
-                        <div style="color: #666;">Factures totales</div>
+            
+            if (categoriesAvecStock.length === 0) {
+                grid.innerHTML += `
+                    <div style="text-align: center; padding: 50px; background: white; border-radius: 20px; grid-column: 1/-1;">
+                        <i class="fas fa-box-open" style="font-size: 3rem; color: #ef4444;"></i>
+                        <h3>Stock épuisé !</h3>
+                        <p>Revenez bientôt pour passer commande</p>
                     </div>
-                    
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center;">
-                        <div style="font-size: 2rem; font-weight: bold; color: #10b981;">${ca.toLocaleString('fr-FR')}</div>
-                        <div style="color: #666;">Chiffre d'affaires (F CFA)</div>
-                        <div style="font-size: 0.7rem; color: #f59e0b;">Montant réellement perçu</div>
-                    </div>
-                    
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center;">
-                        <div style="font-size: 2rem; font-weight: bold; color: #f59e0b;">${reste.toLocaleString('fr-FR')}</div>
-                        <div style="color: #666;">On me doit (F CFA)</div>
-                        <div style="font-size: 0.7rem; color: #dc2626;">Total factures: ${totalFacturesMontant.toLocaleString('fr-FR')} F CFA</div>
-                    </div>
-                    
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center;">
-                        <div style="font-size: 2rem; font-weight: bold; color: #f59e0b;">${nbPoulets}</div>
-                        <div style="color: #666;">Poulets vendus</div>
-                    </div>
-                    
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center;">
-                        <div style="font-size: 2rem; font-weight: bold; color: #8b5cf6;">${nbClients}</div>
-                        <div style="color: #666;">Clients uniques</div>
-                    </div>
-                </div>
+                `;
+                return;
+            }
+            
+            // Afficher uniquement les catégories disponibles
+            categoriesAvecStock.forEach(cat => {
+                const stockRestant = getRemainingStockForCategory(cat.id.toString());
+                const maxQuantity = Math.min(stockRestant, 50);
                 
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
-                    <h4 style="margin-bottom: 15px; color: #555;">Panier moyen</h4>
-                    <div style="font-size: 2.5rem; font-weight: bold; text-align: center; color: #333;">
-                        ${panierMoyen.toLocaleString('fr-FR')} F CFA
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div class="product-image" style="background-image: url('${cat.image}'); background-size:cover; background-position:center;">
+                        <div class="product-badge">${cat.weight}</div>
+                        ${stockRestant < 10 ? '<div style="position:absolute; bottom:10px; left:10px; background:#ef4444; color:white; padding:3px 8px; border-radius:10px; font-size:0.7rem;">⚠️ Plus que ' + stockRestant + '</div>' : ''}
                     </div>
-                    <div style="text-align: center; font-size: 0.8rem; color: #666;">Basé sur les montants réellement perçus</div>
-                </div>
-            </div>
-        `;
-    }
-    
-    function showBoutiqueStatsLive() {
-        if (!currentBoutique) return;
-        
-        const oldModal = document.getElementById('statsModal');
-        if (oldModal) oldModal.remove();
-        
-        const modal = document.createElement('div');
-        modal.id = 'statsModal';
-        modal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
-        `;
-        
-        modal.innerHTML = `
-            <div style="background: white; border-radius: 15px; padding: 30px; width: 100%; max-width: 800px; max-height: 80vh; overflow-y: auto;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0; color: #333;">
-                        <i class="fas fa-chart-bar"></i> Statistiques en direct
-                    </h2>
-                    <div style="display: flex; gap: 10px;">
-                        <span style="background: #10b981; color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.7rem;">
-                            <i class="fas fa-circle" style="font-size: 0.5rem;"></i> LIVE
-                        </span>
-                        <button onclick="closeStatsModal()" 
-                                style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666;">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="stats-content">
-                    <div style="text-align: center; padding: 40px;">
-                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #667eea;"></i>
-                        <p>Chargement...</p>
-                    </div>
-                </div>
-                <div style="margin-top: 15px; text-align: center; font-size: 0.7rem; color: #666;">
-                    <i class="fas fa-sync-alt"></i> Mise à jour automatique en temps réel
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        startLiveStats();
-    }
-    
-    function closeStatsModal() {
-        const modal = document.getElementById('statsModal');
-        if (modal) modal.remove();
-        if (liveStatsUnsubscribe) {
-            liveStatsUnsubscribe();
-            liveStatsUnsubscribe = null;
-        }
-    }
-    
-    function showBoutiqueHistoryLive() {
-        if (!currentBoutique) {
-            showMessage('Erreur: Boutique non reconnue', 'error');
-            return;
-        }
-        
-        const oldModal = document.getElementById('historyModal');
-        if (oldModal) oldModal.remove();
-        
-        if (liveHistoryUnsubscribeGlobal) {
-            liveHistoryUnsubscribeGlobal();
-            liveHistoryUnsubscribeGlobal = null;
-        }
-        
-        const modal = document.createElement('div');
-        modal.id = 'historyModal';
-        modal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
-        `;
-        
-        modal.innerHTML = `
-            <div style="background: white; border-radius: 15px; padding: 30px; width: 100%; max-width: 1000px; max-height: 85vh; overflow-y: auto;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: sticky; top: 0; background: white; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0;">
-                    <h2 style="margin: 0; color: #333;">
-                        <i class="fas fa-history"></i> Historique en direct - ${currentBoutique.name}
-                    </h2>
-                    <div style="display: flex; gap: 10px;">
-                        <span style="background: #10b981; color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.7rem;">
-                            <i class="fas fa-circle" style="font-size: 0.5rem;"></i> LIVE
-                        </span>
-                        <button onclick="closeHistoryModal()" 
-                                style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666;">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div id="historyLiveContent">
-                    <div style="text-align: center; padding: 40px;">
-                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #667eea;"></i>
-                        <p>Chargement de l'historique...</p>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        
-        liveHistoryUnsubscribeGlobal = db.collection('invoices')
-            .where('boutique', '==', currentBoutique.id)
-            .onSnapshot((snapshot) => {
-                console.log("📡 Mise à jour historique en direct");
-                
-                const facturesBoutique = [];
-                snapshot.forEach(doc => {
-                    facturesBoutique.push({ id: doc.id, ...doc.data() });
-                });
-                
-                facturesBoutique.sort((a, b) => {
-                    let dateA = a.date?.seconds ? new Date(a.date.seconds * 1000) : new Date(a.date || Date.now());
-                    let dateB = b.date?.seconds ? new Date(b.date.seconds * 1000) : new Date(b.date || Date.now());
-                    return dateB - dateA;
-                });
-                
-                let totalCA = 0;
-                let totalFacturesMontant = 0;
-                
-                facturesBoutique.forEach(facture => {
-                    totalCA += facture.paiement?.montantPaye || 0;
-                    totalFacturesMontant += facture.total || 0;
-                });
-                
-                let html = '';
-                
-                if (facturesBoutique.length === 0) {
-                    html = `<div style="text-align: center; padding: 40px;"><i class="fas fa-file-invoice" style="font-size: 3rem;"></i><p>Aucune facture</p></div>`;
-                } else {
-                    html = `
-                        <div style="overflow-x: auto;">
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <thead>
-                                    <tr style="background: #667eea; color: white;">
-                                        <th style="padding: 12px;">N°</th><th style="padding: 12px;">Date</th><th style="padding: 12px;">Client</th>
-                                        <th style="padding: 12px;">Total</th><th style="padding: 12px;">Payé</th><th style="padding: 12px;">Reste</th>
-                                        <th style="padding: 12px;">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                    `;
-                    
-                    facturesBoutique.forEach(f => {
-                        let date = f.date?.seconds ? new Date(f.date.seconds * 1000) : new Date(f.date || Date.now());
-                        const paye = f.paiement?.montantPaye || 0;
-                        const total = f.total || 0;
-                        
-                        html += `<tr>
-                            <td style="padding: 10px;">${f.invoiceNumber || 'N/A'}</td>
-                            <td style="padding: 10px;">${date.toLocaleDateString('fr-FR')}</td>
-                            <td style="padding: 10px;">${f.client?.name || 'Anonyme'}</td>
-                            <td style="padding: 10px; text-align:right;">${total.toLocaleString('fr-FR')}</td>
-                            <td style="padding: 10px; text-align:right; color:#10b981;">${paye.toLocaleString('fr-FR')}</td>
-                            <td style="padding: 10px; text-align:right; ${(total-paye)>0?'color:#dc2626;':'color:#10b981;'}">${(total-paye).toLocaleString('fr-FR')}</td>
-                            <td style="padding: 10px;">
-                                <button onclick="viewInvoiceFromHistory('${f.id}')" style="background:#3b82f6;color:white;border:none;padding:5px;border-radius:5px;">👁️</button>
-                                <button onclick="editInvoice('${f.id}')" style="background:#f59e0b;color:white;border:none;padding:5px;border-radius:5px;">✏️</button>
-                                <button onclick="generatePDFFromHistory('${f.id}')" style="background:#10b981;color:white;border:none;padding:5px;border-radius:5px;">📄</button>
-                            </td>
-                        </tr>`;
-                    });
-                    
-                    html += `</tbody></table></div>
-                        <div style="margin-top:20px;padding:15px;background:#f0f0f0;border-radius:10px;">
-                            📊 ${facturesBoutique.length} facture(s) | 💰 Total: ${totalFacturesMontant.toLocaleString('fr-FR')} F CFA | ✅ Perçu: ${totalCA.toLocaleString('fr-FR')} F CFA | ⚠️ Reste: ${(totalFacturesMontant-totalCA).toLocaleString('fr-FR')} F CFA
+                    <div class="product-info">
+                        <div class="product-name">${cat.name}</div>
+                        <div class="product-price">${cat.price.toLocaleString('fr-FR')} F CFA</div>
+                                                <div class="quantity-control">
+                            <button class="quantity-btn" onclick="changeQuantityWithLimit(${cat.id}, -1, ${stockRestant})">-</button>
+                            <input type="number" 
+                                   id="qty-${cat.id}" 
+                                   value="0" 
+                                   min="0" 
+                                   max="${stockRestant}"
+                                   step="1"
+                                   onchange="setQuantityWithLimit(${cat.id}, this.value, ${stockRestant})"
+                                   style="width: 70px; text-align: center; border: 2px solid #e0e0e0; border-radius: 8px; padding: 8px; font-size: 1rem;">
+                            <button class="quantity-btn" onclick="changeQuantityWithLimit(${cat.id}, 1, ${stockRestant})">+</button>
                         </div>
-                    `;
-                }
-                
-                document.getElementById('historyLiveContent').innerHTML = html;
+                        <button class="add-to-cart" onclick="addToCartWithLimit(${cat.id}, ${stockRestant})">
+                            <i class="fas fa-cart-plus"></i> Ajouter
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
             });
-    }
-    
-    function closeHistoryModal() {
-        const modal = document.getElementById('historyModal');
-        if (modal) modal.remove();
-        if (liveHistoryUnsubscribeGlobal) {
-            liveHistoryUnsubscribeGlobal();
-            liveHistoryUnsubscribeGlobal = null;
         }
-    }
-    
-    function setupLiveButtons() {
-        const statsBtn = document.getElementById('statsBtn');
-        if (statsBtn) {
-            const newStatsBtn = statsBtn.cloneNode(true);
-            statsBtn.parentNode.replaceChild(newStatsBtn, statsBtn);
-            newStatsBtn.addEventListener('click', showBoutiqueStatsLive);
-        }
-        
-        const historyBtn = document.getElementById('historyBtn');
-        if (historyBtn) {
-            const newHistoryBtn = historyBtn.cloneNode(true);
-            historyBtn.parentNode.replaceChild(newHistoryBtn, historyBtn);
-            newHistoryBtn.addEventListener('click', showBoutiqueHistoryLive);
-        }
-    } 
-     
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(setupLiveButtons, 500);
-    });
-      
-    function cleanupLiveListeners() {
-        if (liveStatsUnsubscribe) liveStatsUnsubscribe();
-        if (liveHistoryUnsubscribeGlobal) liveHistoryUnsubscribeGlobal();
-    }
+
+        // Changement de quantité avec limite
+                // Changement de quantité avec limite (+ et -)
+        window.changeQuantityWithLimit = (id, delta, maxStock) => {
+            const input = document.getElementById(`qty-${id}`);
+            if (!input) return;
+            
+            let currentQty = parseInt(input.value) || 0;
+            let newQty = currentQty + delta;
+            
+            if (newQty < 0) newQty = 0;
+            if (newQty > maxStock) {
+                const totalRestant = getTotalRemainingStock();
+                showNotification(`⚠️ Stock limité ! Maximum ${maxStock} disponibles. Il reste ${totalRestant} poulets au total.`, 'error');
+                newQty = maxStock;
+            }
+            
+            input.value = newQty;
+            quantities[id] = newQty;
+        };
+   window.setQuantityWithLimit = (id, value, maxStock) => {
+            let newQty = parseInt(value) || 0;
+            if (newQty < 0) newQty = 0;
+            if (newQty > maxStock) {
+                const totalRestant = getTotalRemainingStock();
+                showNotification(`⚠️ Stock limité ! Maximum ${maxStock} disponibles. Il reste ${totalRestant} poulets au total.`, 'error');
+                newQty = maxStock;
+            }
+            quantities[id] = newQty;
+            const input = document.getElementById(`qty-${id}`);
+            if (input) input.value = newQty;
+        };
+        // Ajout au panier avec limite
+        window.addToCartWithLimit = (id, maxStock) => {
+            const qty = quantities[id] || 0;
+            
+            if (qty === 0) {
+                showNotification('Veuillez sélectionner une quantité', 'error');
+                return;
+            }
+            
+            if (qty > maxStock) {
+                const totalRestant = getTotalRemainingStock();
+                showNotification(`⚠️ Quantité trop élevée ! Maximum ${maxStock} disponibles. Stock total restant: ${totalRestant} poulets.`, 'error');
+                return;
+            }
+            
+            const cat = categories.find(c => c.id === id);
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                if (existing.quantity + qty > maxStock) {
+                    showNotification(`⚠️ Vous ne pouvez pas ajouter ${qty} de plus. Maximum ${maxStock} au total pour cette catégorie.`, 'error');
+                    return;
+                }
+                existing.quantity += qty;
+            } else {
+                cart.push({ id: cat.id, name: cat.name, price: cat.price, quantity: qty });
+            }
+            
+            quantities[id] = 0;
+            const qtySpan = document.getElementById(`qty-${id}`);
+            if (qtySpan) qtySpan.textContent = '0';
+            
+            updateCartUI();
+            saveCartToLocal();
+            
+            const totalRestant = getTotalRemainingStock();
+            showNotification(`✅ ${qty} x ${cat.name} ajouté au panier !`, 'success');
+        };
+loadProductsWithStock();
+      loadCartFromLocal(); 
+        checkLastOrder();
+        loadUserInfoFromStorage();
     </script>
-   
 </body>
-</html>   
+</html>     
