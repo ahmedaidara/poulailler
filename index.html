@@ -1815,168 +1815,50 @@
         <p>Distribuez d'abord du stock aux boutiques</p>
     </div>
 </div>
-              <h3 style="margin: 0;">
-            <i class="fas fa-chart-bar"></i> Factures - Vue d'ensemble
+         <!-- Historique des Distributions -->
+<div class="table-container" style="margin-top: var(--space-xl);">
+    <div class="table-header">
+        <h3 style="margin: 0;">
+            <i class="fas fa-history"></i> Historique des Distributions
         </h3>
-    <!-- Boutiques Cards -->
-   <!-- Stats Grid pour 6 boutiques -->
-<div class="stats-grid" style="margin-bottom: var(--space-xl);">
-    <!-- Sacré Coeur 1 -->
-    <div class="stat-card" onclick="selectBoutique('sacre-coeur-1')" style="cursor: pointer; border-top: 4px solid #3B82F6;">
-        <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3B82F6;">
-            <i class="fas fa-map-marker-alt"></i>
-        </div>
-        <div class="stat-value" id="statsSacreCoeur1">0</div>
-        <div class="stat-label">Factures - Sacré Coeur 1</div>
-        <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
-            <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceSacreCoeur1">--/--/----</span>
-        </div>
+        <button id="refreshDistributionsBtn" class="btn btn-primary" style="padding: 8px 16px;">
+            <i class="fas fa-sync-alt"></i> Actualiser
+        </button>
     </div>
     
-    <!-- Keur Massar -->
-    <div class="stat-card" onclick="selectBoutique('keur-massar')" style="cursor: pointer; border-top: 4px solid #10B981;">
-        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10B981;">
-            <i class="fas fa-map-marker-alt"></i>
-        </div>
-        <div class="stat-value" id="statsKeurMassar">0</div>
-        <div class="stat-label">Factures - Keur Massar</div>
-        <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
-            <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceKeurMassar">--/--/----</span>
-        </div>
+    <div class="table-wrapper">
+        <table class="records-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Production</th>
+                    <th>Sacré Coeur 1</th>
+                    <th>Keur Massar</th>
+                    <th>Sebikotane</th>
+                    <th>Front de Terre</th>
+                    <th>Sacré Coeur 3</th>
+                    <th>En Ligne</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="distributionsHistoryTable">
+                <tr><td colspan="10" style="text-align: center; padding: 30px;">
+                    <i class="fas fa-spinner fa-spin"></i> Chargement...
+                </td></tr>
+            </tbody>
+        </table>
     </div>
     
-    <!-- Sebikotane -->
-    <div class="stat-card" onclick="selectBoutique('sebikotane')" style="cursor: pointer; border-top: 4px solid #F59E0B;">
-        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #F59E0B;">
-            <i class="fas fa-map-marker-alt"></i>
-        </div>
-        <div class="stat-value" id="statsSebikotane">0</div>
-        <div class="stat-label">Factures - Sebikotane</div>
-        <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
-            <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceSebikotane">--/--/----</span>
-        </div>
-    </div>
-    
-    <!-- Front de Terre -->
-    <div class="stat-card" onclick="selectBoutique('front-terre')" style="cursor: pointer; border-top: 4px solid #EF4444;">
-        <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #EF4444;">
-            <i class="fas fa-map-marker-alt"></i>
-        </div>
-        <div class="stat-value" id="statsFrontTerre">0</div>
-        <div class="stat-label">Factures - Front de Terre</div>
-        <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
-            <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceFrontTerre">--/--/----</span>
-        </div>
-    </div>
-    
-    <!-- Sacré Coeur 3 -->
-    <div class="stat-card" onclick="selectBoutique('sacre-coeur-3')" style="cursor: pointer; border-top: 4px solid #8B5CF6;">
-        <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8B5CF6;">
-            <i class="fas fa-map-marker-alt"></i>
-        </div>
-        <div class="stat-value" id="statsSacreCoeur3">0</div>
-        <div class="stat-label">Factures - Sacré Coeur 3</div>
-        <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
-            <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceSacreCoeur3">--/--/----</span>
-        </div>
-    </div>
-    
-    <!-- En Ligne (TikTok) -->
-    <div class="stat-card" onclick="selectBoutique('en-ligne')" style="cursor: pointer; border-top: 4px solid #EC4899;">
-        <div class="stat-icon" style="background: rgba(236, 72, 153, 0.1); color: #EC4899;">
-            <i class="fab fa-tiktok"></i>
-        </div>
-        <div class="stat-value" id="statsEnLigne">0</div>
-        <div class="stat-label">Factures - En Ligne (TikTok)</div>
-        <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
-            <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceEnLigne">--/--/----</span>
-        </div>
+    <div id="emptyDistributions" class="empty-state" style="display: none;">
+        <i class="fas fa-box-open" style="font-size: 3rem; margin-bottom: var(--space-md); color: var(--light-gray);"></i>
+        <h3>Aucune distribution</h3>
+        <p>Les distributions de stock apparaîtront ici</p>
     </div>
 </div>
-
-<!-- Total des factures -->
-<div class="stat-card" style="border-top: 4px solid #1E293B;">
-    <div class="stat-icon" style="background: rgba(30, 41, 59, 0.1); color: #1E293B;">
-        <i class="fas fa-chart-pie"></i>
-    </div>
-    <div class="stat-value" id="statsTotalBoutiques">0</div>
-    <div class="stat-label">Total factures toutes boutiques</div>
-    <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
-        <i class="fas fa-money-bill-wave"></i> CA total: <span id="totalCA">0 F CFA</span>
-    </div>
-</div>
+ 
     
-    <!-- Filtres -->
-    <div class="table-container" style="margin-top: var(--space-xl);">
-        <div class="table-header">
-           <div class="filters">
-    <button class="filter-btn active" data-boutique="all">Toutes boutiques</button>
-    <button class="filter-btn" data-boutique="sacre-coeur-1">Sacré Coeur 1</button>
-    <button class="filter-btn" data-boutique="keur-massar">Keur Massar</button>
-    <button class="filter-btn" data-boutique="sebikotane">Sebikotane</button>
-    <button class="filter-btn" data-boutique="front-terre">Front de Terre</button>
-    <button class="filter-btn" data-boutique="sacre-coeur-3">Sacré Coeur 3</button>
-    <button class="filter-btn" data-boutique="en-ligne">En Ligne (TikTok)</button>
-    <button class="filter-btn" data-boutique="today">Aujourd'hui</button>
-    <button class="filter-btn" data-boutique="week">Cette semaine</button>
-</div>
-            <div class="search-container">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="searchInvoice" class="search-input" placeholder="Rechercher facture...">
-            </div>
-        </div>
-        
-        <!-- Tableau des factures -->
-        <div class="table-wrapper">
-            <table class="records-table">
-                <thead>
-    <tr>
-        <th>Boutique</th>
-        <th>Date attribution</th>
-        <th>Production</th>
-        <th>Attribué</th>
-        <th>Vendu</th>
-        <th>Restant</th>
-        <th>Actions</th>
-    </tr>
-</thead>
-                <tbody id="invoicesTableBody">
-                    <!-- Les factures apparaîtront ici -->
-                </tbody>
-            </table>
-        </div>
-        
-        <div id="emptyInvoices" class="empty-state" style="display: none;">
-            <i class="fas fa-file-invoice" style="font-size: 3rem; margin-bottom: var(--space-md); color: var(--light-gray);"></i>
-            <h3>Aucune facture trouvée</h3>
-            <p>Les factures des gérantes apparaîtront ici</p>
-        </div>
-    </div>
-    
-    <!-- Modal de détails de facture -->
-    <div id="invoiceDetailModal" class="modal-overlay">
-        <div class="modal" style="max-width: 800px;">
-            <div class="modal-header">
-                <h2 class="modal-title"><i class="fas fa-file-invoice"></i> Détails de la Facture</h2>
-                <button class="close-modal" onclick="hideModal('invoiceDetailModal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div id="invoiceDetailContent">
-                <!-- Contenu dynamique -->
-            </div>
-            
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="hideModal('invoiceDetailModal')">
-                    <i class="fas fa-times"></i> Fermer
-                </button>
-                <button id="printInvoiceBtn" class="btn btn-primary">
-                    <i class="fas fa-print"></i> Imprimer
-                </button>
-            </div>
-        </div>
-    </div>
+   
 </section>
            <!-- Section Statistiques et Dépenses -->
 <section id="statsSection" class="dashboard-section" style="display: none;">
@@ -8496,6 +8378,7 @@ function showSection(sectionId) {
         initBoutiqueFilters();
         loadAttributedStocksDashboard(); // AJOUTEZ CETTE LIGNE
         initStockDashboardFilters(); // AJOUTEZ CETTE LIGNE
+      loadDistributionsHistory();
     }
 }
       
@@ -11299,6 +11182,257 @@ document.addEventListener('DOMContentLoaded', function() {
 // Trouvez votre fonction loadStats() et ajoutez cette ligne à la fin :
 // loadStatsStocks('all');
 // addRefreshButton(); // Décommentez si vous voulez ajouter le bouton
+    
+    // ==============================================
+// HISTORIQUE DES DISTRIBUTIONS
+// ==============================================
+
+// ==============================================
+// HISTORIQUE DES DISTRIBUTIONS - VERSION CORRIGÉE
+// ==============================================
+
+// ==============================================
+// HISTORIQUE DES DISTRIBUTIONS - VERSION ULTRA SIMPLE
+// ==============================================
+// ==============================================
+// HISTORIQUE DES DISTRIBUTIONS - VERSION CORRIGÉE
+// ==============================================
+
+async function loadDistributionsHistory() {
+    console.log("📦 Chargement historique des distributions...");
+    
+    const tbody = document.getElementById('distributionsHistoryTable');
+    const emptyState = document.getElementById('emptyDistributions');
+    
+    if (!tbody) return;
+    
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 30px;"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
+    
+    try {
+        const snapshot = await db.collection('stock_distributions')
+            .orderBy('createdAt', 'desc')
+            .get();
+        
+        console.log(`📊 ${snapshot.size} distributions trouvées`);
+        
+        if (snapshot.empty) {
+            tbody.innerHTML = '';
+            if (emptyState) emptyState.style.display = 'block';
+            return;
+        }
+        
+        if (emptyState) emptyState.style.display = 'none';
+        tbody.innerHTML = '';
+        
+        snapshot.forEach(doc => {
+            const dist = doc.data();
+            
+            // Date
+            let date;
+            if (dist.createdAt?.toDate) {
+                date = dist.createdAt.toDate();
+            } else if (dist.date) {
+                date = new Date(dist.date);
+            } else {
+                date = new Date();
+            }
+            const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()} ${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}`;
+            
+            // Récupérer les distributions
+            const distributions = dist.distributions || {};
+            
+            // Calculer les totaux par boutique
+            const sc1 = distributions['sacre-coeur-1'] || {};
+            const km = distributions['keur-massar'] || {};
+            const seb = distributions['sebikotane'] || {};
+            const ft = distributions['front-terre'] || {};
+            const sc3 = distributions['sacre-coeur-3'] || {};
+            const enligne = distributions['en-ligne'] || {};
+            
+            // Somme des quantités par boutique
+            const qtySC1 = Object.values(sc1).reduce((a, b) => a + b, 0);
+            const qtyKM = Object.values(km).reduce((a, b) => a + b, 0);
+            const qtySEB = Object.values(seb).reduce((a, b) => a + b, 0);
+            const qtyFT = Object.values(ft).reduce((a, b) => a + b, 0);
+            const qtySC3 = Object.values(sc3).reduce((a, b) => a + b, 0);
+            const qtyEnLigne = Object.values(enligne).reduce((a, b) => a + b, 0);
+            
+            const total = dist.totalDistributed || (qtySC1 + qtyKM + qtySEB + qtyFT + qtySC3 + qtyEnLigne);
+            
+            console.log(`📊 ${dateStr} - SC1:${qtySC1}, KM:${qtyKM}, SEB:${qtySEB}, FT:${qtyFT}, SC3:${qtySC3}, EnLigne:${qtyEnLigne}, Total:${total}`);
+            
+            const row = document.createElement('tr');
+            row.style.borderBottom = '1px solid #eee';
+            row.innerHTML = `
+                <td style="padding: 10px;">${dateStr}</td>
+                <td style="padding: 10px;"><strong>${dist.productionName || dist.productionId || 'Production'}</strong></td>
+                <td style="padding: 10px; text-align: center; ${qtySC1 > 0 ? 'color: #3B82F6; font-weight: bold;' : 'color: #999;'}">${qtySC1 > 0 ? qtySC1 : '-'}</td>
+                <td style="padding: 10px; text-align: center; ${qtyKM > 0 ? 'color: #10B981; font-weight: bold;' : 'color: #999;'}">${qtyKM > 0 ? qtyKM : '-'}</td>
+                <td style="padding: 10px; text-align: center; ${qtySEB > 0 ? 'color: #F59E0B; font-weight: bold;' : 'color: #999;'}">${qtySEB > 0 ? qtySEB : '-'}</td>
+                <td style="padding: 10px; text-align: center; ${qtyFT > 0 ? 'color: #EF4444; font-weight: bold;' : 'color: #999;'}">${qtyFT > 0 ? qtyFT : '-'}</td>
+                <td style="padding: 10px; text-align: center; ${qtySC3 > 0 ? 'color: #8B5CF6; font-weight: bold;' : 'color: #999;'}">${qtySC3 > 0 ? qtySC3 : '-'}</td>
+                <td style="padding: 10px; text-align: center; ${qtyEnLigne > 0 ? 'color: #EC4899; font-weight: bold;' : 'color: #999;'}">${qtyEnLigne > 0 ? qtyEnLigne : '-'}</td>
+                <td style="padding: 10px; text-align: center; font-weight: bold;">${total}</td>
+                <td style="padding: 10px; text-align: center;">
+                    <button class="action-btn-small view" onclick="viewDistributionDetail('${doc.id}')" title="Voir détails">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+        
+        console.log(`✅ ${snapshot.size} distributions affichées`);
+        
+    } catch (error) {
+        console.error("❌ Erreur:", error);
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 30px; color: red;">Erreur: ${error.message}</td></tr>`;
+    }
+}
+
+// Voir les détails d'une distribution - VERSION CORRIGÉE
+async function viewDistributionDetail(distributionId) {
+    try {
+        const doc = await db.collection('stock_distributions').doc(distributionId).get();
+        
+        if (!doc.exists) {
+            showMessage('Distribution non trouvée', 'error');
+            return;
+        }
+        
+        const dist = doc.data();
+        const date = dist.createdAt?.toDate ? dist.createdAt.toDate() : new Date(dist.date);
+        const distributions = dist.distributions || {};
+        
+        // Noms des catégories
+        const categoryNames = {
+            '1': '🐔 Très petits (1-1.1 kg) - 2000 F CFA',
+            '2': '🐔 Petits (1.2 kg) - 2500 F CFA',
+            '3': '🐔 Moyens-petits (1.3-1.4 kg) - 3000 F CFA',
+            '4': '🐔 Moyens (1.5-1.6 kg) - 3300 F CFA',
+            '5': '🐔 Moyens-grands (1.7-1.9 kg) - 3500 F CFA',
+            '6': '🐔 Grands (2 kg) - 3700 F CFA',
+            '7': '🐔 Très grands (2.1-2.3 kg) - 4000 F CFA',
+            '8': '🐔 Géants (+2.4 kg) - 4500 F CFA'
+        };
+        
+        // Liste des boutiques
+        const boutiques = [
+            { id: 'sacre-coeur-1', name: 'Sacré Coeur 1', color: '#3B82F6' },
+            { id: 'keur-massar', name: 'Keur Massar', color: '#10B981' },
+            { id: 'sebikotane', name: 'Sebikotane', color: '#F59E0B' },
+            { id: 'front-terre', name: 'Front de Terre', color: '#EF4444' },
+            { id: 'sacre-coeur-3', name: 'Sacré Coeur 3', color: '#8B5CF6' },
+            { id: 'en-ligne', name: 'En Ligne (TikTok)', color: '#EC4899' }
+        ];
+        
+        let detailsHTML = `
+            <div style="max-width: 800px;">
+                <h3 style="margin-bottom: 15px; color: #1e293b;">
+                    <i class="fas fa-truck-loading"></i> Détail de la distribution
+                </h3>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <p><strong>📅 Date:</strong> ${date.toLocaleDateString('fr-FR')} à ${date.toLocaleTimeString('fr-FR')}</p>
+                    <p><strong>🏷️ Production:</strong> ${dist.productionName || 'Non spécifiée'}</p>
+                    <p><strong>📦 Total distribué:</strong> <span style="font-weight: bold; color: #3B82F6;">${dist.totalDistributed || 0}</span> poulets</p>
+                </div>
+                
+                <h4 style="margin-bottom: 15px;">📊 Détail par boutique</h4>
+        `;
+        
+        let grandTotal = 0;
+        
+        for (const boutique of boutiques) {
+            const items = distributions[boutique.id] || {};
+            const totalBoutique = Object.values(items).reduce((a, b) => a + b, 0);
+            
+            if (totalBoutique > 0) {
+                grandTotal += totalBoutique;
+                
+                detailsHTML += `
+                    <div style="margin-top: 15px; padding: 15px; border-left: 4px solid ${boutique.color}; background: #f8fafc; border-radius: 8px;">
+                        <h5 style="margin: 0 0 10px 0; color: ${boutique.color};">
+                            <i class="fas fa-store"></i> ${boutique.name}
+                        </h5>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px;">
+                `;
+                
+                for (const [catId, qty] of Object.entries(items)) {
+                    if (qty > 0) {
+                        detailsHTML += `
+                            <div style="background: white; padding: 8px 12px; border-radius: 6px; border: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 0.85rem;">${categoryNames[catId] || `Catégorie ${catId}`}</span>
+                                <span style="font-weight: bold; color: ${boutique.color}; font-size: 1.1rem;">${qty}</span>
+                            </div>
+                        `;
+                    }
+                }
+                
+                detailsHTML += `
+                        </div>
+                        <div style="margin-top: 10px; text-align: right; font-weight: bold; color: ${boutique.color};">
+                            Total: ${totalBoutique} poulets
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        if (grandTotal === 0) {
+            detailsHTML += `
+                <div style="text-align: center; padding: 40px; color: #999;">
+                    <i class="fas fa-box-open" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <p>Aucune distribution détaillée</p>
+                </div>
+            `;
+        }
+        
+        detailsHTML += `</div>`;
+        
+        // Afficher dans une modal
+        const modal = document.createElement('div');
+        modal.id = 'distributionDetailModal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+        `;
+        
+        modal.innerHTML = `
+            <div style="background: white; border-radius: 15px; padding: 25px; width: 100%; max-width: 750px; max-height: 85vh; overflow-y: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #e0e0e0;">
+                    <h2 style="margin: 0; color: #1e293b;"><i class="fas fa-info-circle"></i> Détails Distribution</h2>
+                    <button onclick="this.closest('#distributionDetailModal').remove()" 
+                            style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666;">&times;</button>
+                </div>
+                ${detailsHTML}
+                <div style="margin-top: 20px; text-align: center; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                    <button onclick="this.closest('#distributionDetailModal').remove()" 
+                            class="btn btn-secondary" style="background: #666; color: white; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer;">
+                        <i class="fas fa-times"></i> Fermer
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+    } catch (error) {
+        console.error("Erreur:", error);
+        showMessage('Erreur chargement détails: ' + error.message, 'error');
+    }
+}
+
+// Actualiser l'historique
+document.getElementById('refreshDistributionsBtn')?.addEventListener('click', loadDistributionsHistory);
 </script>
   <!-- =============================== -->
 <!-- MODAL GESTION DES DÉPENSES -->
