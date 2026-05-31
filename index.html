@@ -1760,31 +1760,29 @@
         </div>
         
         <!-- Récapitulatif global et validation -->
-        <div style="margin-top: var(--space-xl); padding: var(--space-lg); background: #f0f9ff; border-radius: var(--radius-lg);">
-            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-md);">
-                <div>
-                    <strong>📦 Stock total disponible :</strong> 
-                    <span id="globalStockTotal" style="font-size: 1.2rem;">0</span>
-                </div>
-                <div>
-                    <strong>📤 Total distribué :</strong> 
-                    <span id="totalDistributed" style="font-size: 1.2rem; color: var(--primary);">0</span>
-                </div>
-                <div>
-                    <strong>⚠️ Reste à distribuer :</strong> 
-                    <span id="remainingToDistribute" style="font-size: 1.2rem; font-weight: bold;">0</span>
-                </div>
-            </div>
-            
-            <div class="modal-actions" style="margin-top: var(--space-lg);">
-                <button id="cancelDistributionBtn" class="btn btn-secondary">
-                    <i class="fas fa-times"></i> Annuler
-                </button>
-                <button id="saveDistributionBtn" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Enregistrer la Distribution
-                </button>
-            </div>
+       <!-- Récapitulatif global et validation -->
+<div style="margin-top: var(--space-xl); padding: var(--space-lg); background: #f0f9ff; border-radius: var(--radius-lg);">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-md);">
+        
+        <div>
+            <strong>📤 Total distribué :</strong> 
+            <span id="totalDistributed" style="font-size: 1.2rem; color: var(--primary);">0</span>
         </div>
+        <div>
+            <strong>⚠️ Reste à distribuer :</strong> 
+            <span id="remainingToDistribute" style="font-size: 1.2rem; font-weight: bold;">0</span>
+        </div>
+    </div>
+    
+    <div class="modal-actions" style="margin-top: var(--space-lg);">
+        <button id="cancelDistributionBtn" class="btn btn-secondary">
+            <i class="fas fa-times"></i> Annuler
+        </button>
+        <button id="saveDistributionBtn" class="btn btn-primary">
+            <i class="fas fa-save"></i> Enregistrer la Distribution
+        </button>
+    </div>
+</div>
     </div>
 </div>
 
@@ -6459,7 +6457,7 @@ function initDistribution() {
     document.getElementById('saveDistributionBtn').addEventListener('click', saveDistribution);
 }
 
-      function initDistributionModerne() {
+    function initDistributionModerne() {
     console.log("🚀 Initialisation distribution moderne");
     
     const selectProd = document.getElementById('selectProductionDist');
@@ -6478,17 +6476,19 @@ function initDistribution() {
                 const date = new Date(prod.startDate);
                 const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
                 
-                // Calculer le stock disponible réel
+                // Calculer le stock disponible RÉEL (quantités restantes par catégorie)
                 let totalDisponible = 0;
                 const categories = ['small1Quantity','small2Quantity','medium1Quantity','medium2Quantity',
                                    'large1Quantity','large2Quantity','xlarge1Quantity','xlarge2Quantity'];
                 categories.forEach(cat => {
-                    totalDisponible += prod[cat] || 0;
+                    const qty = prod[cat] || 0;
+                    const sold = prod[cat.replace('Quantity', 'Sold')] || 0;
+                    totalDisponible += Math.max(0, qty - sold);
                 });
                 
                 const option = document.createElement('option');
                 option.value = doc.id;
-                option.textContent = `${prod.productionName || 'Production'} (${dateStr}) - ${totalDisponible} poulets`;
+                option.textContent = `${prod.productionName || 'Production'} (${dateStr}) - ${totalDisponible} poulets disponibles`;
                 option.dataset.production = JSON.stringify({
                     id: doc.id,
                     data: prod,
@@ -6772,24 +6772,35 @@ function setupDistributionForm() {
         { id: '8', name: '🐔 Géants (+2.4 kg)', qtyField: 'xlarge2Quantity', soldField: 'xlarge2Sold', priceField: 'xlarge2Price' }
     ];
     
-    // Calculer les disponibilités INITIALES par catégorie
+    // Calculer les disponibilités INITIALES par catégorie (STOCK TOTAL DISPONIBLE)
     const disponibilitesInitiales = {};
+    let stockTotalInitial = 0;
+    
     categories.forEach(cat => {
-        const stockInitial = production[cat.qtyField] || 0;
+        // Quantité restante = quantite initiale - deja vendu
+        const quantiteInitiale = production[cat.qtyField] || 0;
         const dejaVendu = production[cat.soldField] || 0;
-        const disponible = Math.max(0, stockInitial - dejaVendu);
+        const disponible = Math.max(0, quantiteInitiale - dejaVendu);
+        
         disponibilitesInitiales[cat.id] = {
             disponibleMax: disponible,
             disponibleRestant: disponible,
             name: cat.name,
             price: production[cat.priceField] || 0
         };
+        stockTotalInitial += disponible;
+        
+        console.log(`Catégorie ${cat.id}: ${quantiteInitiale} - ${dejaVendu} vendus = ${disponible} disponibles`);
     });
     
-    // Stock total initial
-    const stockTotalInitial = currentProductionForDistribution.stockRestant;
-    document.getElementById('globalStockTotal').textContent = stockTotalInitial;
-    document.getElementById('remainingToDistribute').textContent = stockTotalInitial;
+    console.log("📦 Stock total disponible initial:", stockTotalInitial);
+    
+    // Afficher le stock total disponible INITIAL
+    const stockTotalSpan = document.getElementById('globalStockTotal');
+    if (stockTotalSpan) stockTotalSpan.textContent = stockTotalInitial;
+    
+    const remainingSpan = document.getElementById('remainingToDistribute');
+    if (remainingSpan) remainingSpan.textContent = stockTotalInitial;
     
     // Liste des boutiques
     const boutiques = [
@@ -6810,18 +6821,21 @@ function setupDistributionForm() {
         });
     });
     
-    // Stocker les disponibilités initiales dans une variable globale
+    // Stocker les données globales
     window.disponibilitesGlobales = JSON.parse(JSON.stringify(disponibilitesInitiales));
+    window.stockTotalInitialGlobal = stockTotalInitial;
+    window.boutiquesList = boutiques;
+    window.categoriesList = categories;
     
     // Fonction pour calculer le restant disponible pour une catégorie
-    function getRestantDisponible(categoryId) {
+    window.getRestantDisponible = function(categoryId) {
         let totalAttribue = 0;
         for (const boutique of boutiques) {
             totalAttribue += window.attributionsEnCours[boutique.id][categoryId] || 0;
         }
         const maxDispo = window.disponibilitesGlobales[categoryId].disponibleMax;
         return Math.max(0, maxDispo - totalAttribue);
-    }
+    };
     
     // Fonction pour mettre à jour l'affichage d'une boutique
     function updateBoutiqueDisplay(boutiqueId) {
@@ -6835,14 +6849,14 @@ function setupDistributionForm() {
         let totalBoutique = 0;
         
         categories.forEach(cat => {
-            const restantGlobal = getRestantDisponible(cat.id);
+            const restantGlobal = window.getRestantDisponible(cat.id);
             const attribueActuel = window.attributionsEnCours[boutiqueId][cat.id] || 0;
             totalBoutique += attribueActuel;
+            const maxDispoTotal = window.disponibilitesGlobales[cat.id].disponibleMax;
             
-            if (restantGlobal === 0 && attribueActuel === 0) {
-                // Plus rien disponible
+            if (restantGlobal === 0 && attribueActuel === 0 && maxDispoTotal === 0) {
                 html += `
-                    <div class="categorie-distrib" style="margin-bottom: var(--space-md); padding: var(--space-sm); background: #fef2f2; border-radius: var(--radius-sm); border-left: 3px solid #ccc; opacity: 0.6;">
+                    <div style="margin-bottom: var(--space-md); padding: var(--space-sm); background: #fef2f2; border-radius: var(--radius-sm); border-left: 3px solid #ccc; opacity: 0.6;">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                             <div>
                                 <span style="font-weight: 500;">${cat.name}</span>
@@ -6853,16 +6867,16 @@ function setupDistributionForm() {
                     </div>
                 `;
             } else {
-                // Afficher avec champ de saisie
-                const maxAttribuable = Math.min(restantGlobal, restantGlobal);
+                const maxAttribuable = restantGlobal + attribueActuel;
+                const prix = window.disponibilitesGlobales[cat.id].price || 0;
                 
                 html += `
-                    <div class="categorie-distrib" style="margin-bottom: var(--space-md); padding: var(--space-sm); background: #f0fdf4; border-radius: var(--radius-sm); border-left: 3px solid ${boutique.color};">
+                    <div style="margin-bottom: var(--space-md); padding: var(--space-sm); background: #f0fdf4; border-radius: var(--radius-sm); border-left: 3px solid ${boutique.color};">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                             <div style="flex: 2;">
                                 <span style="font-weight: 500;">${cat.name}</span>
                                 <div><strong style="color: ${restantGlobal > 0 ? boutique.color : '#999'};">${restantGlobal} disponibles</strong> 
-                                <small style="color: #666;">(${window.disponibilitesGlobales[cat.id].price.toLocaleString('fr-FR')} F CFA/unité)</small></div>
+                                <small style="color: #666;">(${prix.toLocaleString('fr-FR')} F CFA/unité)</small></div>
                                 ${attribueActuel > 0 ? `<small style="color: ${boutique.color};">Déjà attribué: ${attribueActuel}</small>` : ''}
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
@@ -6871,13 +6885,13 @@ function setupDistributionForm() {
                                        class="input-attribution" 
                                        data-boutique="${boutique.id}"
                                        data-category="${cat.id}"
-                                       data-max="${restantGlobal + attribueActuel}"
+                                       data-max="${maxAttribuable}"
                                        min="0" 
-                                       max="${restantGlobal + attribueActuel}"
+                                       max="${maxAttribuable}"
                                        value="${attribueActuel}"
                                        step="1"
                                        style="width: 80px; padding: 6px; border: 1px solid #ddd; border-radius: 6px; text-align: center;">
-                                <span class="max-indicator" style="font-size: 0.7rem; color: #888;">max ${restantGlobal + attribueActuel}</span>
+                                <span style="font-size: 0.7rem; color: #888;">max ${maxAttribuable}</span>
                             </div>
                         </div>
                     </div>
@@ -6887,15 +6901,15 @@ function setupDistributionForm() {
         
         container.innerHTML = html;
         
-        // Mettre à jour le total de la boutiqu0
+        // Mettre à jour le total de la boutique
         const totalSpan = document.getElementById(boutique.totalSpanId);
         if (totalSpan) totalSpan.textContent = totalBoutique;
         
-        // Ajouter les écouteurs pour cette boutique
+        // Ajouter les écouteurs
         container.querySelectorAll('.input-attribution').forEach(input => {
             input.addEventListener('change', function() {
-    let val = parseInt(this.value) || 0;
-    const max = parseInt(this.getAttribute('data-max')) || 0;
+                let val = parseInt(this.value) || 0;
+                const max = parseInt(this.getAttribute('data-max')) || 0;
                 
                 const boutiqueId = this.getAttribute('data-boutique');
                 const categoryId = this.getAttribute('data-category');
@@ -6906,19 +6920,16 @@ function setupDistributionForm() {
                 }
                 if (val < 0) this.value = 0;
                 
-                // Mettre à jour les attributions
                 window.attributionsEnCours[boutiqueId][categoryId] = val;
                 
-                // Récupérer le max actuel du restant global
-                const restantGlobal = getRestantDisponible(categoryId);
+                const restantGlobal = window.getRestantDisponible(categoryId);
                 const nouveauMax = restantGlobal + val;
                 this.setAttribute('data-max', nouveauMax);
                 
-                // Mettre à jour l'affichage du max
-                const maxSpan = this.parentElement.querySelector('.max-indicator');
+                const maxSpan = this.parentElement.querySelector('span');
                 if (maxSpan) maxSpan.textContent = `max ${nouveauMax}`;
                 
-                // Mettre à jour TOUTES les boutiques (pour que les disponibilités se mettent à jour)
+                // Mettre à jour tous les affichages
                 updateAllBoutiquesDisplay();
             });
         });
@@ -6942,42 +6953,84 @@ function setupDistributionForm() {
             }
         }
         
-        const stockTotal = currentProductionForDistribution.stockRestant;
-        const remaining = stockTotal - totalGlobalDistribue;
+        // Utiliser window.stockTotalInitialGlobal qui a été défini plus haut
+        const stockRestant = Math.max(0, window.stockTotalInitialGlobal - totalGlobalDistribue);
         
-        document.getElementById('totalDistributed').textContent = totalGlobalDistribue;
-        document.getElementById('remainingToDistribute').textContent = remaining;
-        
+        const stockTotalSpan = document.getElementById('globalStockTotal');
+        const totalDistribSpan = document.getElementById('totalDistributed');
         const remainingSpan = document.getElementById('remainingToDistribute');
-        if (remaining < 0) {
-            remainingSpan.style.color = '#EF4444';
-            remainingSpan.style.fontWeight = 'bold';
-        } else if (remaining === 0) {
-            remainingSpan.style.color = '#10B981';
-        } else {
-            remainingSpan.style.color = '#F59E0B';
+        
+        if (stockTotalSpan) stockTotalSpan.textContent = window.stockTotalInitialGlobal;
+        if (totalDistribSpan) totalDistribSpan.textContent = totalGlobalDistribue;
+        if (remainingSpan) remainingSpan.textContent = stockRestant;
+        
+        if (remainingSpan) {
+            if (stockRestant === 0) {
+                remainingSpan.style.color = '#10B981';
+            } else if (stockRestant < 0) {
+                remainingSpan.style.color = '#EF4444';
+            } else {
+                remainingSpan.style.color = '#F59E0B';
+            }
         }
         
         const saveBtn = document.getElementById('saveDistributionBtn');
-        if (saveBtn) saveBtn.disabled = (remaining < 0);
+        if (saveBtn) saveBtn.disabled = (stockRestant < 0);
     }
     
-    // Initialiser l'affichage de toutes les boutiques
+    // Initialiser l'affichage
     boutiques.forEach(boutique => {
         updateBoutiqueDisplay(boutique.id);
     });
     
-    // Stocker les boutiques et catégories dans une variable globale pour la sauvegarde
-    window.boutiquesList = boutiques;
-    window.categoriesList = categories;
+    // Exposer les fonctions globalement
+    window.updateAllBoutiquesDisplay = updateAllBoutiquesDisplay;
+    window.updateGlobalTotals = updateGlobalTotals;
 }
 
 // Fonction pour mettre à jour tous les totaux
+// Fonction pour mettre à jour tous les totaux
 function updateAllTotals() {
-    // Stock total disponible
-    const stockTotal = currentProductionForDistribution.stockRestant;
+    // Stock total disponible INITIAL
+    let stockTotalInitial = 0;
     
-    // Calculer le total distribué par boutique et global
+    // Calculer le total disponible INITIAL par catégorie
+    const categoriesTotal = {
+        '1': 0, '2': 0, '3': 0, '4': 0,
+        '5': 0, '6': 0, '7': 0, '8': 0
+    };
+    
+    // Récupérer les disponibilités initiales depuis les inputs max
+    document.querySelectorAll('.input-attribution').forEach(input => {
+        const maxValue = parseInt(input.getAttribute('data-max')) || 0;
+        const category = input.getAttribute('data-category');
+        const currentValue = parseInt(input.value) || 0;
+        
+        // La max value inclut déjà ce qui est déjà attribué
+        // Pour avoir le total initial, on fait max - current (car max = initial + current)
+        const initialValue = maxValue - currentValue;
+        
+        if (category && initialValue > 0) {
+            categoriesTotal[category] += initialValue;
+        }
+    });
+    
+    // Calculer le stock total disponible initial
+    for (let cat in categoriesTotal) {
+        stockTotalInitial += categoriesTotal[cat];
+    }
+    
+    // Si aucun stock disponible, essayer depuis currentProductionForDistribution
+    if (stockTotalInitial === 0 && currentProductionForDistribution) {
+        const production = currentProductionForDistribution.data;
+        const stockDispo = (production.small1Quantity || 0) + (production.small2Quantity || 0) +
+                          (production.medium1Quantity || 0) + (production.medium2Quantity || 0) +
+                          (production.large1Quantity || 0) + (production.large2Quantity || 0) +
+                          (production.xlarge1Quantity || 0) + (production.xlarge2Quantity || 0);
+        stockTotalInitial = stockDispo;
+    }
+    
+    // Calculer le total distribué actuel
     let totalGlobalDistribue = 0;
     const totauxBoutiques = {};
     
@@ -6997,24 +7050,32 @@ function updateAllTotals() {
         if (span) span.textContent = total;
     }
     
-    // Mettre à jour les totaux globaux
-    document.getElementById('totalDistributed').textContent = totalGlobalDistribue;
-    const remaining = stockTotal - totalGlobalDistribue;
-    document.getElementById('remainingToDistribute').textContent = remaining;
+    // Le stock restant disponible = stock total initial - total déjà distribué
+    const stockRestantDisponible = Math.max(0, stockTotalInitial - totalGlobalDistribue);
     
+    // Mettre à jour les affichages GLOBAUX
+    const stockTotalSpan = document.getElementById('globalStockTotal');
     const remainingSpan = document.getElementById('remainingToDistribute');
-    if (remaining < 0) {
-        remainingSpan.style.color = '#EF4444';
-        remainingSpan.style.fontWeight = 'bold';
-    } else if (remaining === 0) {
-        remainingSpan.style.color = '#10B981';
-    } else {
-        remainingSpan.style.color = '#F59E0B';
+    
+    if (stockTotalSpan) stockTotalSpan.textContent = stockTotalInitial;
+    document.getElementById('totalDistributed').textContent = totalGlobalDistribue;
+    if (remainingSpan) remainingSpan.textContent = stockRestantDisponible;
+    
+    // Mettre à jour la couleur
+    if (remainingSpan) {
+        if (stockRestantDisponible < 0) {
+            remainingSpan.style.color = '#EF4444';
+            remainingSpan.style.fontWeight = 'bold';
+        } else if (stockRestantDisponible === 0) {
+            remainingSpan.style.color = '#10B981';
+        } else {
+            remainingSpan.style.color = '#F59E0B';
+        }
     }
     
     // Désactiver le bouton sauvegarder si dépassement
     const saveBtn = document.getElementById('saveDistributionBtn');
-    if (saveBtn) saveBtn.disabled = (remaining < 0);
+    if (saveBtn) saveBtn.disabled = (stockRestantDisponible < 0);
 }
 
 // Fonction pour réinitialiser tous les champs de distribution
@@ -7386,7 +7447,10 @@ if (document.getElementById('selectProductionDist')) {
 }
 
 // Charger les statistiques
+// Charger les statistiques - VERSION CORRIGÉE
 function loadStats() {
+    console.log("📊 Chargement des statistiques...");
+    
     // Déterminer la période
     let startDate, endDate;
     const today = new Date();
@@ -7415,24 +7479,25 @@ function loadStats() {
             endDate = null;
     }
     
-    // Préparer la requête
-    let invoicesQuery = db.collection('invoices');
-    
-    // Filtrer par boutique si spécifié
-    if (currentStatsBoutique !== 'all') {
-        invoicesQuery = invoicesQuery.where('boutique', '==', currentStatsBoutique);
-    }
-    
-    // Exécuter la requête
-    invoicesQuery.get()
+    // Récupérer TOUTES les factures
+    db.collection('invoices').get()
         .then(snapshot => {
+            console.log(`📋 ${snapshot.size} factures trouvées`);
+            
+            // Structure pour les statistiques par boutique
+            // UTILISEZ LES MÊMES IDs QUE DANS Firestore
+            const boutiqueStats = {
+                'sacre-coeur-1': { revenue: 0, invoices: 0, chickens: 0, lastDate: null },
+                'keur-massar': { revenue: 0, invoices: 0, chickens: 0, lastDate: null },
+                'sebikotane': { revenue: 0, invoices: 0, chickens: 0, lastDate: null },
+                'front-terre': { revenue: 0, invoices: 0, chickens: 0, lastDate: null },
+                'sacre-coeur-3': { revenue: 0, invoices: 0, chickens: 0, lastDate: null },
+                'en-ligne': { revenue: 0, invoices: 0, chickens: 0, lastDate: null }
+            };
+            
             let totalRevenue = 0;
             let totalInvoices = 0;
             let totalChickens = 0;
-            let boutiqueStats = {
-                'sacre-coeur': { revenue: 0, invoices: 0, chickens: 0 },
-                'keur-massar': { revenue: 0, invoices: 0, chickens: 0 }
-            };
             
             snapshot.forEach(doc => {
                 const invoice = doc.data();
@@ -7445,8 +7510,13 @@ function loadStats() {
                     }
                 }
                 
-                // Accumuler les totaux
-                totalRevenue += invoice.total || 0;
+                // Filtrer par boutique si spécifié
+                if (currentStatsBoutique !== 'all' && invoice.boutique !== currentStatsBoutique) {
+                    return; // Skip cette facture
+                }
+                
+                // Accumuler les totaux généraux
+                totalRevenue += invoice.paiement?.montantPaye || invoice.total || 0;
                 totalInvoices++;
                 
                 // Compter les poulets
@@ -7456,22 +7526,28 @@ function loadStats() {
                     });
                 }
                 
-                // Statistiques par boutique
-                if (invoice.boutique) {
-                    if (!boutiqueStats[invoice.boutique]) {
-                        boutiqueStats[invoice.boutique] = { revenue: 0, invoices: 0, chickens: 0 };
-                    }
-                    
-                    boutiqueStats[invoice.boutique].revenue += invoice.total || 0;
-                    boutiqueStats[invoice.boutique].invoices++;
+                // Statistiques par boutique (utilisez l'ID exact de Firestore)
+                const boutiqueId = invoice.boutique;
+                if (boutiqueStats[boutiqueId]) {
+                    boutiqueStats[boutiqueId].revenue += invoice.paiement?.montantPaye || invoice.total || 0;
+                    boutiqueStats[boutiqueId].invoices++;
                     
                     if (invoice.items) {
                         invoice.items.forEach(item => {
-                            boutiqueStats[invoice.boutique].chickens += item.quantity || 0;
+                            boutiqueStats[boutiqueId].chickens += item.quantity || 0;
                         });
                     }
+                    
+                    // Dernière facture
+                    if (!boutiqueStats[boutiqueId].lastDate || invoiceDate > boutiqueStats[boutiqueId].lastDate) {
+                        boutiqueStats[boutiqueId].lastDate = invoiceDate;
+                    }
+                } else {
+                    console.log(`⚠️ Boutique non reconnue: ${boutiqueId}`);
                 }
             });
+            
+            console.log("📊 Statistiques par boutique:", boutiqueStats);
             
             // Mettre à jour l'interface
             document.getElementById('totalRevenueStats').textContent = totalRevenue.toLocaleString('fr-FR') + ' F CFA';
@@ -7482,11 +7558,55 @@ function loadStats() {
             
             // Mettre à jour les détails par boutique
             updateBoutiqueStatsDetails(boutiqueStats);
-      loadStatsStocks('all');
+            
+            // Mettre à jour les stats des boutiques dans la section boutique
+            updateBoutiqueCards(boutiqueStats);
+            
+            loadStatsStocks('all');
             
         }).catch(error => {
-            console.error('Erreur chargement stats:', error);
+            console.error('❌ Erreur chargement stats:', error);
+            showMessage('Erreur de chargement des statistiques', 'error');
         });
+}
+
+// Mettre à jour les cartes des boutiques (section boutiques)
+function updateBoutiqueCards(boutiqueStats) {
+    // Mapping des IDs vers les IDs HTML
+    const mapping = {
+        'sacre-coeur-1': { statId: 'statsSacreCoeur1', lastId: 'lastInvoiceSacreCoeur1' },
+        'keur-massar': { statId: 'statsKeurMassar', lastId: 'lastInvoiceKeurMassar' },
+        'sebikotane': { statId: 'statsSebikotane', lastId: 'lastInvoiceSebikotane' },
+        'front-terre': { statId: 'statsFrontTerre', lastId: 'lastInvoiceFrontTerre' },
+        'sacre-coeur-3': { statId: 'statsSacreCoeur3', lastId: 'lastInvoiceSacreCoeur3' },
+        'en-ligne': { statId: 'statsEnLigne', lastId: 'lastInvoiceEnLigne' }
+    };
+    
+    for (const [boutiqueId, stats] of Object.entries(boutiqueStats)) {
+        const map = mapping[boutiqueId];
+        if (map) {
+            // Mettre à jour le nombre de factures
+            const statElement = document.getElementById(map.statId);
+            if (statElement) statElement.textContent = stats.invoices;
+            
+            // Mettre à jour la dernière facture
+            const lastElement = document.getElementById(map.lastId);
+            if (lastElement && stats.lastDate) {
+                const date = new Date(stats.lastDate);
+                lastElement.textContent = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
+            }
+        }
+    }
+    
+    // Mettre à jour le total global
+    const totalFactures = Object.values(boutiqueStats).reduce((sum, s) => sum + s.invoices, 0);
+    const totalCA = Object.values(boutiqueStats).reduce((sum, s) => sum + s.revenue, 0);
+    
+    const totalElement = document.getElementById('statsTotalBoutiques');
+    if (totalElement) totalElement.textContent = totalFactures;
+    
+    const caElement = document.getElementById('totalCA');
+    if (caElement) caElement.textContent = totalCA.toLocaleString('fr-FR') + ' F CFA';
 }
 
 // Mettre à jour les détails par boutique
@@ -11376,4 +11496,4 @@ setTimeout(() => {
 
 
 
-  
+   
