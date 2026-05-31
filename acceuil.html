@@ -489,6 +489,135 @@
     gap: 10px;
     font-size: 0.85rem;
 }
+      
+      /* Styles pour la page Versement */
+.versement-card {
+    background: white;
+    border-radius: 20px;
+    margin-bottom: 25px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: 1px solid #e2e8f0;
+}
+
+.versement-header {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.versement-header h3 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.versement-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    padding: 20px;
+}
+
+.versement-stat {
+    background: #f8fafc;
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+}
+
+.versement-stat .label {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 5px;
+}
+
+.versement-stat .value {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.versement-stat .value.encaissement { color: #10b981; }
+.versement-stat .value.verse { color: #3b82f6; }
+.versement-stat .value.reste { color: #f59e0b; }
+
+.versement-actions {
+    padding: 15px 20px;
+    background: #f1f5f9;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    border-top: 1px solid #e2e8f0;
+}
+
+.versement-input-group {
+    flex: 1;
+    min-width: 150px;
+}
+
+.versement-input-group label {
+    display: block;
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-bottom: 5px;
+}
+
+.versement-input-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 1rem;
+}
+
+.btn-verser {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-verser:hover {
+    background: #059669;
+}
+
+.historique-versements {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f8fafc;
+    border-radius: 10px;
+    font-size: 0.8rem;
+}
+
+.historique-versements summary {
+    cursor: pointer;
+    color: #64748b;
+    font-weight: bold;
+}
+
+.historique-versements table {
+    width: 100%;
+    font-size: 0.75rem;
+    margin-top: 10px;
+}
+
+.historique-versements td {
+    padding: 5px;
+    border-bottom: 1px solid #e2e8f0;
+}
     </style>
 </head>
 <body>
@@ -504,6 +633,7 @@
       <button class="nav-btn" data-section="tiktokstats">📱 TikTok Shop</button>
           <button class="nav-btn" data-section="boutiquestats">📈 Statistiques Boutiques</button>
       <button class="nav-btn" data-section="caisse">💰 Caisse</button>
+      <button class="nav-btn" data-section="versement">💰 Versements</button>
 
     </div>
 
@@ -852,6 +982,30 @@
             <div style="text-align: center; padding: 60px; background: white; border-radius: 20px;">
                 <i class="fas fa-cash-register" style="font-size: 3rem; color: #667eea; margin-bottom: 15px;"></i>
                 <p style="color: #666;">Sélectionnez une production et une période pour voir les statistiques</p>
+            </div>
+        </div>
+    </div>
+</div>
+  
+  <!-- SECTION VERSEMENT -->
+<div id="versementSection" class="section">
+    <div class="stats-boutiques-container">
+        <h2 style="margin-bottom: 20px;">💰 VERSEMENTS - Gestion des dépôts</h2>
+        
+        <!-- Sélecteur de production -->
+        <div class="production-selector">
+            <label><i class="fas fa-calendar-alt"></i> Sélectionner une production :</label>
+            <select id="versementProductionSelect">
+                <option value="">Chargement...</option>
+                <option value="all">📊 TOUTES LES PRODUCTIONS</option>
+            </select>
+        </div>
+        
+        <!-- Grille des boutiques avec versements -->
+        <div id="versementGrid">
+            <div style="text-align: center; padding: 60px; background: white; border-radius: 20px;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #667eea;"></i>
+                <p>Chargement des données...</p>
             </div>
         </div>
     </div>
@@ -3470,6 +3624,363 @@ setTimeout(() => {
     initCaissePage();
 }, 500);
       
+      
+      // ==============================================
+// PAGE VERSEMENT - GESTION DES DÉPÔTS
+// ==============================================
+
+let versementProductions = [];
+let versementCurrentProductionId = 'all';
+let versementsData = {}; // Stocke les versements par boutique
+
+// Charger les versements depuis Firebase
+async function loadVersements() {
+    const snapshot = await db.collection('versements').get();
+    versementsData = {};
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        const key = `${data.productionId}_${data.boutiqueId}`;
+        if (!versementsData[key]) {
+            versementsData[key] = [];
+        }
+        versementsData[key].push({
+            id: doc.id,
+            montant: data.montant,
+            date: data.date,
+            commentaire: data.commentaire
+        });
+    });
+}
+
+// Sauvegarder un versement
+async function saveVersement(productionId, boutiqueId, boutiqueName, montant, commentaire = '') {
+    if (!montant || montant <= 0) {
+        alert('Veuillez entrer un montant valide');
+        return false;
+    }
+    
+    try {
+        await db.collection('versements').add({
+            productionId: productionId,
+            boutiqueId: boutiqueId,
+            boutiqueName: boutiqueName,
+            montant: montant,
+            commentaire: commentaire,
+            date: firebase.firestore.FieldValue.serverTimestamp(),
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // Recharger les versements
+        await loadVersements();
+        await refreshVersementPage();
+        
+        showToast(`✅ Versement de ${montant.toLocaleString('fr-FR')} F CFA enregistré pour ${boutiqueName}`);
+        return true;
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de l\'enregistrement');
+        return false;
+    }
+}
+
+// Calculer les totaux pour une boutique
+function calculateVersementTotals(productionId, boutiqueId, encaissementTotal) {
+    const key = `${productionId}_${boutiqueId}`;
+    const versements = versementsData[key] || [];
+    
+    let totalVerse = 0;
+    versements.forEach(v => {
+        totalVerse += v.montant;
+    });
+    
+    const reste = encaissementTotal - totalVerse;
+    
+    return {
+        totalEncaisse: encaissementTotal,
+        totalVerse: totalVerse,
+        reste: reste,
+        versements: versements.sort((a, b) => new Date(b.date) - new Date(a.date))
+    };
+}
+
+// Charger les productions pour la page versement
+async function loadVersementProductions() {
+    const select = document.getElementById('versementProductionSelect');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">Chargement...</option>';
+    
+    try {
+        const snapshot = await db.collection('poulailler_records')
+            .orderBy('startDate', 'desc')
+            .get();
+        
+        versementProductions = [];
+        snapshot.forEach(doc => {
+            const prod = doc.data();
+            const date = prod.startDate ? new Date(prod.startDate) : new Date();
+            const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
+            versementProductions.push({
+                id: doc.id,
+                name: prod.productionName || `Production du ${dateStr}`,
+                date: date,
+                startDate: date
+            });
+        });
+        
+        select.innerHTML = '<option value="all">📊 TOUTES LES PRODUCTIONS</option>';
+        versementProductions.forEach(prod => {
+            select.innerHTML += `<option value="${prod.id}">${prod.name}</option>`;
+        });
+        
+        // Sélectionner la première par défaut
+        if (versementProductions.length > 0) {
+            select.value = 'all';
+            versementCurrentProductionId = 'all';
+            await refreshVersementPage();
+        }
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+        select.innerHTML = '<option value="">Erreur de chargement</option>';
+    }
+}
+
+// Calculer l'encaissement pour une boutique et une production
+async function getEncaissementForBoutique(productionId, boutiqueId) {
+    try {
+        let totalEncaisse = 0;
+        
+        if (productionId === 'all') {
+            // Toutes les productions
+            const invoicesSnapshot = await db.collection('invoices')
+                .where('boutique', '==', boutiqueId)
+                .get();
+            
+            invoicesSnapshot.forEach(doc => {
+                const inv = doc.data();
+                totalEncaisse += inv.paiement?.montantPaye || 0;
+            });
+            
+            // Pour TikTok Shop
+            if (boutiqueId === 'en-ligne') {
+                const ordersSnapshot = await db.collection('orders')
+                    .where('boutique', '==', 'en-ligne')
+                    .get();
+                
+                ordersSnapshot.forEach(doc => {
+                    const order = doc.data();
+                    totalEncaisse += order.paymentReceived || 0;
+                });
+            }
+        } else {
+            // Production spécifique
+            const stocksSnapshot = await db.collection('stocks_attribues')
+                .where('productionId', '==', productionId)
+                .where('boutique', '==', boutiqueId)
+                .get();
+            
+            for (const doc of stocksSnapshot.docs) {
+                const stockId = doc.id;
+                const invoicesSnapshot = await db.collection('invoices')
+                    .where('stockAttribueId', '==', stockId)
+                    .get();
+                
+                invoicesSnapshot.forEach(invDoc => {
+                    const inv = invDoc.data();
+                    totalEncaisse += inv.paiement?.montantPaye || 0;
+                });
+            }
+            
+            // Pour TikTok Shop avec cette production
+            if (boutiqueId === 'en-ligne') {
+                const ordersSnapshot = await db.collection('orders')
+                    .where('boutique', '==', 'en-ligne')
+                    .where('productionId', '==', productionId)
+                    .get();
+                
+                ordersSnapshot.forEach(doc => {
+                    const order = doc.data();
+                    totalEncaisse += order.paymentReceived || 0;
+                });
+            }
+        }
+        
+        return totalEncaisse;
+        
+    } catch (error) {
+        console.error('Erreur calcul encaissement:', error);
+        return 0;
+    }
+}
+
+// Rafraîchir la page versement
+async function refreshVersementPage() {
+    const container = document.getElementById('versementGrid');
+    if (!container) return;
+    
+    container.innerHTML = '<div style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>';
+    
+    const boutiqueIds = [
+        { id: 'sacre-coeur-1', name: 'Sacré Coeur 1', color: '#3B82F6' },
+        { id: 'keur-massar', name: 'Keur Massar', color: '#10B981' },
+        { id: 'sebikotane', name: 'Sebikotane', color: '#F59E0B' },
+        { id: 'front-terre', name: 'Front de Terre', color: '#EF4444' },
+        { id: 'sacre-coeur-3', name: 'Sacré Coeur 3', color: '#8B5CF6' },
+        { id: 'en-ligne', name: 'TikTok Shop', color: '#EC4899' }
+    ];
+    
+    let html = '';
+    
+    for (const boutique of boutiqueIds) {
+        // Calculer l'encaissement total
+        const encaissement = await getEncaissementForBoutique(versementCurrentProductionId, boutique.id);
+        
+        // Calculer les versements
+        const totals = calculateVersementTotals(versementCurrentProductionId, boutique.id, encaissement);
+        
+        // Générer l'historique HTML
+        let historiqueHtml = '';
+        if (totals.versements.length > 0) {
+            historiqueHtml = `
+                <details class="historique-versements">
+                    <summary>📜 Historique des versements (${totals.versements.length})</summary>
+                    <table>
+                        <thead>
+                            <tr><th>Date</th><th>Montant</th><th>Commentaire</th></tr>
+                        </thead>
+                        <tbody>
+                            ${totals.versements.map(v => `
+                                <tr>
+                                    <td>${new Date(v.date?.toDate ? v.date.toDate() : v.date).toLocaleDateString('fr-FR')}</td>
+                                    <td style="color:#3b82f6;">${v.montant.toLocaleString('fr-FR')} F</td>
+                                    <td>${v.commentaire || '-'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </details>
+            `;
+        }
+        
+        // Couleur du reste
+        let resteColor = '#10b981';
+        let resteTexte = '';
+        if (totals.reste < 0) {
+            resteColor = '#dc2626';
+            resteTexte = '⚠️ Dépassement';
+        } else if (totals.reste === 0) {
+            resteColor = '#10b981';
+            resteTexte = '✓ Soldé';
+        } else {
+            resteColor = '#f59e0b';
+            resteTexte = `Reste ${totals.reste.toLocaleString('fr-FR')} F`;
+        }
+        
+        html += `
+            <div class="versement-card">
+                <div class="versement-header" style="background: linear-gradient(135deg, ${boutique.color} 0%, ${boutique.color}cc 100%);">
+                    <h3><i class="fas fa-store"></i> ${boutique.name}</h3>
+                    <div class="badge">${totals.versements.length} versement(s)</div>
+                </div>
+                
+                <div class="versement-stats">
+                    <div class="versement-stat">
+                        <div class="label">💰 Encaissement total</div>
+                        <div class="value encaissement">${encaissement.toLocaleString('fr-FR')} F CFA</div>
+                        <div class="label">(argent reçu des clients)</div>
+                    </div>
+                    <div class="versement-stat">
+                        <div class="label">🏦 Déjà versé</div>
+                        <div class="value verse">${totals.totalVerse.toLocaleString('fr-FR')} F CFA</div>
+                        <div class="label">(argent déjà remis)</div>
+                    </div>
+                    <div class="versement-stat">
+                        <div class="label">⚠️ Reste à verser</div>
+                        <div class="value reste" style="color: ${resteColor};">${Math.abs(totals.reste).toLocaleString('fr-FR')} F CFA</div>
+                        <div class="label">${resteTexte}</div>
+                    </div>
+                </div>
+                
+                <div class="versement-actions">
+                    <div class="versement-input-group">
+                        <label><i class="fas fa-money-bill-wave"></i> Montant à verser (F CFA)</label>
+                        <input type="number" id="montant_${boutique.id}" class="montant-input" 
+                               placeholder="Ex: 50000" min="0" step="1000" value="${Math.max(0, totals.reste)}">
+                    </div>
+                    <div class="versement-input-group">
+                        <label><i class="fas fa-comment"></i> Commentaire (optionnel)</label>
+                        <input type="text" id="comment_${boutique.id}" class="comment-input" 
+                               placeholder="Ex: Versement du ${new Date().toLocaleDateString('fr-FR')}">
+                    </div>
+                    <button class="btn-verser" onclick="verserMontant('${versementCurrentProductionId}', '${boutique.id}', '${boutique.name}')">
+                        <i class="fas fa-save"></i> Enregistrer versement
+                    </button>
+                </div>
+                
+                ${historiqueHtml}
+            </div>
+        `;
+    }
+    
+    container.innerHTML = html;
+}
+
+// Fonction pour verser un montant
+async function verserMontant(productionId, boutiqueId, boutiqueName) {
+    const montantInput = document.getElementById(`montant_${boutiqueId}`);
+    const commentInput = document.getElementById(`comment_${boutiqueId}`);
+    
+    const montant = parseInt(montantInput.value) || 0;
+    const commentaire = commentInput.value || '';
+    
+    if (montant <= 0) {
+        alert('Veuillez entrer un montant valide');
+        return;
+    }
+    
+    await saveVersement(productionId, boutiqueId, boutiqueName, montant, commentaire);
+}
+
+// Initialiser la page versement
+async function showVersementPage() {
+    // Cacher les autres sections
+    document.querySelectorAll('.section').forEach(sec => {
+        sec.classList.remove('active-section');
+    });
+    document.getElementById('versementSection').classList.add('active-section');
+    
+    // Mettre à jour le bouton actif
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-section') === 'versement') {
+            btn.classList.add('active');
+        }
+    });
+    
+    // Charger les données
+    await loadVersements();
+    await loadVersementProductions();
+}
+
+// Écouteur pour le changement de production
+document.getElementById('versementProductionSelect')?.addEventListener('change', async function(e) {
+    versementCurrentProductionId = e.target.value;
+    await refreshVersementPage();
+});
+
+// Ajouter la navigation vers la page versemen  
+document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const sectionId = this.getAttribute('data-section');
+        if (sectionId === 'versement') {
+            showVersementPage();
+        }
+    });
+});
+
+// S'assurer que la fonction est accessible globalement
+window.verserMontant = verserMontant;
 // Initialiser les événements de la page
 function initBoutiqueStatsPage() {
     console.log("🚀 Initialisation page statistiques boutiques");
