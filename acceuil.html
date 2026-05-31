@@ -2401,13 +2401,13 @@ function updateCAParBoutiqueChart() {
 }
 
 // Graphique évolution par SEMAINE avec couleurs
+// Graphique évolution par SEMAINE avec couleurs
 function updateEvolutionMensuelleChart() {
     console.log("📊 Mise à jour évolution hebdomadaire");
     
     const ctx = document.getElementById('evolutionMensuelleChart').getContext('2d');
     if (evolutionMensuelleChart) evolutionMensuelleChart.destroy();
     
-    // Vérifier qu'il y a des données
     if (!statsAllInvoices || statsAllInvoices.length === 0) {
         evolutionMensuelleChart = new Chart(ctx, {
             type: 'line',
@@ -2426,22 +2426,23 @@ function updateEvolutionMensuelleChart() {
         return;
     }
     
-    // Récupérer l'année sélectionnée
+    // Récupérer les valeurs du filtre
+    const monthSelect = document.getElementById('monthFilter');
     const yearInput = document.getElementById('yearFilter');
+    
+    const selectedMonth = monthSelect ? monthSelect.value : 'all';
     const selectedYear = yearInput ? (parseInt(yearInput.value) || new Date().getFullYear()) : new Date().getFullYear();
     
-    console.log(`📅 Année sélectionnée: ${selectedYear}, Factures: ${statsAllInvoices.length}`);
+    console.log(`📅 Filtre actif: Mois=${selectedMonth}, Année=${selectedYear}`);
     
     // Structure pour stocker les données par semaine
     const allWeeks = new Set();
     const boutiqueData = {};
     
-    // Initialiser les données pour chaque boutique
     for (const boutique of BOUTIQUES_LIST) {
         boutiqueData[boutique.name] = {};
     }
     
-    // Fonction pour obtenir le numéro de semaine (ISO : lundi au dimanche)
     function getWeekNumber(date) {
         const d = new Date(date);
         d.setHours(0, 0, 0, 0);
@@ -2450,7 +2451,8 @@ function updateEvolutionMensuelleChart() {
         return 1 + Math.round(((d - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
     }
     
-    // Parcourir toutes les factures
+    let facturesAffichees = 0;
+    
     statsAllInvoices.forEach(inv => {
         let date;
         if (inv.date && inv.date.seconds) {
@@ -2460,48 +2462,44 @@ function updateEvolutionMensuelleChart() {
         }
         
         const annee = date.getFullYear();
+        const mois = date.getMonth() + 1;
         
-        // Filtrer par année sélectionnée
+        // Filtrer par année
         if (annee !== selectedYear) return;
         
-        // Obtenir le numéro de semaine
+        // Filtrer par mois (si différent de 'all')
+        if (selectedMonth !== 'all' && mois != parseInt(selectedMonth)) return;
+        
         const semaine = getWeekNumber(date);
         const semaineKey = `${annee}-S${semaine}`;
-        
-        // Récupérer le nom de la boutique
         const boutiqueName = inv.boutiqueName || getBoutiqueNameById(inv.boutique);
-        
-        // Calculer le montant payé
         const montantPaye = inv.paiement?.montantPaye || 0;
         
-        if (montantPaye > 0) {
+        if (montantPaye > 0 && boutiqueData[boutiqueName]) {
             allWeeks.add(semaineKey);
-            if (boutiqueData[boutiqueName]) {
-                boutiqueData[boutiqueName][semaineKey] = (boutiqueData[boutiqueName][semaineKey] || 0) + montantPaye;
-            }
+            boutiqueData[boutiqueName][semaineKey] = (boutiqueData[boutiqueName][semaineKey] || 0) + montantPaye;
+            facturesAffichees++;
         }
     });
     
-    // Trier les semaines dans l'ordre
+    console.log(`📊 ${facturesAffichees} factures affichées après filtrage`);
+    
     const sortedWeeks = Array.from(allWeeks).sort((a, b) => {
         const numA = parseInt(a.split('-S')[1]);
         const numB = parseInt(b.split('-S')[1]);
         return numA - numB;
     });
     
-    // Formater les labels des semaines
     const weekLabels = sortedWeeks.map(w => {
         const semaine = w.split('-S')[1];
         return `Semaine ${semaine}`;
     });
     
-    // Créer les datasets avec les couleurs des boutiques
     const datasets = [];
     
     for (const boutique of BOUTIQUES_LIST) {
         const data = sortedWeeks.map(week => boutiqueData[boutique.name]?.[week] || 0);
         
-        // N'afficher que les boutiques qui ont des ventes
         if (data.some(v => v > 0)) {
             datasets.push({
                 label: boutique.name,
@@ -2547,54 +2545,25 @@ function updateEvolutionMensuelleChart() {
         options: {
             responsive: true,
             maintainAspectRatio: true,
-            interaction: {
-                mode: 'index',
-                intersect: false
-            },
+            interaction: { mode: 'index', intersect: false },
             plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        usePointStyle: true,
-                        boxWidth: 10,
-                        font: { size: 11 }
-                    }
-                },
+                legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 10, font: { size: 11 } } },
                 tooltip: {
                     mode: 'index',
                     intersect: false,
-                    callbacks: {
-                        label: (ctx) => {
-                            let label = ctx.dataset.label || '';
-                            let value = ctx.raw;
-                            return `${label}: ${value.toLocaleString('fr-FR')} FCFA`;
-                        }
-                    }
+                    callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.toLocaleString('fr-FR')} FCFA` }
                 }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Chiffre d\'affaires (FCFA)',
-                        color: '#64748b'
-                    },
-                    ticks: {
-                        callback: (value) => value.toLocaleString('fr-FR') + ' FCFA'
-                    },
+                    title: { display: true, text: 'Chiffre d\'affaires (FCFA)', color: '#64748b' },
+                    ticks: { callback: (value) => value.toLocaleString('fr-FR') + ' FCFA' },
                     grid: { color: '#e2e8f0' }
                 },
                 x: {
-                    title: {
-                        display: true,
-                        text: 'Période',
-                        color: '#64748b'
-                    },
-                    ticks: {
-                        maxRotation: 45,
-                        minRotation: 45
-                    },
+                    title: { display: true, text: 'Période', color: '#64748b' },
+                    ticks: { maxRotation: 45, minRotation: 45 },
                     grid: { display: false }
                 }
             }
@@ -2808,10 +2777,23 @@ function updateTopClientsChart() {
 }
 
 // Filtrer par mois et mettre à jour
+// Filtrer par mois et mettre à jour
 function applyMonthFilter() {
-    currentMonthFilter = document.getElementById('monthFilter').value;
-    currentYearFilter = parseInt(document.getElementById('yearFilter').value) || 2026;
+    const monthSelect = document.getElementById('monthFilter');
+    const yearInput = document.getElementById('yearFilter');
+    
+    currentMonthFilter = monthSelect ? monthSelect.value : 'all';
+    currentYearFilter = yearInput ? (parseInt(yearInput.value) || new Date().getFullYear()) : new Date().getFullYear();
+    
+    console.log(`📅 Filtre appliqué: Mois=${currentMonthFilter}, Année=${currentYearFilter}`);
+    
+    // Mettre à jour le graphique d'évolution hebdomadaire
     updateEvolutionMensuelleChart();
+    
+    // Mettre à jour aussi les autres graphiques si besoin
+    updateCAParBoutiqueChart();
+    updateRepartitionVentesChart();
+    updateTopClientsChart();
 }
 
 // Initialiser les événements de la page
