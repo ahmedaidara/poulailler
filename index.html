@@ -1329,20 +1329,23 @@
                 <h2 class="section-title"><i class="fas fa-history"></i> Historique des Enregistrements</h2>
                 
                 <div class="table-container">
-                    <div class="table-header">
+                   <div class="table-header">
     <div class="filters">
         <button class="filter-btn active" data-filter="all">Tous</button>
         <button class="filter-btn" data-filter="today">Aujourd'hui</button>
         <button class="filter-btn" data-filter="week">Cette semaine</button>
         <button class="filter-btn" data-filter="month">Ce mois</button>
     </div>
-    <div style="display: flex; gap: 10px;">
+    <div style="display: flex; gap: 10px; align-items: center;">
         <button id="newRecordFromHistoryBtn" class="btn btn-primary" style="padding: 8px 16px;">
             <i class="fas fa-plus"></i> Nouvel enregistrement
         </button>
+        <button id="addFirstRecordBtn" class="btn btn-primary" style="padding: 8px 16px; background: linear-gradient(90deg, #10B981, #059669);">
+            <i class="fas fa-plus"></i> Ajouter un enregistrement
+        </button>
         <div class="search-container">
             <i class="fas fa-search search-icon"></i>
-            <input type="text" id="searchInput" class="search-input" placeholder="Rechercher une date ou une note...">
+            <input type="text" id="searchInput" class="search-input" placeholder="Rechercher...">
         </div>
     </div>
 </div>
@@ -1673,7 +1676,7 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="stockTotalDispo" class="form-label">Stock disponible total</label>
+                <label for="stockTotalDispo" class="form-label">Stock </label>
                 <input type="text" id="stockTotalDispo" class="form-input" readonly value="0">
             </div>
         </div>
@@ -3484,7 +3487,7 @@ const finalLostGiven = isNaN(totalLostGiven) ? 0 : totalLostGiven;
         });
 }
         
-     function viewRecord(recordId) {
+  function viewRecord(recordId) {
     const record = allRecords.find(r => r.id === recordId);
     if (!record) return;
     
@@ -3505,8 +3508,8 @@ const finalLostGiven = isNaN(totalLostGiven) ? 0 : totalLostGiven;
     const startDateFormatted = formatDate(record.startDate);
     const endDateFormatted = record.endDate ? formatDate(record.endDate) : 'Non définie';
     
-       
-   let content = `
+    // NOUVEAU CONTENU SANS "Donnés gratuitement", "Perdus (morts)", "Notes"
+    let content = `
     <div style="background: #f0f9ff; padding: 12px 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #3B82F6;">
         <strong style="font-size: 1.1rem;">🏷️ ${record.productionName || 'Production sans nom'}</strong>
     </div>
@@ -3523,29 +3526,13 @@ const finalLostGiven = isNaN(totalLostGiven) ? 0 : totalLostGiven;
         </div>
         
         <div class="form-group">
-            <label class="form-label">Stock distribuer</label>
+            <label class="form-label">Stock A distribuer</label>
             <div class="form-input" style="background: var(--light-gray);">${record.initialStock || 0}</div>
         </div>
     </div>
+    `;
     
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl);">
-        <div class="form-group">
-            <label class="form-label">Donnés gratuitement</label>
-            <div class="form-input" style="background: var(--light-gray);">${record.given || 0}</div>
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label">Perdus (morts)</label>
-            <div class="form-input" style="background: var(--light-gray);">${record.lost || 0}</div>
-        </div>
-    </div>
-    
-    <div class="form-group">
-        <label class="form-label">Notes</label>
-        <div class="form-input" style="background: var(--light-gray); min-height: 80px;">${record.notes || 'Aucune note'}</div>
-    </div>
-`;
-    // SECTION STOCK DISPONIBLE UNIQUEMENT (sans Ventes par catégorie ni Résumé)
+    // SECTION STOCK DISPONIBLE
     content += `
         <div style="background: #f0f9ff; padding: var(--space-lg); border-radius: var(--radius-lg); margin-top: var(--space-xl);">
             <h4 style="margin-bottom: var(--space-md); color: #0369a1;">
@@ -3554,7 +3541,6 @@ const finalLostGiven = isNaN(totalLostGiven) ? 0 : totalLostGiven;
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-md);">
     `;
 
-    // Liste des catégories avec leurs noms et clés
     const categoriesInfo = [
         { id: 1, name: 'Très petits (1-1.1 kg)', quantityKey: 'small1Quantity', soldKey: 'small1Sold', priceKey: 'small1Price', catKey: 'cat1' },
         { id: 2, name: 'Petits (1.2 kg)', quantityKey: 'small2Quantity', soldKey: 'small2Sold', priceKey: 'small2Price', catKey: 'cat2' },
@@ -3566,9 +3552,7 @@ const finalLostGiven = isNaN(totalLostGiven) ? 0 : totalLostGiven;
         { id: 8, name: 'Géants (+2.4 kg)', quantityKey: 'xlarge2Quantity', soldKey: 'xlarge2Sold', priceKey: 'xlarge2Price', catKey: 'cat8' }
     ];
 
-    // Pour chaque catégorie, calculer le stock disponible
     categoriesInfo.forEach(cat => {
-        // 1. Quantité initiale (priorité à stock_disponible, sinon aux champs individuels)
         let quantiteInitiale = 0;
         
         if (record.stock_disponible && record.stock_disponible[cat.catKey]) {
@@ -3577,39 +3561,26 @@ const finalLostGiven = isNaN(totalLostGiven) ? 0 : totalLostGiven;
             quantiteInitiale = record[cat.quantityKey] || 0;
         }
         
-        // 2. Nombre déjà vendu
         const dejaVendu = record[cat.soldKey] || 0;
-        
-        // 3. Stock restant
         const stockRestant = Math.max(0, quantiteInitiale - dejaVendu);
-        
-        // 4. Prix
         const prix = record[cat.priceKey] || 0;
-        const valeurStock = stockRestant * prix;
         
         content += `
             <div style="background: white; padding: var(--space-md); border-radius: var(--radius-md); border: 1px solid #e0e0e0;">
                 <div style="font-weight: bold; font-size: 0.9rem; margin-bottom: 8px;">${cat.name}</div>
-                
                 <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
                     <small style="color: #666;">Initial:</small>
                     <small style="font-weight: bold;">${quantiteInitiale}</small>
                 </div>
-                
-              
             </div>
         `;
     });
 
-    content += `
-            </div>
-        </div>
-    `;
+    content += `</div></div>`;
     
-    // Afficher le contenu de base
     document.getElementById('viewModalContent').innerHTML = content;
     
-    // Charger et afficher les factures
+    // Charger les factures
     db.collection('invoices')
         .where('productionId', '==', recordId)
         .get()
@@ -3655,9 +3626,8 @@ const finalLostGiven = isNaN(totalLostGiven) ? 0 : totalLostGiven;
                     totalVentes += facture.total || 0;
                 });
                 
-                facturesHTML += `</tbody></table>`;
-                
-                // Résumé des factures
+                facturesHTML += `</tbody>赶`;
+
                 facturesHTML += `
                     <div style="margin-top: 15px; padding: 10px; background: #f0f9ff; border-radius: 8px;">
                         <div style="display: flex; justify-content: space-between;">
@@ -3668,9 +3638,7 @@ const finalLostGiven = isNaN(totalLostGiven) ? 0 : totalLostGiven;
                 </div>`;
             }
             
-            // Ajouter les factures au contenu existant
             document.getElementById('viewModalContent').innerHTML += facturesHTML;
-            
         }).catch(error => {
             console.error('Erreur chargement factures:', error);
         });
@@ -3775,302 +3743,280 @@ if (xlarge2Sold > currentRecordToUpdate.xlarge2Quantity) {
         }
         
         
-        function showEditModal(recordId) {
-            currentRecordToEdit = allRecords.find(r => r.id === recordId);
-            if (!currentRecordToEdit) return;
+       function showEditModal(recordId) {
+    currentRecordToEdit = allRecords.find(r => r.id === recordId);
+    if (!currentRecordToEdit) return;
+    
+    const startDate = currentRecordToEdit.startDate.split('T')[0];
+    const endDate = currentRecordToEdit.endDate ? currentRecordToEdit.endDate.split('T')[0] : '';
+     
+    let form = `
+        <form id="editForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="editStartDate" class="form-label">Date de début *</label>
+                    <input type="date" id="editStartDate" class="form-input" value="${startDate}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editEndDate" class="form-label">Date de fin</label>
+                    <input type="date" id="editEndDate" class="form-input" value="${endDate}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editNewChickens" class="form-label">Stock initial</label>
+                    <input type="number" id="editNewChickens" class="form-input" value="${currentRecordToEdit.newChickens || 0}" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editInitialStock" class="form-label">--</label>
+                    <input type="number" id="editInitialStock" class="form-input" value="${currentRecordToEdit.initialStock || 0}" min="0">
+                </div>
+            </div>
             
-             
-            const startDate = currentRecordToEdit.startDate.split('T')[0];
-            const endDate = currentRecordToEdit.endDate ? currentRecordToEdit.endDate.split('T')[0] : '';
-             
-              
-            let form = `
-                <form id="editForm">
-                    <div class="form-grid">
+            <div class="price-categories">
+                <h3 style="margin-bottom: var(--space-lg);">8 Catégories selon le poids</h3>
+                
+                <div class="price-category">
+                    <h4 style="margin-bottom: var(--space-md);">Très petits (1-1.1 kg)</h4>
+                    <div class="form-row">
                         <div class="form-group">
-                            <label for="editStartDate" class="form-label">Date de début *</label>
-                            <input type="date" id="editStartDate" class="form-input" value="${startDate}" required>
+                            <label for="editSmall1Price" class="form-label">Prix (F CFA)</label>
+                            <input type="number" id="editSmall1Price" class="form-input" value="${currentRecordToEdit.small1Price || 2000}" min="0">
                         </div>
-                        
                         <div class="form-group">
-                            <label for="editEndDate" class="form-label">Date de fin</label>
-                            <input type="date" id="editEndDate" class="form-input" value="${endDate}">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="editNewChickens" class="form-label">STock initiale</label>
-                            <input type="number" id="editNewChickens" class="form-input" value="${currentRecordToEdit.newChickens || 0}" min="0">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="editInitialStock" class="form-label">Stock distribué</label>
-                            <input type="number" id="editInitialStock" class="form-input" value="${currentRecordToEdit.initialStock || 0}" min="0">
+                            <label for="editSmall1Quantity" class="form-label">Quantité</label>
+                            <input type="number" id="editSmall1Quantity" class="form-input" value="${currentRecordToEdit.small1Quantity || 0}" min="0">
                         </div>
                     </div>
-                    
-                  <div class="price-categories">
-    <h3 style="margin-bottom: var(--space-lg);"> 8 Catégories selon le poids</h3>
-    
-    <div class="price-category">
-        <h4 style="margin-bottom: var(--space-md);">  Très petits (1-1.1 kg)</h4>
-        <div class="form-row">
-            <div class="form-group">
-                <label for="editSmall1Price" class="form-label">Prix (F CFA)</label>
-                <input type="number" id="editSmall1Price" class="form-input" value="${currentRecordToEdit.small1Price || 2000}" min="0">
-            </div>
-            <div class="form-group">
-                <label for="editSmall1Quantity" class="form-label">Quantité</label>
-                <input type="number" id="editSmall1Quantity" class="form-input" value="${currentRecordToEdit.small1Quantity || 0}" min="0">
-            </div>
-        </div>
-    </div>
-    
-    <div class="price-category">
-        <h4 style="margin-bottom: var(--space-md);">  Petits (1.2 kg)</h4>
-        <div class="form-row">
-            <div class="form-group">
-                <label for="editSmall2Price" class="form-label">Prix (F CFA)</label>
-                <input type="number" id="editSmall2Price" class="form-input" value="${currentRecordToEdit.small2Price || 2500}" min="0">
-            </div>
-            <div class="form-group">
-                <label for="editSmall2Quantity" class="form-label">Quantité</label>
-                <input type="number" id="editSmall2Quantity" class="form-input" value="${currentRecordToEdit.small2Quantity || 0}" min="0">
-            </div>
-        </div>
-    </div>
-    
-    <div class="price-category">
-        <h4 style="margin-bottom: var(--space-md);">  Moyens-petits (1.3-1.4 kg)</h4>
-        <div class="form-row">
-            <div class="form-group">
-                <label for="editMedium1Price" class="form-label">Prix (F CFA)</label>
-                <input type="number" id="editMedium1Price" class="form-input" value="${currentRecordToEdit.medium1Price || 3000}" min="0">
-            </div>
-            <div class="form-group">
-                <label for="editMedium1Quantity" class="form-label">Quantité</label>
-                <input type="number" id="editMedium1Quantity" class="form-input" value="${currentRecordToEdit.medium1Quantity || 0}" min="0">
-            </div>
-        </div>
-    </div>
-    
-    <div class="price-category">
-        <h4 style="margin-bottom: var(--space-md);">  Moyens (1.5-1.6 kg)</h4>
-        <div class="form-row">
-            <div class="form-group">
-                <label for="editMedium2Price" class="form-label">Prix (F CFA)</label>
-                <input type="number" id="editMedium2Price" class="form-input" value="${currentRecordToEdit.medium2Price || 3300}" min="0">
-            </div>
-            <div class="form-group">
-                <label for="editMedium2Quantity" class="form-label">Quantité</label>
-                <input type="number" id="editMedium2Quantity" class="form-input" value="${currentRecordToEdit.medium2Quantity || 0}" min="0">
-            </div>
-        </div>
-    </div>
-    
-    <div class="price-category">
-        <h4 style="margin-bottom: var(--space-md);">  Moyens-grands (1.7-1.9 kg)</h4>
-        <div class="form-row">
-            <div class="form-group">
-                <label for="editLarge1Price" class="form-label">Prix (F CFA)</label>
-                <input type="number" id="editLarge1Price" class="form-input" value="${currentRecordToEdit.large1Price || 3500}" min="0">
-            </div>
-            <div class="form-group">
-                <label for="editLarge1Quantity" class="form-label">Quantité</label>
-                <input type="number" id="editLarge1Quantity" class="form-input" value="${currentRecordToEdit.large1Quantity || 0}" min="0">
-            </div>
-        </div>
-    </div>
-    
-    <div class="price-category">
-        <h4 style="margin-bottom: var(--space-md);">  Grands (2 kg)</h4>
-        <div class="form-row">
-            <div class="form-group">
-                <label for="editLarge2Price" class="form-label">Prix (F CFA)</label>
-                <input type="number" id="editLarge2Price" class="form-input" value="${currentRecordToEdit.large2Price || 3700}" min="0">
-            </div>
-            <div class="form-group">
-                <label for="editLarge2Quantity" class="form-label">Quantité</label>
-                <input type="number" id="editLarge2Quantity" class="form-input" value="${currentRecordToEdit.large2Quantity || 0}" min="0">
-            </div>
-        </div>
-    </div>
-    
-    <div class="price-category">
-        <h4 style="margin-bottom: var(--space-md);">  Très grands (2.1-2.3 kg)</h4>
-        <div class="form-row">
-            <div class="form-group">
-                <label for="editXLarge1Price" class="form-label">Prix (F CFA)</label>
-                <input type="number" id="editXLarge1Price" class="form-input" value="${currentRecordToEdit.xlarge1Price || 4000}" min="0">
-            </div>
-            <div class="form-group">
-                <label for="editXLarge1Quantity" class="form-label">Quantité</label>
-                <input type="number" id="editXLarge1Quantity" class="form-input" value="${currentRecordToEdit.xlarge1Quantity || 0}" min="0">
-            </div>
-        </div>
-    </div>
-    
-    <div class="price-category">
-        <h4 style="margin-bottom: var(--space-md);">  Géants (+2.4 kg)</h4>
-        <div class="form-row">
-            <div class="form-group">
-                <label for="editXLarge2Price" class="form-label">Prix (F CFA)</label>
-                <input type="number" id="editXLarge2Price" class="form-input" value="${currentRecordToEdit.xlarge2Price || 4500}" min="0">
-            </div>
-            <div class="form-group">
-                <label for="editXLarge2Quantity" class="form-label">Quantité</label>
-                <input type="number" id="editXLarge2Quantity" class="form-input" value="${currentRecordToEdit.xlarge2Quantity || 0}" min="0">
-            </div>
-        </div>
-    </div>
-</div>
-                    
-                    <div class="form-grid">
+                </div>
+                
+                <div class="price-category">
+                    <h4 style="margin-bottom: var(--space-md);">Petits (1.2 kg)</h4>
+                    <div class="form-row">
                         <div class="form-group">
-                            <label for="editGrowthRate" class="form-label">Taux de croissance (%)</label>
-                            <input type="number" id="editGrowthRate" class="form-input" value="${currentRecordToEdit.growthRate || 0}" min="0" max="100" step="0.1">
+                            <label for="editSmall2Price" class="form-label">Prix (F CFA)</label>
+                            <input type="number" id="editSmall2Price" class="form-input" value="${currentRecordToEdit.small2Price || 2500}" min="0">
                         </div>
-                        
                         <div class="form-group">
-                            <label for="editLossRate" class="form-label">Taux de perte (%)</label>
-                            <input type="number" id="editLossRate" class="form-input" value="${currentRecordToEdit.lossRate || 0}" min="0" max="100" step="0.1">
+                            <label for="editSmall2Quantity" class="form-label">Quantité</label>
+                            <input type="number" id="editSmall2Quantity" class="form-input" value="${currentRecordToEdit.small2Quantity || 0}" min="0">
                         </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="editNotes" class="form-label">Notes</label>
-                        <textarea id="editNotes" class="form-input" rows="3">${currentRecordToEdit.notes || ''}</textarea>
+                </div>
+                
+                <div class="price-category">
+                    <h4 style="margin-bottom: var(--space-md);">Moyens-petits (1.3-1.4 kg)</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editMedium1Price" class="form-label">Prix (F CFA)</label>
+                            <input type="number" id="editMedium1Price" class="form-input" value="${currentRecordToEdit.medium1Price || 3000}" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="editMedium1Quantity" class="form-label">Quantité</label>
+                            <input type="number" id="editMedium1Quantity" class="form-input" value="${currentRecordToEdit.medium1Quantity || 0}" min="0">
+                        </div>
                     </div>
-                    
-                    <div class="modal-actions">
-                        <button type="button" id="cancelEditBtn" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> Annuler
-                        </button>
-                        <button type="button" id="saveEditBtn" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Enregistrer les modifications
-                        </button>
+                </div>
+                
+                <div class="price-category">
+                    <h4 style="margin-bottom: var(--space-md);">Moyens (1.5-1.6 kg)</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editMedium2Price" class="form-label">Prix (F CFA)</label>
+                            <input type="number" id="editMedium2Price" class="form-input" value="${currentRecordToEdit.medium2Price || 3300}" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="editMedium2Quantity" class="form-label">Quantité</label>
+                            <input type="number" id="editMedium2Quantity" class="form-input" value="${currentRecordToEdit.medium2Quantity || 0}" min="0">
+                        </div>
                     </div>
-                </form>
-            `;
+                </div>
+                
+                <div class="price-category">
+                    <h4 style="margin-bottom: var(--space-md);">Moyens-grands (1.7-1.9 kg)</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editLarge1Price" class="form-label">Prix (F CFA)</label>
+                            <input type="number" id="editLarge1Price" class="form-input" value="${currentRecordToEdit.large1Price || 3500}" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="editLarge1Quantity" class="form-label">Quantité</label>
+                            <input type="number" id="editLarge1Quantity" class="form-input" value="${currentRecordToEdit.large1Quantity || 0}" min="0">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="price-category">
+                    <h4 style="margin-bottom: var(--space-md);">Grands (2 kg)</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editLarge2Price" class="form-label">Prix (F CFA)</label>
+                            <input type="number" id="editLarge2Price" class="form-input" value="${currentRecordToEdit.large2Price || 3700}" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="editLarge2Quantity" class="form-label">Quantité</label>
+                            <input type="number" id="editLarge2Quantity" class="form-input" value="${currentRecordToEdit.large2Quantity || 0}" min="0">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="price-category">
+                    <h4 style="margin-bottom: var(--space-md);">Très grands (2.1-2.3 kg)</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editXLarge1Price" class="form-label">Prix (F CFA)</label>
+                            <input type="number" id="editXLarge1Price" class="form-input" value="${currentRecordToEdit.xlarge1Price || 4000}" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="editXLarge1Quantity" class="form-label">Quantité</label>
+                            <input type="number" id="editXLarge1Quantity" class="form-input" value="${currentRecordToEdit.xlarge1Quantity || 0}" min="0">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="price-category">
+                    <h4 style="margin-bottom: var(--space-md);">Géants (+2.4 kg)</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editXLarge2Price" class="form-label">Prix (F CFA)</label>
+                            <input type="number" id="editXLarge2Price" class="form-input" value="${currentRecordToEdit.xlarge2Price || 4500}" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="editXLarge2Quantity" class="form-label">Quantité</label>
+                            <input type="number" id="editXLarge2Quantity" class="form-input" value="${currentRecordToEdit.xlarge2Quantity || 0}" min="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
             
-            document.getElementById('editModalContent').innerHTML = form;
+            <!-- SECTION SUPPRIMÉE : Taux de croissance, Taux de perte, Notes -->
             
-             
-            document.getElementById('cancelEditBtn').addEventListener('click', () => hideModal('editModal'));
-            document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
-            
-            showModal('editModal');
-        }
+            <div class="modal-actions">
+                <button type="button" id="cancelEditBtn" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button type="button" id="saveEditBtn" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Enregistrer les modifications
+                </button>
+            </div>
+        </form>
+    `;
+    
+    document.getElementById('editModalContent').innerHTML = form;
+    
+    document.getElementById('cancelEditBtn').addEventListener('click', () => hideModal('editModal'));
+    document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
+    
+    showModal('editModal');
+}
         
         
-        function saveEdit() {
-            if (!currentRecordToEdit) return;
-            
-             
-            const startDate = document.getElementById('editStartDate').value;
-            const endDate = document.getElementById('editEndDate').value || null;
-            const newChickens = parseInt(document.getElementById('editNewChickens').value) || 0;
-            const initialStock = parseInt(document.getElementById('editInitialStock').value) || 0;
-            // 8 catégories
-const small1Price = parseInt(document.getElementById('editSmall1Price').value) || 0;
-const small1Quantity = parseInt(document.getElementById('editSmall1Quantity').value) || 0;
-
-const small2Price = parseInt(document.getElementById('editSmall2Price').value) || 0;
-const small2Quantity = parseInt(document.getElementById('editSmall2Quantity').value) || 0;
-
-const medium1Price = parseInt(document.getElementById('editMedium1Price').value) || 0;
-const medium1Quantity = parseInt(document.getElementById('editMedium1Quantity').value) || 0;
-
-const medium2Price = parseInt(document.getElementById('editMedium2Price').value) || 0;
-const medium2Quantity = parseInt(document.getElementById('editMedium2Quantity').value) || 0;
-
-const large1Price = parseInt(document.getElementById('editLarge1Price').value) || 0;
-const large1Quantity = parseInt(document.getElementById('editLarge1Quantity').value) || 0;
-
-const large2Price = parseInt(document.getElementById('editLarge2Price').value) || 0;
-const large2Quantity = parseInt(document.getElementById('editLarge2Quantity').value) || 0;
-
-const xlarge1Price = parseInt(document.getElementById('editXLarge1Price').value) || 0;
-const xlarge1Quantity = parseInt(document.getElementById('editXLarge1Quantity').value) || 0;
-
-const xlarge2Price = parseInt(document.getElementById('editXLarge2Price').value) || 0;
-const xlarge2Quantity = parseInt(document.getElementById('editXLarge2Quantity').value) || 0;
-            const growthRate = parseFloat(document.getElementById('editGrowthRate').value) || 0;
-            const lossRate = parseFloat(document.getElementById('editLossRate').value) || 0;
-            const notes = document.getElementById('editNotes').value;
-            
-            
-            if (!startDate) {
-                showMessage('La date de début est obligatoire', 'error');
-                return;
-            }
-            
-             
-           if (small1Quantity < currentRecordToEdit.small1Sold) {
-    showMessage('La nouvelle quantité de très petits poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
-    return;
-}
-if (small2Quantity < currentRecordToEdit.small2Sold) {
-    showMessage('La nouvelle quantité de petits poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
-    return;
-}
-if (medium1Quantity < currentRecordToEdit.medium1Sold) {
-    showMessage('La nouvelle quantité de moyens-petits poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
-    return;
-}
-if (medium2Quantity < currentRecordToEdit.medium2Sold) {
-    showMessage('La nouvelle quantité de moyens poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
-    return;
-}
-if (large1Quantity < currentRecordToEdit.large1Sold) {
-    showMessage('La nouvelle quantité de moyens-grands poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
-    return;
-}
-if (large2Quantity < currentRecordToEdit.large2Sold) {
-    showMessage('La nouvelle quantité de grands poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
-    return;
-}
-if (xlarge1Quantity < currentRecordToEdit.xlarge1Sold) {
-    showMessage('La nouvelle quantité de très grands poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
-    return;
-}
-if (xlarge2Quantity < currentRecordToEdit.xlarge2Sold) {
-    showMessage('La nouvelle quantité de géants poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
-    return;
-}
-            
-            
-            db.collection('poulailler_records').doc(currentRecordToEdit.id).update({
-    startDate,
-    endDate,
-    newChickens,
-    initialStock,
+       function saveEdit() {
+    if (!currentRecordToEdit) return;
+    
+    // Récupérer les valeurs des champs
+    const startDate = document.getElementById('editStartDate').value;
+    const endDate = document.getElementById('editEndDate').value || null;
+    const newChickens = parseInt(document.getElementById('editNewChickens').value) || 0;
+    const initialStock = parseInt(document.getElementById('editInitialStock').value) || 0;
     
     // 8 catégories
-    small1Price, small1Quantity,
-    small2Price, small2Quantity,
-    medium1Price, medium1Quantity,
-    medium2Price, medium2Quantity,
-    large1Price, large1Quantity,
-    large2Price, large2Quantity,
-    xlarge1Price, xlarge1Quantity,
-    xlarge2Price, xlarge2Quantity,
+    const small1Price = parseInt(document.getElementById('editSmall1Price').value) || 0;
+    const small1Quantity = parseInt(document.getElementById('editSmall1Quantity').value) || 0;
+    const small2Price = parseInt(document.getElementById('editSmall2Price').value) || 0;
+    const small2Quantity = parseInt(document.getElementById('editSmall2Quantity').value) || 0;
+    const medium1Price = parseInt(document.getElementById('editMedium1Price').value) || 0;
+    const medium1Quantity = parseInt(document.getElementById('editMedium1Quantity').value) || 0;
+    const medium2Price = parseInt(document.getElementById('editMedium2Price').value) || 0;
+    const medium2Quantity = parseInt(document.getElementById('editMedium2Quantity').value) || 0;
+    const large1Price = parseInt(document.getElementById('editLarge1Price').value) || 0;
+    const large1Quantity = parseInt(document.getElementById('editLarge1Quantity').value) || 0;
+    const large2Price = parseInt(document.getElementById('editLarge2Price').value) || 0;
+    const large2Quantity = parseInt(document.getElementById('editLarge2Quantity').value) || 0;
+    const xlarge1Price = parseInt(document.getElementById('editXLarge1Price').value) || 0;
+    const xlarge1Quantity = parseInt(document.getElementById('editXLarge1Quantity').value) || 0;
+    const xlarge2Price = parseInt(document.getElementById('editXLarge2Price').value) || 0;
+    const xlarge2Quantity = parseInt(document.getElementById('editXLarge2Quantity').value) || 0;
     
-    growthRate,
-    lossRate,
-    notes,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-})
-            .then(() => {
-                showMessage('Enregistrement modifié avec succès!', 'success');
-                hideModal('editModal');
-                loadRecords();
-                currentRecordToEdit = null;
-            })
-            .catch(error => {
-                console.error("Erreur de modification d'enregistrement:", error);
-                showMessage("Erreur lors de la modification de l'enregistrement", 'error');
-            });
-        }
+    // Validation de la date
+    if (!startDate) {
+        showMessage('La date de début est obligatoire', 'error');
+        return;
+    }
+    
+    // Validations des quantités
+    if (small1Quantity < (currentRecordToEdit.small1Sold || 0)) {
+        showMessage('La nouvelle quantité de très petits poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
+        return;
+    }
+    if (small2Quantity < (currentRecordToEdit.small2Sold || 0)) {
+        showMessage('La nouvelle quantité de petits poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
+        return;
+    }
+    if (medium1Quantity < (currentRecordToEdit.medium1Sold || 0)) {
+        showMessage('La nouvelle quantité de moyens-petits poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
+        return;
+    }
+    if (medium2Quantity < (currentRecordToEdit.medium2Sold || 0)) {
+        showMessage('La nouvelle quantité de moyens poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
+        return;
+    }
+    if (large1Quantity < (currentRecordToEdit.large1Sold || 0)) {
+        showMessage('La nouvelle quantité de moyens-grands poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
+        return;
+    }
+    if (large2Quantity < (currentRecordToEdit.large2Sold || 0)) {
+        showMessage('La nouvelle quantité de grands poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
+        return;
+    }
+    if (xlarge1Quantity < (currentRecordToEdit.xlarge1Sold || 0)) {
+        showMessage('La nouvelle quantité de très grands poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
+        return;
+    }
+    if (xlarge2Quantity < (currentRecordToEdit.xlarge2Sold || 0)) {
+        showMessage('La nouvelle quantité de géants poulets ne peut pas être inférieure au nombre déjà vendu', 'error');
+        return;
+    }
+    
+    // Préparer l'objet de mise à jour (SANS growthRate, lossRate, notes)
+    const updateData = {
+        startDate: startDate,
+        endDate: endDate,
+        newChickens: newChickens,
+        initialStock: initialStock,
+        small1Price: small1Price,
+        small1Quantity: small1Quantity,
+        small2Price: small2Price,
+        small2Quantity: small2Quantity,
+        medium1Price: medium1Price,
+        medium1Quantity: medium1Quantity,
+        medium2Price: medium2Price,
+        medium2Quantity: medium2Quantity,
+        large1Price: large1Price,
+        large1Quantity: large1Quantity,
+        large2Price: large2Price,
+        large2Quantity: large2Quantity,
+        xlarge1Price: xlarge1Price,
+        xlarge1Quantity: xlarge1Quantity,
+        xlarge2Price: xlarge2Price,
+        xlarge2Quantity: xlarge2Quantity,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    // Mettre à jour dans Firebase
+    db.collection('poulailler_records').doc(currentRecordToEdit.id).update(updateData)
+        .then(() => {
+            showMessage('✅ Enregistrement modifié avec succès!', 'success');
+            hideModal('editModal');
+            loadRecords();
+            currentRecordToEdit = null;
+        })
+        .catch(error => {
+            console.error("Erreur:", error);
+            showMessage("❌ Erreur lors de la modification: " + error.message, 'error');
+        });
+}
         
          
        function showDeleteModal(recordId) {
