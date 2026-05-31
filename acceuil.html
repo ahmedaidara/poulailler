@@ -393,6 +393,102 @@
         grid-template-columns: 1fr;
     }
 }
+      
+      /* Styles pour la page Caisse */
+.caisse-boutique-card {
+    background: white;
+    border-radius: 20px;
+    margin-bottom: 25px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: 1px solid #e2e8f0;
+}
+
+.caisse-boutique-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.caisse-boutique-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.caisse-boutique-header .badge {
+    background: rgba(255,255,255,0.2);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+
+.caisse-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    padding: 20px;
+}
+
+.caisse-stat-card {
+    background: #f8fafc;
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+    transition: transform 0.2s;
+    border-left: 4px solid;
+}
+
+.caisse-stat-card:hover {
+    transform: translateY(-3px);
+}
+
+.caisse-stat-card.especes { border-left-color: #10b981; }
+.caisse-stat-card.wave { border-left-color: #3b82f6; }
+.caisse-stat-card.orange { border-left-color: #f59e0b; }
+.caisse-stat-card.impaye { border-left-color: #ef4444; }
+.caisse-stat-card.total { border-left-color: #8b5cf6; }
+
+.caisse-stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 8px 0;
+}
+
+.caisse-stat-label {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.caisse-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+
+.caisse-detail-table th,
+.caisse-detail-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.caisse-detail-table th {
+    background: #f1f5f9;
+    font-weight: 600;
+}
+
+.caisse-period-info {
+    background: #f1f5f9;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.85rem;
+}
     </style>
 </head>
 <body>
@@ -407,6 +503,7 @@
              <button class="nav-btn" data-section="losses">📉 Pertes</button>
       <button class="nav-btn" data-section="tiktokstats">📱 TikTok Shop</button>
           <button class="nav-btn" data-section="boutiquestats">📈 Statistiques Boutiques</button>
+      <button class="nav-btn" data-section="caisse">💰 Caisse</button>
 
     </div>
 
@@ -717,6 +814,48 @@
             </div>
         </div>
     </div>
+  
+  <!-- SECTION CAISSE -->
+<div id="caisseSection" class="section">
+    <div class="stats-boutiques-container">
+        <h2 style="margin-bottom: 20px;">💰 CAISSE - STATISTIQUES DE PAIEMENT</h2>
+        
+        <!-- Sélecteur de production -->
+        <div class="production-selector">
+            <label><i class="fas fa-calendar-alt"></i> Sélectionner une production :</label>
+            <select id="caisseProductionSelect">
+                <option value="">Chargement des productions...</option>
+            </select>
+        </div>
+        
+        <!-- Période d'affichage -->
+        <div style="background: white; padding: 20px; border-radius: 20px; margin-bottom: 30px;">
+            <h3 style="margin-bottom: 15px;"><i class="fas fa-calendar-alt"></i> Période</h3>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+                <button id="caisseTodayBtn" class="btn-filter" style="background: #667eea;">📅 Aujourd'hui</button>
+                <button id="caisseWeekBtn" class="btn-filter" style="background: #8b5cf6;">📆 Cette semaine</button>
+                <button id="caisseMonthBtn" class="btn-filter" style="background: #10b981;">📅 Ce mois</button>
+            </div>
+            
+            <!-- Date personnalisée -->
+            <div style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+                <div style="flex: 1;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Date personnalisée</label>
+                    <input type="date" id="caisseCustomDate" class="form-input" style="padding: 10px; border-radius: 10px; border: 1px solid #cbd5e1; width: 100%;">
+                </div>
+                <button id="caisseCustomBtn" class="btn-filter" style="background: #f59e0b;">🔍 Voir</button>
+            </div>
+        </div>
+        
+        <!-- Résultats pour chaque boutique -->
+        <div id="caisseResultsContainer">
+            <div style="text-align: center; padding: 60px; background: white; border-radius: 20px;">
+                <i class="fas fa-cash-register" style="font-size: 3rem; color: #667eea; margin-bottom: 15px;"></i>
+                <p style="color: #666;">Sélectionnez une production et une période pour voir les statistiques</p>
+            </div>
+        </div>
+    </div>
+</div>
 </div>
 
 <script>
@@ -1606,7 +1745,15 @@ function renderDashboardMetrics() {
                     updateTikTokChart();
                 }
             }
-            
+            if(sectionId === 'caisse') {
+    // Recharger les données de la caisse quand on ouvre l'onglet    
+    if (typeof loadCaisseProductions === 'function') {
+        loadCaisseProductions();
+    }
+    if (typeof refreshCaisse === 'function') {
+        refreshCaisse();
+    }
+}
             // ⬇️⬇️⬇️ NOUVEAU CODE À AJOUTER ICI ⬇️⬇️⬇️
             if(sectionId === 'boutiquestats') {
                 // Recharger les stats des boutiques quand on ouvre l'onglet
@@ -2796,6 +2943,492 @@ function applyMonthFilter() {
     updateTopClientsChart();
 }
 
+      // ==============================================
+// PAGE CAISSE - STATISTIQUES PAR BOUTIQUE
+// ==============================================
+
+let caisseProductions = [];
+let caisseCurrentProductionId = null;
+let caisseCurrentPeriod = 'month';
+let caisseAllInvoices = [];
+
+// Charger les productions pour le sélecteur
+async function loadCaisseProductions() {
+    console.log("💰 Chargement productions pour la caisse...");
+    
+    const select = document.getElementById('caisseProductionSelect');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">-- Chargement... --</option>';
+    
+    try {
+        // Utiliser allProductions déjà chargé
+        if (allProductions.length === 0) {
+            console.log("⏳ Attente chargement productions...");
+            setTimeout(loadCaisseProductions, 1000);
+            return;
+        }
+        
+        caisseProductions = [...allProductions];
+        
+        // Trier par date de début (plus récente d'abord)
+        caisseProductions.sort((a, b) => {
+            const dateA = new Date(a.startDate || 0);
+            const dateB = new Date(b.startDate || 0);
+            return dateB - dateA;
+        });
+        
+        select.innerHTML = '<option value="">-- Sélectionner une production --</option>';
+        
+        caisseProductions.forEach(prod => {
+            const date = new Date(prod.startDate);
+            const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
+            select.innerHTML += `<option value="${prod.id}">${prod.productionName || 'Production'} - ${dateStr} (${prod.newChickens || 0} poulets)</option>`;
+        });
+        
+        if (caisseProductions.length > 0) {
+            select.value = caisseProductions[0].id;
+            caisseCurrentProductionId = caisseProductions[0].id;
+            await loadCaisseInvoices(caisseCurrentProductionId);
+        }
+        
+    } catch (error) {
+        console.error("Erreur chargement productions caisse:", error);
+        select.innerHTML = '<option value="">-- Erreur de chargement --</option>';
+    }
+}
+
+ async function loadCaisseInvoices(productionId) {
+    if (!productionId) return;
+    
+    console.log(`💰 Chargement factures pour production: ${productionId}`);
+    
+    const container = document.getElementById('caisseResultsContainer');
+    container.innerHTML = `<div style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i><p>Chargement des statistiques...</p></div>`;
+    
+    try {
+        // Charger les factures normales
+        const invoicesSnapshot = await db.collection('invoices')
+            .where('productionId', '==', productionId)
+            .get();
+        
+        const invoicesList = [];
+        invoicesSnapshot.forEach(doc => {
+            invoicesList.push({ id: doc.id, ...doc.data() });
+        });
+        
+        // Charger les commandes TikTok
+        const tiktokSnapshot = await db.collection('orders')
+            .where('boutique', '==', 'en-ligne')
+            .get();
+        
+        const tiktokOrders = [];
+        tiktokSnapshot.forEach(doc => {
+            const order = doc.data();
+            tiktokOrders.push({
+                id: doc.id,
+                boutique: 'en-ligne',
+                boutiqueName: 'TikTok Shop',
+                productionId: productionId,
+                client: order.client || { name: 'Client TikTok', phone: order.client?.phone || '' },
+                items: order.items || [],
+                total: order.total || 0,
+                paiement: {
+                    montantPaye: order.paymentReceived || 0,
+                    resteAPayer: (order.total || 0) - (order.paymentReceived || 0),
+                    statut: order.paymentStatus === 'paye' ? 'paye' : (order.paymentStatus === 'partiel' ? 'partiel' : 'impaye'),
+                    modePaiement: 'wave'
+                },
+                date: order.createdAt || new Date(),
+                invoiceNumber: order.orderNumber || `TIK-${doc.id.slice(0,8)}`
+            });
+        });
+        
+        // Fusionner
+        caisseAllInvoices = [...invoicesList, ...tiktokOrders];
+        
+        console.log(`💰 ${invoicesList.length} factures + ${tiktokOrders.length} TikTok = ${caisseAllInvoices.length} total`);
+        
+        // Afficher les résultats
+        renderCaisseResults();
+        
+    } catch (error) {
+        console.error("Erreur chargement factures caisse:", error);
+        container.innerHTML = `<div style="text-align: center; padding: 40px; color: red;"><i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i><p>Erreur: ${error.message}</p></div>`;
+    }
+}
+
+// Filtrer les factures par date
+function filterCaisseInvoicesByDate(invoices, period, customDate = null) {
+    const now = new Date();
+    let startDate, endDate;
+    
+    if (period === 'today') {
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    } 
+    else if (period === 'week') {
+        const dayOfWeek = now.getDay();
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1));
+        startOfWeek.setHours(0, 0, 0, 0);
+        startDate = startOfWeek;
+        endDate = new Date(startOfWeek);
+        endDate.setDate(startOfWeek.getDate() + 7);
+    }
+    else if (period === 'month') {
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    }
+    else if (period === 'custom' && customDate) {
+        startDate = new Date(customDate);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(customDate);
+        endDate.setHours(23, 59, 59, 999);
+    }
+    
+    return invoices.filter(inv => {
+        let invoiceDate;
+        if (inv.date && inv.date.seconds) {
+            invoiceDate = new Date(inv.date.seconds * 1000);
+        } else if (inv.date) {
+            invoiceDate = new Date(inv.date);
+        } else {
+            return false;
+        }
+        
+        return invoiceDate >= startDate && invoiceDate < endDate;
+    });
+}
+
+// Calculer les statistiques pour une boutique
+function calculateCaisseBoutiqueStats(invoices, boutiqueId) {
+    const boutiqueInvoices = invoices.filter(inv => inv.boutique === boutiqueId);
+    
+    let especes = 0;
+    let wave = 0;
+    let orangeMoney = 0;
+    let totalPaye = 0;
+    let totalFactures = 0;
+    let impaye = 0;
+    
+    boutiqueInvoices.forEach(inv => {
+        const paiement = inv.paiement || { montantPaye: 0, modePaiement: 'especes', statut: 'impaye' };
+        const montantPaye = paiement.montantPaye || 0;
+        const totalFacture = inv.total || 0;
+        
+        totalPaye += montantPaye;
+        totalFactures += totalFacture;
+        impaye += (totalFacture - montantPaye);
+        
+        if (montantPaye > 0) {
+            if (paiement.modePaiement === 'especes') {
+                especes += montantPaye;
+            } else if (paiement.modePaiement === 'wave') {
+                wave += montantPaye;
+            } else if (paiement.modePaiement === 'orange') {
+                orangeMoney += montantPaye;
+            }
+        }
+    });
+    
+    return {
+        especes, wave, orangeMoney, totalPaye, totalFactures, impaye,
+        nbFactures: boutiqueInvoices.length
+    };
+}
+
+// Obtenir le nom de la boutique par ID
+function getCaisseBoutiqueName(boutiqueId) {
+    const boutiques = {
+        'sacre-coeur-1': 'Sacré Coeur 1',
+        'keur-massar': 'Keur Massar',
+        'sebikotane': 'Sebikotane',
+        'front-terre': 'Front de Terre',
+        'sacre-coeur-3': 'Sacré Coeur 3',
+        'en-ligne': 'TikTok Shop'
+    };
+    return boutiques[boutiqueId] || boutiqueId;
+}
+
+// Obtenir la couleur d'une boutique
+function getCaisseBoutiqueColor(boutiqueId) {
+    const colors = {
+        'sacre-coeur-1': '#3B82F6',
+        'keur-massar': '#10B981',
+        'sebikotane': '#F59E0B',
+        'front-terre': '#EF4444',
+        'sacre-coeur-3': '#8B5CF6',
+        'en-ligne': '#EC4899'
+    };
+    return colors[boutiqueId] || '#667eea';
+}
+
+// Afficher les résultats de la caisse
+function renderCaisseResults() {
+    const container = document.getElementById('caisseResultsContainer');
+    
+    // Filtrer par période
+    let filteredInvoices = caisseAllInvoices;
+    
+    if (caisseCurrentPeriod === 'today') {
+        filteredInvoices = filterCaisseInvoicesByDate(caisseAllInvoices, 'today');
+    } else if (caisseCurrentPeriod === 'week') {
+        filteredInvoices = filterCaisseInvoicesByDate(caisseAllInvoices, 'week');
+    } else if (caisseCurrentPeriod === 'month') {
+        filteredInvoices = filterCaisseInvoicesByDate(caisseAllInvoices, 'month');
+    } else if (caisseCurrentPeriod === 'custom') {
+        const customDate = document.getElementById('caisseCustomDate').value;
+        if (customDate) {
+            filteredInvoices = filterCaisseInvoicesByDate(caisseAllInvoices, 'custom', customDate);
+        }
+    }
+    
+    // Préparer le texte de la période
+    let periodText = '';
+    if (caisseCurrentPeriod === 'today') periodText = "Aujourd'hui";
+    else if (caisseCurrentPeriod === 'week') periodText = "Cette semaine";
+    else if (caisseCurrentPeriod === 'month') periodText = "Ce mois";
+    else if (caisseCurrentPeriod === 'custom') {
+        const customDate = document.getElementById('caisseCustomDate').value;
+        periodText = customDate ? new Date(customDate).toLocaleDateString('fr-FR') : "Date personnalisée";
+    }
+    
+    // Liste des boutiques à afficher
+    const boutiqueIds = ['sacre-coeur-1', 'keur-massar', 'sebikotane', 'front-terre', 'sacre-coeur-3', 'en-ligne'];
+    
+    let html = `
+        <div style="margin-bottom: 20px;">
+            <div class="caisse-period-info">
+                <span><i class="fas fa-calendar"></i> <strong>Période:</strong> ${periodText}</span>
+                <span><i class="fas fa-chart-simple"></i> <strong>Total factures:</strong> ${filteredInvoices.length}</span>
+                <span><i class="fas fa-store"></i> <strong>${caisseProductions.find(p => p.id === caisseCurrentProductionId)?.productionName || 'Production'}</strong></span>
+            </div>
+        </div>
+    `;
+    
+    let totalGeneral = {
+        especes: 0, wave: 0, orangeMoney: 0, totalPaye: 0, totalFactures: 0, impaye: 0
+    };
+    
+    // Générer une carte pour chaque boutique
+    for (const boutiqueId of boutiqueIds) {
+        const stats = calculateCaisseBoutiqueStats(filteredInvoices, boutiqueId);
+        const boutiqueName = getCaisseBoutiqueName(boutiqueId);
+        const boutiqueColor = getCaisseBoutiqueColor(boutiqueId);
+        
+        // Ajouter aux totaux généraux
+        totalGeneral.especes += stats.especes;
+        totalGeneral.wave += stats.wave;
+        totalGeneral.orangeMoney += stats.orangeMoney;
+        totalGeneral.totalPaye += stats.totalPaye;
+        totalGeneral.totalFactures += stats.totalFactures;
+        totalGeneral.impaye += stats.impaye;
+        
+        // Ne pas afficher les boutiques sans données
+        const hasData = stats.especes > 0 || stats.wave > 0 || stats.orangeMoney > 0 || stats.totalFactures > 0;
+        
+        html += `
+            <div class="caisse-boutique-card">
+                <div class="caisse-boutique-header" style="background: linear-gradient(135deg, ${boutiqueColor} 0%, ${boutiqueColor}cc 100%);">
+                    <h3><i class="fas fa-store"></i> ${boutiqueName}</h3>
+                    <div class="badge">${stats.nbFactures} facture(s)</div>
+                </div>
+                
+                <div class="caisse-stats-grid">
+                    <div class="caisse-stat-card especes">
+                        <div class="caisse-stat-label">💵 Espèces</div>
+                        <div class="caisse-stat-value">${stats.especes.toLocaleString('fr-FR')} F CFA</div>
+                    </div>
+                    <div class="caisse-stat-card wave">
+                        <div class="caisse-stat-label">📱 Wave</div>
+                        <div class="caisse-stat-value">${stats.wave.toLocaleString('fr-FR')} F CFA</div>
+                    </div>
+                    <div class="caisse-stat-card orange">
+                        <div class="caisse-stat-label">📱 Orange Money</div>
+                        <div class="caisse-stat-value">${stats.orangeMoney.toLocaleString('fr-FR')} F CFA</div>
+                    </div>
+                    <div class="caisse-stat-card impaye">
+                        <div class="caisse-stat-label">⚠️ Impayés / Reste</div>
+                        <div class="caisse-stat-value">${stats.impaye.toLocaleString('fr-FR')} F CFA</div>
+                    </div>
+                    <div class="caisse-stat-card total">
+                        <div class="caisse-stat-label">💰 Total encaissé</div>
+                        <div class="caisse-stat-value">${stats.totalPaye.toLocaleString('fr-FR')} F CFA</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Ajouter le récapitulatif général
+    html += `
+        <div class="caisse-boutique-card" style="margin-top: 20px;">
+            <div class="caisse-boutique-header" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
+                <h3><i class="fas fa-chart-line"></i> RÉCAPITULATIF GÉNÉRAL</h3>
+                <div class="badge">Toutes boutiques</div>
+            </div>
+            <div class="caisse-stats-grid">
+                <div class="caisse-stat-card especes">
+                    <div class="caisse-stat-label">💵 Espèces</div>
+                    <div class="caisse-stat-value">${totalGeneral.especes.toLocaleString('fr-FR')} F CFA</div>
+                </div>
+                <div class="caisse-stat-card wave">
+                    <div class="caisse-stat-label">📱 Wave</div>
+                    <div class="caisse-stat-value">${totalGeneral.wave.toLocaleString('fr-FR')} F CFA</div>
+                </div>
+                <div class="caisse-stat-card orange">
+                    <div class="caisse-stat-label">📱 Orange Money</div>
+                    <div class="caisse-stat-value">${totalGeneral.orangeMoney.toLocaleString('fr-FR')} F CFA</div>
+                </div>
+                <div class="caisse-stat-card impaye">
+                    <div class="caisse-stat-label">⚠️ Impayés / Reste</div>
+                    <div class="caisse-stat-value">${totalGeneral.impaye.toLocaleString('fr-FR')} F CFA</div>
+                </div>
+                <div class="caisse-stat-card total">
+                    <div class="caisse-stat-label">💰 Total encaissé</div>
+                    <div class="caisse-stat-value">${totalGeneral.totalPaye.toLocaleString('fr-FR')} F CFA</div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Ajouter le détail des factures si demandé
+    if (filteredInvoices.length > 0 && filteredInvoices.length <= 50) {
+        html += `
+            <div class="caisse-boutique-card" style="margin-top: 20px;">
+                <div class="caisse-boutique-header" style="background: linear-gradient(135deg, #475569 0%, #334155 100%);">
+                    <h3><i class="fas fa-list"></i> Détail des factures</h3>
+                    <div class="badge">${filteredInvoices.length} facture(s)</div>
+                </div>
+                <div style="padding: 20px; overflow-x: auto;">
+                    <table class="caisse-detail-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>N° Facture</th>
+                                <th>Boutique</th>
+                                <th>Client</th>
+                                <th>Total</th>
+                                <th>Payé</th>
+                                <th>Mode</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        `;
+        
+        const sortedInvoices = [...filteredInvoices].sort((a, b) => {
+            const dateA = a.date?.seconds ? a.date.seconds : 0;
+            const dateB = b.date?.seconds ? b.date.seconds : 0;
+            return dateB - dateA;
+        });
+        
+        sortedInvoices.forEach(inv => {
+            let date;
+            if (inv.date && inv.date.seconds) {
+                date = new Date(inv.date.seconds * 1000);
+            } else {
+                date = new Date(inv.date || Date.now());
+            }
+            const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
+            
+            const paiement = inv.paiement || { montantPaye: 0, modePaiement: 'especes', statut: 'impaye' };
+            const boutiqueName = getCaisseBoutiqueName(inv.boutique);
+            
+            let modeIcon = paiement.modePaiement === 'especes' ? '💵' : (paiement.modePaiement === 'wave' ? '📱' : '📱');
+            let modeText = paiement.modePaiement === 'especes' ? 'Espèces' : (paiement.modePaiement === 'wave' ? 'Wave' : 'Orange');
+            
+            let statutText = '';
+            let statutColor = '';
+            if (paiement.statut === 'paye') { statutText = 'Payé'; statutColor = '#10b981'; }
+            else if (paiement.statut === 'partiel') { statutText = 'Partiel'; statutColor = '#f59e0b'; }
+            else { statutText = 'Impayé'; statutColor = '#ef4444'; }
+            
+            html += `
+                <tr>
+                    <td>${dateStr}</td>
+                    <td><strong>${inv.invoiceNumber || 'N/A'}</strong></td>
+                    <td>${boutiqueName}</td>
+                    <td>${inv.client?.name || 'Anonyme'}</td>
+                    <td>${(inv.total || 0).toLocaleString('fr-FR')} F</td>
+                    <td style="color:#10b981;">${(paiement.montantPaye || 0).toLocaleString('fr-FR')} F</td>
+                    <td>${modeIcon} ${modeText}</td>
+                    <td style="color:${statutColor};">${statutText}</td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    }
+    
+    container.innerHTML = html;
+}
+
+// Rafraîchir la caisse
+async function refreshCaisse() {
+    if (caisseCurrentProductionId) {
+        await loadCaisseInvoices(caisseCurrentProductionId);
+    } else {
+        const select = document.getElementById('caisseProductionSelect');
+        if (select && select.value) {
+            caisseCurrentProductionId = select.value;
+            await loadCaisseInvoices(caisseCurrentProductionId);
+        }
+    }
+}
+
+// Initialiser les événements de la page Caisse
+function initCaissePage() {
+    console.log("💰 Initialisation page Caisse");
+    
+    const productionSelect = document.getElementById('caisseProductionSelect');
+    if (productionSelect) {
+        productionSelect.addEventListener('change', async function() {
+            caisseCurrentProductionId = this.value;
+            if (caisseCurrentProductionId) {
+                await loadCaisseInvoices(caisseCurrentProductionId);
+            }
+        });
+    }
+    
+    document.getElementById('caisseTodayBtn')?.addEventListener('click', () => {
+        caisseCurrentPeriod = 'today';
+        refreshCaisse();
+    });
+    
+    document.getElementById('caisseWeekBtn')?.addEventListener('click', () => {
+        caisseCurrentPeriod = 'week';
+        refreshCaisse();
+    });
+    
+    document.getElementById('caisseMonthBtn')?.addEventListener('click', () => {
+        caisseCurrentPeriod = 'month';
+        refreshCaisse();
+    });
+    
+    document.getElementById('caisseCustomBtn')?.addEventListener('click', () => {
+        const customDate = document.getElementById('caisseCustomDate').value;
+        if (customDate) {
+            caisseCurrentPeriod = 'custom';
+            refreshCaisse();
+        } else {
+            alert('Veuillez sélectionner une date');
+        }
+    });
+}
+
+// Charger au démarrage
+setTimeout(() => {
+    loadCaisseProductions();
+    initCaissePage();
+}, 500);
+      
 // Initialiser les événements de la page
 function initBoutiqueStatsPage() {
     console.log("🚀 Initialisation page statistiques boutiques");
