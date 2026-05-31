@@ -2998,66 +2998,118 @@ async function loadCaisseProductions() {
     }
 }
 
- async function loadCaisseInvoices(productionId) {
+// ========== CHARGER UNIQUEMENT LES FACTURES D'UNE PRODUCTION SPÉCIFIQUE ==========
+// ========== CHARGER LES FACTURES D'UNE PRODUCTION (VERSION CORRIGÉE) ==========
+async function loadCaisseInvoices(productionId) {
     if (!productionId) return;
     
-    console.log(`💰 Chargement factures pour production: ${productionId}`);
-    
     const container = document.getElementById('caisseResultsContainer');
-    container.innerHTML = `<div style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i><p>Chargement des statistiques...</p></div>`;
+    container.innerHTML = `<div style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i><p>Chargement...</p></div>`;
     
     try {
-        // Charger les factures normales
-        const invoicesSnapshot = await db.collection('invoices')
-            .where('productionId', '==', productionId)
-            .get();
+        caisseCurrentProductionId = productionId; // ← STOCKER L'ID
         
-        const invoicesList = [];
-        invoicesSnapshot.forEach(doc => {
-            invoicesList.push({ id: doc.id, ...doc.data() });
-        });
-        
-        // Charger les commandes TikTok
-        const tiktokSnapshot = await db.collection('orders')
+        // Récupérer TOUTES les commandes TikTok
+        const tiktokSnap = await db.collection('orders')
             .where('boutique', '==', 'en-ligne')
             .get();
         
         const tiktokOrders = [];
-        tiktokSnapshot.forEach(doc => {
+        tiktokSnap.forEach(doc => {
             const order = doc.data();
             tiktokOrders.push({
                 id: doc.id,
                 boutique: 'en-ligne',
                 boutiqueName: 'TikTok Shop',
-                productionId: productionId,
-                client: order.client || { name: 'Client TikTok', phone: order.client?.phone || '' },
+                productionId: order.productionId || null, // ← GARDER LE productionId
+                client: order.client || { name: 'Client TikTok' },
                 items: order.items || [],
                 total: order.total || 0,
                 paiement: {
                     montantPaye: order.paymentReceived || 0,
                     resteAPayer: (order.total || 0) - (order.paymentReceived || 0),
-                    statut: order.paymentStatus === 'paye' ? 'paye' : (order.paymentStatus === 'partiel' ? 'partiel' : 'impaye'),
-                    modePaiement: 'wave'
+                    statut: order.paymentStatus || 'impaye',
+                    modePaiement: order.paymentMethod || 'especes'
                 },
-                date: order.createdAt || new Date(),
-                invoiceNumber: order.orderNumber || `TIK-${doc.id.slice(0,8)}`
+                date: order.createdAt?.toDate ? order.createdAt.toDate() : new Date(order.createdAt),
+                invoiceNumber: order.orderNumber || `CMD-${doc.id.slice(0,8)}`
             });
         });
         
-        // Fusionner
-        caisseAllInvoices = [...invoicesList, ...tiktokOrders];
+        // Récupérer les factures physiques
+        const stocksSnap = await db.collection('stocks_attribues')
+            .where('productionId', '==', productionId)
+            .get();
         
-        console.log(`💰 ${invoicesList.length} factures + ${tiktokOrders.length} TikTok = ${caisseAllInvoices.length} total`);
+        const stockIds = [];
+        stocksSnap.forEach(doc => stockIds.push(doc.id));
         
-        // Afficher les résultats
+        const physicalInvoices = [];
+        for (const stockId of stockIds) {
+            const invSnap = await db.collection('invoices')
+                .where('stockAttribueId', '==', stockId)
+                .get();
+            
+            invSnap.forEach(doc => {
+                const inv = doc.data();
+                physicalInvoices.push({ id: doc.id, ...inv, productionId: productionId });
+            });
+        }
+        
+        // Fusion
+        caisseAllInvoices = [...physicalInvoices, ...tiktokOrders];
+        
+        console.log(`✅ ${physicalInvoices.length} factures + ${tiktokOrders.length} TikTok`);
+        console.log(`📊 Commandes TikTok avec productionId:`, tiktokOrders.map(o => ({ id: o.id, prodId: o.productionId })));
+        
         renderCaisseResults();
         
     } catch (error) {
-        console.error("Erreur chargement factures caisse:", error);
-        container.innerHTML = `<div style="text-align: center; padding: 40px; color: red;"><i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i><p>Erreur: ${error.message}</p></div>`;
+        console.error(error);
+        container.innerHTML = `<div style="text-align:center;padding:40px;color:red;">Erreur: ${error.message}</div>`;
     }
 }
-
+      
+// ========== METTRE À JOUR LA PRODUCTION D'UNE COMMANDE TIKTOK ==========
+async function updateOrderProduction(orderId, productionId) {
+    try {
+        // Trouver le stock attribué correspondant
+        const stockSnapshot = await db.collection('stocks_attribues')
+            .where('productionId', '==', productionId)
+            .where('boutique', '==', 'en-ligne')
+            .get();
+         
+        let stockAttribueId = null;
+        if (!stockSnapshot.empty) {
+            stockAttribueId = stockSnapshot.docs[0].id;
+        } else {
+            // Si pas de stock trouvé, créer un stock virtuel
+            const newStockRef = await db.collection('stocks_attribues').add({
+                productionId: productionId,
+                boutique: 'en-ligne',
+                boutiqueName: 'TikTok Shop',
+                total: 0,
+                categories: {},
+                status: 'active',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            stockAttribueId = newStockRef.id;
+        }
+        
+        const prod = allProductions.find(p => p.id === productionId);
+        await db.collection('orders').doc(orderId).update({
+            productionId: productionId,
+            productionName: prod?.name || productionId,
+            stockAttribueId: stockAttribueId,  // ← AJOUT IMPORTANT
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        showToast(`Production mise à jour: ${prod?.name || productionId}`);
+    } catch (error) {
+        console.error('Erreur:', error);
+        showToast('Erreur lors de la mise à jour', 'error');
+    }
+}
 // Filtrer les factures par date
 function filterCaisseInvoicesByDate(invoices, period, customDate = null) {
     const now = new Date();
@@ -3165,24 +3217,35 @@ function getCaisseBoutiqueColor(boutiqueId) {
 }
 
 // Afficher les résultats de la caisse
+// ========== AFFICHER UNIQUEMENT LES FACTURES DE LA PRODUCTION SÉLECTIONNÉE ==========
 function renderCaisseResults() {
     const container = document.getElementById('caisseResultsContainer');
     
-    // Filtrer par période
-    let filteredInvoices = caisseAllInvoices;
+    // 🔥 FILTRAGE STRICT PAR PRODUCTION
+    let filteredInvoices = caisseAllInvoices.filter(inv => {
+        // Pour les factures physiques
+        if (inv.productionId === caisseCurrentProductionId) return true;
+        // Pour les commandes TikTok
+        if (inv.productionId === caisseCurrentProductionId) return true;
+        // Si pas de productionId, vérifier par la date (fallback)
+        return false;
+    });
     
+    // Appliquer le filtre de période
     if (caisseCurrentPeriod === 'today') {
-        filteredInvoices = filterCaisseInvoicesByDate(caisseAllInvoices, 'today');
+        filteredInvoices = filterCaisseInvoicesByDate(filteredInvoices, 'today');
     } else if (caisseCurrentPeriod === 'week') {
-        filteredInvoices = filterCaisseInvoicesByDate(caisseAllInvoices, 'week');
+        filteredInvoices = filterCaisseInvoicesByDate(filteredInvoices, 'week');
     } else if (caisseCurrentPeriod === 'month') {
-        filteredInvoices = filterCaisseInvoicesByDate(caisseAllInvoices, 'month');
+        filteredInvoices = filterCaisseInvoicesByDate(filteredInvoices, 'month');
     } else if (caisseCurrentPeriod === 'custom') {
         const customDate = document.getElementById('caisseCustomDate').value;
         if (customDate) {
-            filteredInvoices = filterCaisseInvoicesByDate(caisseAllInvoices, 'custom', customDate);
+            filteredInvoices = filterCaisseInvoicesByDate(filteredInvoices, 'custom', customDate);
         }
     }
+    
+    console.log(`📊 Factures après filtrage: ${filteredInvoices.length} (sur ${caisseAllInvoices.length} totales)`);
     
     // Préparer le texte de la période
     let periodText = '';
@@ -3194,7 +3257,7 @@ function renderCaisseResults() {
         periodText = customDate ? new Date(customDate).toLocaleDateString('fr-FR') : "Date personnalisée";
     }
     
-    // Liste des boutiques à afficher
+    // Liste des boutiques
     const boutiqueIds = ['sacre-coeur-1', 'keur-massar', 'sebikotane', 'front-terre', 'sacre-coeur-3', 'en-ligne'];
     
     let html = `
@@ -3202,7 +3265,7 @@ function renderCaisseResults() {
             <div class="caisse-period-info">
                 <span><i class="fas fa-calendar"></i> <strong>Période:</strong> ${periodText}</span>
                 <span><i class="fas fa-chart-simple"></i> <strong>Total factures:</strong> ${filteredInvoices.length}</span>
-                <span><i class="fas fa-store"></i> <strong>${caisseProductions.find(p => p.id === caisseCurrentProductionId)?.productionName || 'Production'}</strong></span>
+                <span><i class="fas fa-store"></i> <strong>Production sélectionnée:</strong> ${caisseCurrentProductionId ? caisseCurrentProductionId.substring(0, 8) : 'Aucune'}</span>
             </div>
         </div>
     `;
@@ -3217,7 +3280,6 @@ function renderCaisseResults() {
         const boutiqueName = getCaisseBoutiqueName(boutiqueId);
         const boutiqueColor = getCaisseBoutiqueColor(boutiqueId);
         
-        // Ajouter aux totaux généraux
         totalGeneral.especes += stats.especes;
         totalGeneral.wave += stats.wave;
         totalGeneral.orangeMoney += stats.orangeMoney;
@@ -3225,16 +3287,12 @@ function renderCaisseResults() {
         totalGeneral.totalFactures += stats.totalFactures;
         totalGeneral.impaye += stats.impaye;
         
-        // Ne pas afficher les boutiques sans données
-        const hasData = stats.especes > 0 || stats.wave > 0 || stats.orangeMoney > 0 || stats.totalFactures > 0;
-        
         html += `
             <div class="caisse-boutique-card">
                 <div class="caisse-boutique-header" style="background: linear-gradient(135deg, ${boutiqueColor} 0%, ${boutiqueColor}cc 100%);">
                     <h3><i class="fas fa-store"></i> ${boutiqueName}</h3>
                     <div class="badge">${stats.nbFactures} facture(s)</div>
                 </div>
-                
                 <div class="caisse-stats-grid">
                     <div class="caisse-stat-card especes">
                         <div class="caisse-stat-label">💵 Espèces</div>
@@ -3261,7 +3319,7 @@ function renderCaisseResults() {
         `;
     }
     
-    // Ajouter le récapitulatif général
+    // Récapitulatif général
     html += `
         <div class="caisse-boutique-card" style="margin-top: 20px;">
             <div class="caisse-boutique-header" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
@@ -3293,7 +3351,7 @@ function renderCaisseResults() {
         </div>
     `;
     
-    // Ajouter le détail des factures si demandé
+    // Détail des factures
     if (filteredInvoices.length > 0 && filteredInvoices.length <= 50) {
         html += `
             <div class="caisse-boutique-card" style="margin-top: 20px;">
@@ -3304,27 +3362,18 @@ function renderCaisseResults() {
                 <div style="padding: 20px; overflow-x: auto;">
                     <table class="caisse-detail-table">
                         <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>N° Facture</th>
-                                <th>Boutique</th>
-                                <th>Client</th>
-                                <th>Total</th>
-                                <th>Payé</th>
-                                <th>Mode</th>
-                                <th>Statut</th>
-                            </tr>
+                            <tr><th>Date</th><th>N° Facture</th><th>Boutique</th><th>Client</th><th>Total</th><th>Payé</th><th>Mode</th><th>Statut</th></tr>
                         </thead>
                         <tbody>
         `;
         
         const sortedInvoices = [...filteredInvoices].sort((a, b) => {
-            const dateA = a.date?.seconds ? a.date.seconds : 0;
-            const dateB = b.date?.seconds ? b.date.seconds : 0;
+            const dateA = a.date?.seconds ? a.date.seconds : new Date(a.date).getTime();
+            const dateB = b.date?.seconds ? b.date.seconds : new Date(b.date).getTime();
             return dateB - dateA;
         });
         
-        sortedInvoices.forEach(inv => {
+        for (const inv of sortedInvoices) {
             let date;
             if (inv.date && inv.date.seconds) {
                 date = new Date(inv.date.seconds * 1000);
@@ -3339,32 +3388,24 @@ function renderCaisseResults() {
             let modeIcon = paiement.modePaiement === 'especes' ? '💵' : (paiement.modePaiement === 'wave' ? '📱' : '📱');
             let modeText = paiement.modePaiement === 'especes' ? 'Espèces' : (paiement.modePaiement === 'wave' ? 'Wave' : 'Orange');
             
-            let statutText = '';
-            let statutColor = '';
+            let statutText = '', statutColor = '';
             if (paiement.statut === 'paye') { statutText = 'Payé'; statutColor = '#10b981'; }
             else if (paiement.statut === 'partiel') { statutText = 'Partiel'; statutColor = '#f59e0b'; }
             else { statutText = 'Impayé'; statutColor = '#ef4444'; }
             
-            html += `
-                <tr>
-                    <td>${dateStr}</td>
-                    <td><strong>${inv.invoiceNumber || 'N/A'}</strong></td>
-                    <td>${boutiqueName}</td>
-                    <td>${inv.client?.name || 'Anonyme'}</td>
-                    <td>${(inv.total || 0).toLocaleString('fr-FR')} F</td>
-                    <td style="color:#10b981;">${(paiement.montantPaye || 0).toLocaleString('fr-FR')} F</td>
-                    <td>${modeIcon} ${modeText}</td>
-                    <td style="color:${statutColor};">${statutText}</td>
-                </tr>
-            `;
-        });
+            html += `<tr>
+                <td>${dateStr}</td>
+                <td><strong>${inv.invoiceNumber || 'N/A'}</strong></td>
+                <td>${boutiqueName}</td>
+                <td>${inv.client?.name || 'Anonyme'}</td>
+                <td>${(inv.total || 0).toLocaleString('fr-FR')} F</td>
+                <td style="color:#10b981;">${(paiement.montantPaye || 0).toLocaleString('fr-FR')} F</td>
+                <td>${modeIcon} ${modeText}</td>
+                <td style="color:${statutColor};">${statutText}</td>
+            </tr>`;
+        }
         
-        html += `
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
+        html += `</tbody></table></div></div>`;
     }
     
     container.innerHTML = html;
