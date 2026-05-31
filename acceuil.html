@@ -214,6 +214,22 @@
             
             <!-- 🟢 NOUVEAU : Montant total de dette -->
             <div class="stat-card"><h3>💰 MONTANT TOTAL DE DETTE</h3><div class="stat-number" id="statTotalDette">0 FCFA</div><div class="stat-sub">ce qu'on vous doit</div></div>
+                      <!-- 🟢 NOUVELLES CARTES FINANCIÈRES GLOBALES (TOUTES BOUTIQUES) -->
+            <div class="stat-card" style="border-left-color: #8b5cf6;">
+                <h3>💰 MONTANT TOTAL VENDU (Global)</h3>
+                <div class="stat-number" id="dashboardTotalVenduGlobal">0 FCFA</div>
+                <div class="stat-sub">somme de TOUTES les factures (total)</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #dc2626;">
+                <h3>⚠️ MONTANT TOTAL IMPAYÉ (Global)</h3>
+                <div class="stat-number" id="dashboardTotalImpayeGlobal">0 FCFA</div>
+                <div class="stat-sub">total factures - montants versés</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #10b981;">
+                <h3>🏦 CAISSE TOTALE (Global)</h3>
+                <div class="stat-number" id="dashboardTotalCaisseGlobal">0 FCFA</div>
+                <div class="stat-sub">somme de TOUS les montants versés</div>
+            </div>
         </div>
 
         <div class="chart-container">
@@ -358,7 +374,25 @@
                 <div class="stat-sub">aucun paiement reçu</div>
             </div>
         </div>
-
+        <!-- NOUVELLES CARTES : MONTANT TOTAL VENDU + IMPAYÉ + CAISSE -->
+        <h3 style="margin: 20px 0 15px;">💰 SYNTHÈSE FINANCIÈRE</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+            <div class="stat-card" style="border-left-color: #8b5cf6;">
+                <h3>💰 MONTANT TOTAL VENDU</h3>
+                <div class="stat-number" id="tikTotalVendu">0 FCFA</div>
+                <div class="stat-sub">somme de TOUTES les commandes (total facture)</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #dc2626;">
+                <h3>⚠️ MONTANT TOTAL IMPAYÉ</h3>
+                <div class="stat-number" id="tikTotalImpaye">0 FCFA</div>
+                <div class="stat-sub">total commandes - montants versés</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #10b981;">
+                <h3>🏦 CAISSE TOTALE</h3>
+                <div class="stat-number" id="tikTotalCaisse">0 FCFA</div>
+                <div class="stat-sub">somme de TOUS les montants versés</div>
+            </div>
+        </div>
         <!-- Graphique d'évolution -->
         <div class="chart-container">
             <canvas id="tiktokChart" width="400" height="250"></canvas>
@@ -414,24 +448,24 @@
         setupEventListeners();
     });
 
-       async function loadAllData() {
-        await Promise.all([
-            db.collection("invoices").get().then(snap => allInvoices = snap.docs.map(d=>({id:d.id, ...d.data()}))),
-            db.collection("poulailler_records").get().then(snap => allProductions = snap.docs.map(d=>({id:d.id, ...d.data()}))),
-            db.collection("stocks_attribues").get().then(snap => allStocks = snap.docs.map(d=>({id:d.id, ...d.data()}))),
-            db.collection("production_expenses").get().then(snap => allExpenses = snap.docs.map(d=>({id:d.id, ...d.data()}))),
-            db.collection("losses").get().then(snap => allLosses = snap.docs.map(d=>({id:d.id, ...d.data()})))  // NOUVEAU
-        ]);
-        renderDashboardMetrics();
-        renderInvoicesTable();
-        renderProductionsTable();
-        renderStocksTable();
-        renderExpensesTable();
-        renderLossesTable();  // NOUVEAU
-        updateLossesCharts();  // NOUVEAU
-        populateProductionSelect();  // NOUVEAU
-         listenToTikTokOrders();
-    }
+      async function loadAllData() {
+    await Promise.all([
+        db.collection("invoices").get().then(snap => allInvoices = snap.docs.map(d=>({id:d.id, ...d.data()}))),
+        db.collection("poulailler_records").get().then(snap => allProductions = snap.docs.map(d=>({id:d.id, ...d.data()}))),
+        db.collection("stocks_attribues").get().then(snap => allStocks = snap.docs.map(d=>({id:d.id, ...d.data()}))),
+        db.collection("production_expenses").get().then(snap => allExpenses = snap.docs.map(d=>({id:d.id, ...d.data()}))),
+        db.collection("losses").get().then(snap => allLosses = snap.docs.map(d=>({id:d.id, ...d.data()})))
+    ]);
+    renderDashboardMetrics();
+    renderInvoicesTable();
+    renderProductionsTable();
+    renderStocksTable();
+    renderExpensesTable();
+    renderLossesTable();
+    updateLossesCharts();
+    populateProductionSelect();
+    listenToTikTokOrders();
+}
 
     function getLastProduction() {
         if(!allProductions.length) return null;
@@ -504,7 +538,7 @@ function getTotalSalesAll() {
 
 function renderDashboardMetrics() {
     const totalStockAll = getTotalStockAllProductions();
-    const totalRemainingAll = getTotalRemainingAll();  // Prend en compte les pertes
+    const totalRemainingAll = getTotalRemainingAll();
     const totalSalesAll = getTotalSalesAll();
     const totalNbVentes = allInvoices.length;
     
@@ -521,7 +555,28 @@ function renderDashboardMetrics() {
     document.getElementById("statTotalNbVentes").innerText = totalNbVentes.toLocaleString();
     document.getElementById("statTotalDette").innerHTML = totalDette.toLocaleString() + " FCFA";
 
-    // Graphique
+    // ========== NOUVEAU : STATISTIQUES GLOBALES (TOUTES BOUTIQUES) ==========
+    // Calculer à partir de TOUTES les factures (allInvoices)
+    let totalVenduGlobal = 0;      // Somme des TOTAUX des factures
+    let totalCaisseGlobal = 0;     // Somme des MONTANTS VERSÉS
+    
+    allInvoices.forEach(inv => {
+        totalVenduGlobal += (inv.total || 0);                    // Montant total de la facture
+        totalCaisseGlobal += (inv.paiement?.montantPaye || 0);   // Montant réellement payé
+    });
+    
+    const totalImpayeGlobal = totalVenduGlobal - totalCaisseGlobal;  // Ce qu'on doit encore
+    
+    // Mettre à jour les 3 nouvelles cartes
+    const totalVenduElem = document.getElementById("dashboardTotalVenduGlobal");
+    const totalImpayeElem = document.getElementById("dashboardTotalImpayeGlobal");
+    const totalCaisseElem = document.getElementById("dashboardTotalCaisseGlobal");
+    
+    if (totalVenduElem) totalVenduElem.innerHTML = totalVenduGlobal.toLocaleString('fr-FR') + " FCFA";
+    if (totalImpayeElem) totalImpayeElem.innerHTML = totalImpayeGlobal.toLocaleString('fr-FR') + " FCFA";
+    if (totalCaisseElem) totalCaisseElem.innerHTML = totalCaisseGlobal.toLocaleString('fr-FR') + " FCFA";
+
+    // Graphique (existant)
     const boutiqueSales = {};
     allInvoices.forEach(inv => {
         let shop = inv.boutiqueName || inv.boutique || "inconnue";
@@ -889,30 +944,46 @@ function renderDashboardMetrics() {
     }
 
     function renderTikTokStats() {
-        // Statistiques par statut
-        const total = allTikTokOrders.length;
-        const validees = allTikTokOrders.filter(o => o.status !== 'annulee').length;
-        const enAttente = allTikTokOrders.filter(o => o.status === 'en_attente').length;
-        const enLivraison = allTikTokOrders.filter(o => o.status === 'en_livraison').length;
-        const livre = allTikTokOrders.filter(o => o.status === 'livre').length;
-        const annulee = allTikTokOrders.filter(o => o.status === 'annulee').length;
-        
-        // Statistiques par paiement
-        const paye = allTikTokOrders.filter(o => o.paymentStatus === 'paye').length;
-        const partiel = allTikTokOrders.filter(o => o.paymentStatus === 'partiel').length;
-        const impaye = allTikTokOrders.filter(o => o.paymentStatus === 'impaye').length;
-        
-        // Mise à jour des éléments HTML
-        document.getElementById('tikTotalOrders').innerText = total;
-        document.getElementById('tikValidOrders').innerText = validees;
-        document.getElementById('tikEnAttenteOrders').innerText = enAttente;
-        document.getElementById('tikEnLivraisonOrders').innerText = enLivraison;
-        document.getElementById('tikLivreOrders').innerText = livre;
-        document.getElementById('tikAnnuleeOrders').innerText = annulee;
-        document.getElementById('tikPayeOrders').innerText = paye;
-        document.getElementById('tikPartielOrders').innerText = partiel;
-        document.getElementById('tikImpayeOrders').innerText = impaye;
-    }
+    // Statistiques par statut
+    const total = allTikTokOrders.length;
+    const validees = allTikTokOrders.filter(o => o.status !== 'annulee').length;
+    const enAttente = allTikTokOrders.filter(o => o.status === 'en_attente').length;
+    const enLivraison = allTikTokOrders.filter(o => o.status === 'en_livraison').length;
+    const livre = allTikTokOrders.filter(o => o.status === 'livre').length;
+    const annulee = allTikTokOrders.filter(o => o.status === 'annulee').length;
+    
+    // Statistiques par paiement
+    const paye = allTikTokOrders.filter(o => o.paymentStatus === 'paye').length;
+    const partiel = allTikTokOrders.filter(o => o.paymentStatus === 'partiel').length;
+    const impaye = allTikTokOrders.filter(o => o.paymentStatus === 'impaye').length;
+    
+    // Calculs financiers UNIQUEMENT POUR TIKTOK
+    let totalVenduTikTok = 0;
+    let totalCaisseTikTok = 0;
+    
+    allTikTokOrders.forEach(order => {
+        totalVenduTikTok += (order.total || 0);
+        totalCaisseTikTok += (order.paymentReceived || 0);
+    });
+    
+    const totalImpayeTikTok = totalVenduTikTok - totalCaisseTikTok;
+    
+    // Mise à jour des éléments HTML existants
+    document.getElementById('tikTotalOrders').innerText = total;
+    document.getElementById('tikValidOrders').innerText = validees;
+    document.getElementById('tikEnAttenteOrders').innerText = enAttente;
+    document.getElementById('tikEnLivraisonOrders').innerText = enLivraison;
+    document.getElementById('tikLivreOrders').innerText = livre;
+    document.getElementById('tikAnnuleeOrders').innerText = annulee;
+    document.getElementById('tikPayeOrders').innerText = paye;
+    document.getElementById('tikPartielOrders').innerText = partiel;
+    document.getElementById('tikImpayeOrders').innerText = impaye;
+    
+    // Mise à jour des 3 cartes TikTok 
+    document.getElementById('tikTotalVendu').innerHTML = totalVenduTikTok.toLocaleString('fr-FR') + " FCFA";
+    document.getElementById('tikTotalImpaye').innerHTML = totalImpayeTikTok.toLocaleString('fr-FR') + " FCFA";
+    document.getElementById('tikTotalCaisse').innerHTML = totalCaisseTikTok.toLocaleString('fr-FR') + " FCFA";
+}
 
     function renderTikTokOrdersTable() {
     const tbody = document.getElementById('tiktokOrdersBody');
