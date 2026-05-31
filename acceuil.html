@@ -183,6 +183,216 @@
     font-weight: bold;
     margin: 15px 0;
 }
+      
+      /* ========== PAGE STATISTIQUES BOUTIQUES ========== */
+.stats-boutiques-container {
+    padding: 20px;
+}
+
+.production-selector {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+    color: white;
+}
+
+.production-selector label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.production-selector select {
+    width: 100%;
+    padding: 15px;
+    border-radius: 12px;
+    border: none;
+    font-size: 1rem;
+    background: white;
+    cursor: pointer;
+}
+
+.boutiques-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.boutique-stat-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+    border: 1px solid #e2e8f0;
+}
+
+.boutique-stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 30px -10px rgba(0,0,0,0.15);
+}
+
+.boutique-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.boutique-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.boutique-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+}
+
+.boutique-body {
+    padding: 20px;
+}
+
+.stats-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.stats-row:last-child {
+    border-bottom: none;
+}
+
+.stats-label {
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+.stats-value {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.stats-value.positive {
+    color: #10b981;
+}
+
+.stats-value.negative {
+    color: #ef4444;
+}
+
+.stats-value.neutral {
+    color: #f59e0b;
+}
+
+.financial-grid {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.financial-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+}
+
+.charts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.chart-box {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.chart-box h3 {
+    margin-bottom: 20px;
+    color: #1e293b;
+    text-align: center;
+}
+
+.month-filter {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.month-filter label {
+    font-weight: bold;
+    color: #334155;
+}
+
+.month-filter select, 
+.month-filter input {
+    padding: 10px 15px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    background: white;
+}
+
+.btn-filter {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.global-summary {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    text-align: center;
+}
+
+.global-summary-item {
+    background: rgba(255,255,255,0.1);
+    border-radius: 15px;
+    padding: 15px;
+}
+
+.global-summary-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.global-summary-label {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+    .boutiques-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    .charts-container {
+        grid-template-columns: 1fr;
+    }
+}
     </style>
 </head>
 <body>
@@ -196,6 +406,8 @@
         <button class="nav-btn active" data-section="dashboard">📊 Dashboard</button>
              <button class="nav-btn" data-section="losses">📉 Pertes</button>
       <button class="nav-btn" data-section="tiktokstats">📱 TikTok Shop</button>
+          <button class="nav-btn" data-section="boutiquestats">📈 Statistiques Boutiques</button>
+
     </div>
 
     <!-- SECTION DASHBOARD --> 
@@ -207,13 +419,13 @@
             <div class="stat-card"><h3>📉 STOCK RESTANT TOTAL</h3><div class="stat-number" id="statTotalRemainingAll">0</div><div class="stat-sub">invendu toutes boutiques</div></div>
             
             <!-- 🟢 CARTES AJOUTÉES -->
-            <div class="stat-card"><h3>🏆 TOTAL VENTES (Toutes productions)</h3><div class="stat-number" id="statTotalSalesAll">0 FCFA</div><div class="stat-sub">chiffre d'affaires global</div></div>
+           
             
             <!-- 🟢 NOUVEAU : Nombre total de ventes -->
             <div class="stat-card"><h3>📊 NOMBRE TOTAL DE VENTES</h3><div class="stat-number" id="statTotalNbVentes">0</div><div class="stat-sub">factures totales</div></div>
             
             <!-- 🟢 NOUVEAU : Montant total de dette -->
-            <div class="stat-card"><h3>💰 MONTANT TOTAL DE DETTE</h3><div class="stat-number" id="statTotalDette">0 FCFA</div><div class="stat-sub">ce qu'on vous doit</div></div>
+             
                       <!-- 🟢 NOUVELLES CARTES FINANCIÈRES GLOBALES (TOUTES BOUTIQUES) -->
             <div class="stat-card" style="border-left-color: #8b5cf6;">
                 <h3>💰 MONTANT TOTAL VENDU (Global)</h3>
@@ -424,6 +636,87 @@
             </table>
         </div>
     </div>
+      <!-- SECTION STATISTIQUES BOUTIQUES -->
+    <div id="boutiquestatsSection" class="section">
+        <div class="stats-boutiques-container">
+            <h2 style="margin-bottom: 20px;">📈 Statistiques par Boutique</h2>
+            
+            <!-- Sélecteur de production -->
+            <div class="production-selector">
+                <label><i class="fas fa-calendar-alt"></i> Sélectionner une production :</label>
+                <select id="statsProductionSelect">
+                    <option value="">Chargement des productions...</option>
+                </select>
+            </div>
+            
+            <!-- Résumé global -->
+            <div class="global-summary" id="globalSummary">
+                <div class="global-summary-item">
+                    <div class="global-summary-value" id="globalTotalVentes">0</div>
+                    <div class="global-summary-label">Total ventes (F CFA)</div>
+                </div>
+                <div class="global-summary-item">
+                    <div class="global-summary-value" id="globalTotalPoulets">0</div>
+                    <div class="global-summary-label">Poulets vendus</div>
+                </div>
+                <div class="global-summary-item">
+                    <div class="global-summary-value" id="globalTotalFactures">0</div>
+                    <div class="global-summary-label">Factures</div>
+                </div>
+                <div class="global-summary-item">
+                    <div class="global-summary-value" id="globalTotalImpaye">0 FCFA</div>
+                    <div class="global-summary-label">Total impayé</div>
+                </div>
+            </div>
+            
+            <!-- Filtre mois pour le CA mensuel -->
+            <div class="month-filter" style="background: white; padding: 15px; border-radius: 15px; margin-bottom: 20px;">
+                <label><i class="fas fa-chart-line"></i> Chiffre d'affaires mensuel :</label>
+                <select id="monthFilter">
+                    <option value="all">Tous les mois</option>
+                    <option value="1">Janvier</option>
+                    <option value="2">Février</option>
+                    <option value="3">Mars</option>
+                    <option value="4">Avril</option>
+                    <option value="5">Mai</option>
+                    <option value="6">Juin</option>
+                    <option value="7">Juillet</option>
+                    <option value="8">Août</option>
+                    <option value="9">Septembre</option>
+                    <option value="10">Octobre</option>
+                    <option value="11">Novembre</option>
+                    <option value="12">Décembre</option>
+                </select>
+                 
+                <button class="btn-filter" id="applyMonthFilter"><i class="fas fa-search"></i> Filtrer</button>
+            </div>
+            
+            <!-- Grille des boutiques -->
+            <div class="boutiques-stats-grid" id="boutiquesStatsGrid">
+                <!-- Les cartes seront générées dynamiquement -->
+            </div>
+            
+            <!-- Graphiques d'évolution -->
+            <div class="charts-container">
+                <div class="chart-box">
+                    <h3><i class="fas fa-chart-bar"></i> Chiffre d'affaires par boutique</h3>
+                    <canvas id="caParBoutiqueChart" width="400" height="250"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3><i class="fas fa-chart-line"></i> Évolution hebdomadaire du CA</h3>
+                    <canvas id="evolutionMensuelleChart" width="400" height="250"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3><i class="fas fa-chart-pie"></i> Répartition des ventes</h3>
+                    <canvas id="repartitionVentesChart" width="400" height="250"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3><i class="fas fa-chart-line"></i> Top 5 clients</h3>
+                    <canvas id="topClientsChart" width="400" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -447,8 +740,41 @@
         loadAllData();
         setupEventListeners();
     });
+// Fonction pour afficher des messages (si elle n'existe pas déjà)
+function showMessage(text, type) {
+    const message = document.createElement('div');
+    message.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 10px;
+        color: white;
+        font-weight: bold;
+        z-index: 10000;
+        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#f59e0b'};
+        animation: fadeInOut 3s ease;
+    `;
+    message.innerHTML = text;
+    document.body.appendChild(message);
+    setTimeout(() => message.remove(), 3000);
+}
 
-      async function loadAllData() {
+// Ajouter l'animation CSS si elle n'existe pas
+if (!document.querySelector('#messageStyle')) {
+    const style = document.createElement('style');
+    style.id = 'messageStyle';
+    style.textContent = `
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateX(100px); }
+            15% { opacity: 1; transform: translateX(0); }
+            85% { opacity: 1; transform: translateX(0); }
+            100% { opacity: 0; transform: translateX(100px); }
+        }
+    `;
+    document.head.appendChild(style);
+}
+    async function loadAllData() {
     await Promise.all([
         db.collection("invoices").get().then(snap => allInvoices = snap.docs.map(d=>({id:d.id, ...d.data()}))),
         db.collection("poulailler_records").get().then(snap => allProductions = snap.docs.map(d=>({id:d.id, ...d.data()}))),
@@ -465,8 +791,13 @@
     updateLossesCharts();
     populateProductionSelect();
     listenToTikTokOrders();
+    
+    // ⬇️⬇️⬇️ AJOUTER CES 2 LIGNES ICI ⬇️⬇️⬇️
+    await loadProductionsForStats();
+    initBoutiqueStatsPage();
+    // ⬆️⬆️⬆️ FIN AJOUT ⬆️⬆️⬆️
 }
-
+  
     function getLastProduction() {
         if(!allProductions.length) return null;
         return [...allProductions].sort((a,b)=> {
@@ -532,7 +863,7 @@ function getSalesForProduction(productionId) {
     }
 
 function getTotalSalesAll() {
-    // Retourne la somme des MONTANTS PAYÉS, pas des totaux facture
+    // Retourne la somme des MONTANTS PAYÉS, pas des to taux facture 
     return allInvoices.reduce((sum, inv) => sum + (inv.paiement?.montantPaye || 0), 0);
 }
 
@@ -551,9 +882,9 @@ function renderDashboardMetrics() {
 
     document.getElementById("statTotalStockAllProd").innerText = totalStockAll.toLocaleString();
     document.getElementById("statTotalRemainingAll").innerText = totalRemainingAll.toLocaleString();
-    document.getElementById("statTotalSalesAll").innerHTML = totalSalesAll.toLocaleString() + " FCFA";
+     
     document.getElementById("statTotalNbVentes").innerText = totalNbVentes.toLocaleString();
-    document.getElementById("statTotalDette").innerHTML = totalDette.toLocaleString() + " FCFA";
+     
 
     // ========== NOUVEAU : STATISTIQUES GLOBALES (TOUTES BOUTIQUES) ==========
     // Calculer à partir de TOUTES les factures (allInvoices)
@@ -979,12 +1310,12 @@ function renderDashboardMetrics() {
     document.getElementById('tikPartielOrders').innerText = partiel;
     document.getElementById('tikImpayeOrders').innerText = impaye;
     
-    // Mise à jour des 3 cartes TikTok 
+    // Mise à jour des 3 cartes TikTok  
     document.getElementById('tikTotalVendu').innerHTML = totalVenduTikTok.toLocaleString('fr-FR') + " FCFA";
     document.getElementById('tikTotalImpaye').innerHTML = totalImpayeTikTok.toLocaleString('fr-FR') + " FCFA";
     document.getElementById('tikTotalCaisse').innerHTML = totalCaisseTikTok.toLocaleString('fr-FR') + " FCFA";
 }
-
+ 
     function renderTikTokOrdersTable() {
     const tbody = document.getElementById('tiktokOrdersBody');
     if (!tbody) return;
@@ -1227,96 +1558,112 @@ function renderDashboardMetrics() {
         };
     };
   
-     function setupEventListeners() {
-        // Rafraîchir les stats
-        const refreshBtn = document.getElementById("refreshStatsBtn");
-        if(refreshBtn) refreshBtn.addEventListener("click", () => renderDashboardMetrics());
-        
-        // Générer PDF
-        const pdfBtn = document.getElementById("generateFullPdfBtn");
-        if(pdfBtn) pdfBtn.addEventListener("click", generateFullReportPDF);
-        
-        // Navigation entre les sections (Dashboard, Pertes, etc.)
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const sectionId = this.getAttribute('data-section');
-                console.log("Changement de section vers:", sectionId); // Pour déboguer
-                
-                // Cacher toutes les sections
-                document.querySelectorAll('.section').forEach(sec => {
-                    sec.classList.remove('active-section');
-                });
-                
-                // Afficher la section sélectionnée
-                const targetSection = document.getElementById(`${sectionId}Section`);
-                if(targetSection) {
-                    targetSection.classList.add('active-section');
-                } else {
-                    console.log("Section non trouvée:", sectionId + "Section");
-                }
-                
-                // Mettre à jour le bouton actif
-                document.querySelectorAll('.nav-btn').forEach(b => {
-                    b.classList.remove('active');
-                });
-                this.classList.add('active');
-                
-                // Actions spéciales selon la section
-                if(sectionId === 'losses') {
-                    // Mettre à jour les données des pertes quand on ouvre l'onglet
-                    if(typeof updateLossesCharts === 'function') {
-                        updateLossesCharts();
-                    }
-                    if(typeof populateProductionSelect === 'function') {
-                        populateProductionSelect();
-                    }
-                }
-              if(sectionId === 'tiktokstats') {
-    // Mettre à jour les graphiques quand on ouvre l'onglet
-    if(typeof updateTikTokChart === 'function') {
-        updateTikTokChart();
-    }
-}
-                if(sectionId === 'pdf') {
-                    const previewDiv = document.getElementById('pdfContentPreview');
-                    if(previewDiv) {
-                        previewDiv.innerHTML = `<p>✅ Données prêtes : ${allInvoices.length} factures, ${allProductions.length} productions, ${allLosses.length} pertes. Cliquez sur "Générer rapport global PDF".</p>`;
-                    }
-                }
+   function setupEventListeners() {
+    // Rafraîchir les stats
+    const refreshBtn = document.getElementById("refreshStatsBtn");
+    if(refreshBtn) refreshBtn.addEventListener("click", () => renderDashboardMetrics());
+    
+    // Générer PDF
+    const pdfBtn = document.getElementById("generateFullPdfBtn");
+    if(pdfBtn) pdfBtn.addEventListener("click", generateFullReportPDF);
+    
+    // Navigation entre les sections (Dashboard, Pertes, etc.)
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const sectionId = this.getAttribute('data-section');
+            console.log("Changement de section vers:", sectionId);
+            
+            // Cacher toutes les sections
+            document.querySelectorAll('.section').forEach(sec => {
+                sec.classList.remove('active-section');
             });
+            
+            // Afficher la section sélectionnée
+            const targetSection = document.getElementById(`${sectionId}Section`);
+            if(targetSection) {
+                targetSection.classList.add('active-section');
+            } else {
+                console.log("Section non trouvée:", sectionId + "Section");
+            }
+            
+            // Mettre à jour le bouton actif
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('active');
+            });
+            this.classList.add('active');
+            
+            // Actions spéciales selon la section
+            if(sectionId === 'losses') {
+                if(typeof updateLossesCharts === 'function') {
+                    updateLossesCharts();
+                }
+                if(typeof populateProductionSelect === 'function') {
+                    populateProductionSelect();
+                }
+            }
+            if(sectionId === 'tiktokstats') {
+                if(typeof updateTikTokChart === 'function') {
+                    updateTikTokChart();
+                }
+            }
+            
+            // ⬇️⬇️⬇️ NOUVEAU CODE À AJOUTER ICI ⬇️⬇️⬇️
+            if(sectionId === 'boutiquestats') {
+                // Recharger les stats des boutiques quand on ouvre l'onglet
+                if(typeof currentStatsProductionId !== 'undefined' && currentStatsProductionId) {
+                    if(typeof loadInvoicesForProduction === 'function') {
+                        loadInvoicesForProduction(currentStatsProductionId);
+                    }
+                } else if(typeof statsProductions !== 'undefined' && statsProductions.length > 0) {
+                    if(typeof currentStatsProductionId !== 'undefined') {
+                        currentStatsProductionId = statsProductions[0].id;
+                        if(typeof loadInvoicesForProduction === 'function') {
+                            loadInvoicesForProduction(currentStatsProductionId);
+                        }
+                    }
+                }
+            }
+            // ⬆️⬆️⬆️ FIN DU NOUVEAU CODE ⬆️⬆️⬆️
+            
+            if(sectionId === 'pdf') {
+                const previewDiv = document.getElementById('pdfContentPreview');
+                if(previewDiv) {
+                    previewDiv.innerHTML = `<p>✅ Données prêtes : ${allInvoices.length} factures, ${allProductions.length} productions, ${allLosses.length} pertes. Cliquez sur "Générer rapport global PDF".</p>`;
+                }
+            }
         });
-        
-       // Bouton supprimer toutes les commandes TikTok
-const deleteAllBtn = document.getElementById('deleteAllTikTokBtn');
-if (deleteAllBtn) {
-    const newDeleteAllBtn = deleteAllBtn.cloneNode(true);
-    deleteAllBtn.parentNode.replaceChild(newDeleteAllBtn, deleteAllBtn);
-    newDeleteAllBtn.addEventListener('click', window.deleteAllTikTokOrders);
-}
-       
-        // ========== ÉCOUTEURS POUR LES PERTES ==========  
-        const saveBtn = document.getElementById("saveLossBtn");
-        const cancelBtn = document.getElementById("cancelLossBtn");
-        
-        if(saveBtn) {
-            // Enlever les anciens écouteurs pour éviter les doublons   
-            const newSaveBtn = saveBtn.cloneNode(true);
-            saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
-            newSaveBtn.addEventListener("click", saveLoss);
-        }
-        
-        if(cancelBtn) {
-            const newCancelBtn = cancelBtn.cloneNode(true);
-            cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-            newCancelBtn.addEventListener("click", resetLossForm);
-        }
-        
-        // Date par défaut pour le formulaire des pertes
-        const dateInput = document.getElementById("lossDate");
-        if(dateInput && !dateInput.value) {
-            dateInput.value = new Date().toISOString().split('T')[0];
-        }
+    });
+    
+    // Bouton supprimer toutes les commandes TikTok
+    const deleteAllBtn = document.getElementById('deleteAllTikTokBtn');
+    if (deleteAllBtn) {
+        const newDeleteAllBtn = deleteAllBtn.cloneNode(true);
+        deleteAllBtn.parentNode.replaceChild(newDeleteAllBtn, deleteAllBtn);
+        newDeleteAllBtn.addEventListener('click', window.deleteAllTikTokOrders);
     }
+    
+    // ========== ÉCOUTEURS POUR LES PERTES ==========  
+    const saveBtn = document.getElementById("saveLossBtn");
+    const cancelBtn = document.getElementById("cancelLossBtn");
+    
+    if(saveBtn) {
+        const newSaveBtn = saveBtn.cloneNode(true);
+        saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+        newSaveBtn.addEventListener("click", saveLoss);
+    }
+    
+    if(cancelBtn) {
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+        newCancelBtn.addEventListener("click", resetLossForm);
+    }
+    
+    // Date par défaut pour le formulaire des pertes
+    const dateInput = document.getElementById("lossDate");
+    if(dateInput && !dateInput.value) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+    }
+}
   
   
     </script>
@@ -1655,6 +2002,861 @@ if (deleteAllBtn) {
         if (liveStatsUnsubscribe) liveStatsUnsubscribe();
         if (liveHistoryUnsubscribeGlobal) liveHistoryUnsubscribeGlobal();
     }
+      
+      // ==============================================
+// PAGE STATISTIQUES BOUTIQUES
+// ==============================================
+
+let statsProductions = [];
+let statsAllInvoices = [];
+let currentStatsProductionId = null;
+let currentMonthFilter = 'all';
+let currentYearFilter = 2026;
+
+// Graphiques
+let caParBoutiqueChart = null;
+let evolutionMensuelleChart = null;
+let repartitionVentesChart = null;
+let topClientsChart = null;
+
+// Configuration des boutiques
+const BOUTIQUES_LIST = [
+    { id: 'sacre-coeur-1', name: 'Sacré Coeur 1', color: '#3B82F6' },
+    { id: 'keur-massar', name: 'Keur Massar', color: '#10B981' },
+    { id: 'sebikotane', name: 'Sebikotane', color: '#F59E0B' },
+    { id: 'front-terre', name: 'Front de Terre', color: '#EF4444' },
+    { id: 'sacre-coeur-3', name: 'Sacré Coeur 3', color: '#8B5CF6' },
+    { id: 'en-ligne', name: 'TikTok Shop', color: '#EC4899' }
+];
+
+// Charger les productions pour le sélecteur
+// Charger les productions pour le sélecteur
+async function loadProductionsForStats() {
+    try {
+        // Utiliser allProductions déjà chargé
+        if (allProductions.length === 0) {
+            console.log("⏳ Attente chargement productions...");
+            return;
+        }
+        
+        statsProductions = [...allProductions];
+        
+        // Trier par date de début (plus récente d'abord)
+        statsProductions.sort((a, b) => {
+            const dateA = new Date(a.startDate || 0);
+            const dateB = new Date(b.startDate || 0);
+            return dateB - dateA;
+        });
+        
+        const select = document.getElementById('statsProductionSelect');
+        if (!select) return;
+        
+        select.innerHTML = '<option value="">-- Sélectionner une production --</option>';
+        
+        statsProductions.forEach(prod => {
+            const date = new Date(prod.startDate);
+            const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
+            select.innerHTML += `<option value="${prod.id}">${prod.productionName || 'Production'} - ${dateStr} (${prod.newChickens || 0} poussins)</option>`;
+        });
+        
+        if (statsProductions.length > 0) {
+            select.value = statsProductions[0].id;
+            currentStatsProductionId = statsProductions[0].id;
+            await loadInvoicesForProduction(currentStatsProductionId);
+        }
+        
+    } catch (error) {
+        console.error("Erreur chargement productions:", error);
+    }
+}
+
+// Charger les factures pour une production
+// Charger les factures pour une production
+async function loadInvoicesForProduction(productionId) {
+    if (!productionId) return;
+    
+    showMessage('Chargement des statistiques...', 'warning');
+    
+    try {
+        // 1. Charger les factures normales (boutiques physiques)
+        const invoicesSnapshot = await db.collection('invoices')
+            .where('productionId', '==', productionId)
+            .get();
+        
+        const invoicesList = [];
+        invoicesSnapshot.forEach(doc => {
+            invoicesList.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+        
+        // 2. Charger les commandes TikTok
+        const tiktokSnapshot = await db.collection('orders')
+            .where('boutique', '==', 'en-ligne')
+            .get();
+        
+        const tiktokOrders = [];
+        tiktokSnapshot.forEach(doc => {
+            const order = doc.data();
+            tiktokOrders.push({
+                id: doc.id,
+                boutique: 'en-ligne',
+                boutiqueName: 'TikTok Shop',
+                productionId: productionId,
+                client: order.client || { name: 'Client TikTok', phone: order.client?.phone || '' },
+                items: order.items || [],
+                total: order.total || 0,
+                paiement: {
+                    montantPaye: order.paymentReceived || 0,
+                    resteAPayer: (order.total || 0) - (order.paymentReceived || 0),
+                    statut: order.paymentStatus === 'paye' ? 'paye' : (order.paymentStatus === 'partiel' ? 'partiel' : 'impaye'),
+                    modePaiement: 'wave'
+                },
+                date: order.createdAt || new Date(),
+                invoiceNumber: order.orderNumber || `TIK-${doc.id.slice(0,8)}`
+            });
+        });
+        
+        // Fusionner les deux listes
+        statsAllInvoices = [...invoicesList, ...tiktokOrders];
+        
+        console.log(`📊 ${invoicesList.length} factures + ${tiktokOrders.length} TikTok = ${statsAllInvoices.length} total`);
+        
+        // Afficher les cartes des boutiques
+        renderAllBoutiqueStats();
+        
+        // ⚠️ IMPORTANT: Attendre que le DOM soit prêt pour les graphiques
+        setTimeout(() => {
+            updateAllCharts();
+        }, 100);
+        
+        showMessage('Statistiques mises à jour', 'success');
+        
+    } catch (error) {
+        console.error("Erreur chargement factures:", error);
+        showMessage('Erreur chargement des données', 'error');
+    }
+}
+
+// Rendre toutes les statistiques des boutiques
+function renderAllBoutiqueStats() {
+    const container = document.getElementById('boutiquesStatsGrid');
+    container.innerHTML = '';
+    
+    // Calculer les totaux globaux
+    let globalTotalVentes = 0;
+    let globalTotalPoulets = 0;
+    let globalTotalFactures = statsAllInvoices.length;
+    let globalTotalImpaye = 0;
+    
+    const boutiquesStats = [];
+    
+    for (const boutique of BOUTIQUES_LIST) {
+        const stats = calculateBoutiqueStats(boutique.id);
+        boutiquesStats.push({ boutique, stats });
+        
+        globalTotalVentes += stats.totalVendu;
+        globalTotalPoulets += stats.pouletsVendus;
+        globalTotalImpaye += stats.totalImpaye;
+    }
+    
+    // Mettre à jour le résumé global
+    document.getElementById('globalTotalVentes').innerHTML = globalTotalVentes.toLocaleString('fr-FR') + ' FCFA';
+    document.getElementById('globalTotalPoulets').innerText = globalTotalPoulets.toLocaleString();
+    document.getElementById('globalTotalFactures').innerText = globalTotalFactures;
+    document.getElementById('globalTotalImpaye').innerHTML = globalTotalImpaye.toLocaleString('fr-FR') + ' FCFA';
+    
+    // Générer les cartes
+    for (const { boutique, stats } of boutiquesStats) {
+        const card = createBoutiqueCard(boutique, stats);
+        container.appendChild(card);
+    }
+}
+
+// Calculer les statistiques d'une boutique
+function calculateBoutiqueStats(boutiqueId) {
+    // Filtrer les factures de cette boutique
+    const boutiqueInvoices = statsAllInvoices.filter(inv => inv.boutique === boutiqueId);
+    
+    let totalVendu = 0;      // Somme des TOTAUX des factures
+    let totalCaisse = 0;     // Somme des MONTANTS PAYÉS
+    let totalFactures = boutiqueInvoices.length;
+    let pouletsVendus = 0;
+    let clientsUniques = new Set();
+    
+    // Pour le CA mensuel
+    const caParMois = {};
+    
+    boutiqueInvoices.forEach(inv => {
+        totalVendu += inv.total || 0;
+        totalCaisse += inv.paiement?.montantPaye || 0;
+        
+        if (inv.items) {
+            inv.items.forEach(item => {
+                pouletsVendus += item.quantity || 0;
+            });
+        }
+        
+        if (inv.client?.name && inv.client.name !== 'Client non renseigné') {
+            clientsUniques.add(inv.client.name);
+        }
+        
+        // Regrouper par mois
+        let date;
+        if (inv.date && inv.date.seconds) {
+            date = new Date(inv.date.seconds * 1000);
+        } else {
+            date = new Date(inv.date || Date.now());
+        }
+        const moisKey = `${date.getFullYear()}-${date.getMonth()+1}`;
+        caParMois[moisKey] = (caParMois[moisKey] || 0) + (inv.paiement?.montantPaye || 0);
+    });
+    
+    const totalImpaye = totalVendu - totalCaisse;
+    const panierMoyen = totalFactures > 0 ? totalCaisse / totalFactures : 0;
+    
+    // Nombre de commandes par statut
+    const payees = boutiqueInvoices.filter(inv => inv.paiement?.statut === 'paye').length;
+    const partielles = boutiqueInvoices.filter(inv => inv.paiement?.statut === 'partiel').length;
+    const impayees = boutiqueInvoices.filter(inv => inv.paiement?.statut === 'impaye' || !inv.paiement).length;
+    
+    return {
+        totalVendu,
+        totalCaisse,
+        totalImpaye,
+        totalFactures,
+        pouletsVendus,
+        clientsUniques: clientsUniques.size,
+        panierMoyen,
+        payees,
+        partielles,
+        impayees,
+        caParMois
+    };
+}
+
+// Créer une carte pour une boutique
+function createBoutiqueCard(boutique, stats) {
+    const card = document.createElement('div');
+    card.className = 'boutique-stat-card';
+    
+    const statusColor = stats.totalImpaye === 0 ? '#10b981' : (stats.totalImpaye > 0 ? '#f59e0b' : '#ef4444');
+    
+    card.innerHTML = `
+        <div class="boutique-header" style="background: linear-gradient(135deg, ${boutique.color} 0%, ${boutique.color}cc 100%);">
+            <h3><i class="fas fa-store"></i> ${boutique.name}</h3>
+            <div class="boutique-badge">${stats.totalFactures} factures</div>
+        </div>
+        <div class="boutique-body">
+            <div class="stats-row">
+                <span class="stats-label"><i class="fas fa-chart-line"></i> Total commandes</span>
+                <span class="stats-value">${stats.totalFactures}</span>
+            </div>
+            <div class="stats-row">
+                <span class="stats-label"><i class="fas fa-check-circle" style="color:#10b981;"></i> Payées</span>
+                <span class="stats-value positive">${stats.payees}</span>
+            </div>
+            <div class="stats-row">
+                <span class="stats-label"><i class="fas fa-exclamation-triangle" style="color:#f59e0b;"></i> Paiement partiel</span>
+                <span class="stats-value neutral">${stats.partielles}</span>
+            </div>
+            <div class="stats-row">
+                <span class="stats-label"><i class="fas fa-times-circle" style="color:#ef4444;"></i> Impayées</span>
+                <span class="stats-value negative">${stats.impayees}</span>
+            </div>
+            
+            <div class="financial-grid">
+                <div class="financial-item">
+                    <span><i class="fas fa-shopping-cart"></i> Montant total vendu</span>
+                    <span style="font-weight: bold; color: #667eea;">${stats.totalVendu.toLocaleString('fr-FR')} FCFA</span>
+                </div>
+                <div class="financial-item">
+                    <span><i class="fas fa-money-bill-wave"></i> Montant total impayé</span>
+                    <span style="font-weight: bold; color: ${statusColor};">${stats.totalImpaye.toLocaleString('fr-FR')} FCFA</span>
+                </div>
+                <div class="financial-item">
+                    <span><i class="fas fa-wallet"></i> Caisse totale</span>
+                    <span style="font-weight: bold; color: #10b981;">${stats.totalCaisse.toLocaleString('fr-FR')} FCFA</span>
+                </div>
+            </div>
+            
+            <div class="stats-row" style="margin-top: 10px;">
+                <span class="stats-label"><i class="fas fa-drumstick-bite"></i> Poulets vendus</span>
+                <span class="stats-value">${stats.pouletsVendus.toLocaleString()}</span>
+            </div>
+            <div class="stats-row">
+                <span class="stats-label"><i class="fas fa-users"></i> Clients uniques</span>
+                <span class="stats-value">${stats.clientsUniques}</span>
+            </div>
+            <div class="stats-row">
+                <span class="stats-label"><i class="fas fa-shopping-bag"></i> Panier moyen</span>
+                <span class="stats-value">${stats.panierMoyen.toLocaleString('fr-FR')} FCFA</span>
+            </div>
+        </div>
+    `;
+    
+    return card;
+}
+
+// Mettre à jour tous les graphiques
+function updateAllCharts() {
+    console.log("🔄 Mise à jour de tous les graphiques");
+    console.log("📊 Nombre de factures:", statsAllInvoices ? statsAllInvoices.length : 0);
+    
+    // Vérifier que statsAllInvoices existe
+    if (!statsAllInvoices) {
+        console.log("⚠️ statsAllInvoices non défini");
+        return;
+    }
+    
+    updateCAParBoutiqueChart();
+    updateEvolutionMensuelleChart();
+    updateRepartitionVentesChart();
+    updateTopClientsChart();
+}
+
+// Graphique CA par boutique
+function updateCAParBoutiqueChart() {
+    console.log("📊 Mise à jour CA par boutique");
+    
+    const ctx = document.getElementById('caParBoutiqueChart').getContext('2d');
+    if (caParBoutiqueChart) caParBoutiqueChart.destroy();
+    
+    // Vérifier qu'il y a des données
+    if (!statsAllInvoices || statsAllInvoices.length === 0) {
+        caParBoutiqueChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Aucune donnée'],
+                datasets: [{
+                    label: 'Chiffre d\'affaires (FCFA)',
+                    data: [0],
+                    backgroundColor: '#cbd5e1',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { position: 'top' }
+                }
+            }
+        });
+        return;
+    }
+    
+    const labels = [];
+    const data = [];
+    const colors = [];
+    
+    for (const boutique of BOUTIQUES_LIST) {
+        const boutiqueInvoices = statsAllInvoices.filter(inv => inv.boutique === boutique.id);
+        const totalCA = boutiqueInvoices.reduce((sum, inv) => sum + (inv.paiement?.montantPaye || 0), 0);
+        
+        if (totalCA > 0) {
+            labels.push(boutique.name);
+            data.push(totalCA);
+            colors.push(boutique.color);
+        }
+    }
+    
+    if (labels.length === 0) {
+        caParBoutiqueChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Aucune vente'],
+                datasets: [{
+                    label: 'Chiffre d\'affaires (FCFA)',
+                    data: [0],
+                    backgroundColor: '#cbd5e1',
+                    borderRadius: 8
+                }]
+            }
+        });
+        return;
+    }
+    
+    caParBoutiqueChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Chiffre d\'affaires (FCFA)',
+                data: data,
+                backgroundColor: colors,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toLocaleString('fr-FR')} FCFA` } }
+            }
+        }
+    });
+}
+
+// Graphique évolution par SEMAINE avec couleurs
+function updateEvolutionMensuelleChart() {
+    console.log("📊 Mise à jour évolution hebdomadaire");
+    
+    const ctx = document.getElementById('evolutionMensuelleChart').getContext('2d');
+    if (evolutionMensuelleChart) evolutionMensuelleChart.destroy();
+    
+    // Vérifier qu'il y a des données
+    if (!statsAllInvoices || statsAllInvoices.length === 0) {
+        evolutionMensuelleChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Aucune donnée'],
+                datasets: [{
+                    label: 'Aucune vente',
+                    data: [0],
+                    borderColor: '#cbd5e1',
+                    backgroundColor: '#cbd5e115',
+                    fill: true
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: true }
+        });
+        return;
+    }
+    
+    // Récupérer l'année sélectionnée
+    const yearInput = document.getElementById('yearFilter');
+    const selectedYear = yearInput ? (parseInt(yearInput.value) || new Date().getFullYear()) : new Date().getFullYear();
+    
+    console.log(`📅 Année sélectionnée: ${selectedYear}, Factures: ${statsAllInvoices.length}`);
+    
+    // Structure pour stocker les données par semaine
+    const allWeeks = new Set();
+    const boutiqueData = {};
+    
+    // Initialiser les données pour chaque boutique
+    for (const boutique of BOUTIQUES_LIST) {
+        boutiqueData[boutique.name] = {};
+    }
+    
+    // Fonction pour obtenir le numéro de semaine (ISO : lundi au dimanche)
+    function getWeekNumber(date) {
+        const d = new Date(date);
+        d.setHours(0, 0, 0, 0);
+        d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+        const week1 = new Date(d.getFullYear(), 0, 4);
+        return 1 + Math.round(((d - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+    }
+    
+    // Parcourir toutes les factures
+    statsAllInvoices.forEach(inv => {
+        let date;
+        if (inv.date && inv.date.seconds) {
+            date = new Date(inv.date.seconds * 1000);
+        } else {
+            date = new Date(inv.date || Date.now());
+        }
+        
+        const annee = date.getFullYear();
+        
+        // Filtrer par année sélectionnée
+        if (annee !== selectedYear) return;
+        
+        // Obtenir le numéro de semaine
+        const semaine = getWeekNumber(date);
+        const semaineKey = `${annee}-S${semaine}`;
+        
+        // Récupérer le nom de la boutique
+        const boutiqueName = inv.boutiqueName || getBoutiqueNameById(inv.boutique);
+        
+        // Calculer le montant payé
+        const montantPaye = inv.paiement?.montantPaye || 0;
+        
+        if (montantPaye > 0) {
+            allWeeks.add(semaineKey);
+            if (boutiqueData[boutiqueName]) {
+                boutiqueData[boutiqueName][semaineKey] = (boutiqueData[boutiqueName][semaineKey] || 0) + montantPaye;
+            }
+        }
+    });
+    
+    // Trier les semaines dans l'ordre
+    const sortedWeeks = Array.from(allWeeks).sort((a, b) => {
+        const numA = parseInt(a.split('-S')[1]);
+        const numB = parseInt(b.split('-S')[1]);
+        return numA - numB;
+    });
+    
+    // Formater les labels des semaines
+    const weekLabels = sortedWeeks.map(w => {
+        const semaine = w.split('-S')[1];
+        return `Semaine ${semaine}`;
+    });
+    
+    // Créer les datasets avec les couleurs des boutiques
+    const datasets = [];
+    
+    for (const boutique of BOUTIQUES_LIST) {
+        const data = sortedWeeks.map(week => boutiqueData[boutique.name]?.[week] || 0);
+        
+        // N'afficher que les boutiques qui ont des ventes
+        if (data.some(v => v > 0)) {
+            datasets.push({
+                label: boutique.name,
+                data: data,
+                borderColor: boutique.color,
+                backgroundColor: `${boutique.color}15`,
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: boutique.color,
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+            });
+        }
+    }
+    
+    if (datasets.length === 0) {
+        evolutionMensuelleChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: weekLabels.length > 0 ? weekLabels : ['Aucune donnée'],
+                datasets: [{
+                    label: 'Aucune vente',
+                    data: weekLabels.map(() => 0),
+                    borderColor: '#cbd5e1',
+                    backgroundColor: '#cbd5e115',
+                    fill: true
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: true }
+        });
+        return;
+    }
+    
+    evolutionMensuelleChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: weekLabels,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 10,
+                        font: { size: 11 }
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        label: (ctx) => {
+                            let label = ctx.dataset.label || '';
+                            let value = ctx.raw;
+                            return `${label}: ${value.toLocaleString('fr-FR')} FCFA`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Chiffre d\'affaires (FCFA)',
+                        color: '#64748b'
+                    },
+                    ticks: {
+                        callback: (value) => value.toLocaleString('fr-FR') + ' FCFA'
+                    },
+                    grid: { color: '#e2e8f0' }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Période',
+                        color: '#64748b'
+                    },
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45
+                    },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+}
+
+// Fonction utilitaire pour obtenir le nom de la boutique par ID
+function getBoutiqueNameById(boutiqueId) {
+    const boutique = BOUTIQUES_LIST.find(b => b.id === boutiqueId);
+    return boutique ? boutique.name : boutiqueId;
+}
+
+// Graphique répartition des ventes
+function updateRepartitionVentesChart() {
+    console.log("📊 Mise à jour répartition des ventes");
+    
+    const ctx = document.getElementById('repartitionVentesChart').getContext('2d');
+    if (repartitionVentesChart) repartitionVentesChart.destroy();
+    
+    // Vérifier qu'il y a des données
+    if (!statsAllInvoices || statsAllInvoices.length === 0) {
+        repartitionVentesChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Aucune donnée'],
+                datasets: [{ data: [1], backgroundColor: ['#cbd5e1'], borderWidth: 0 }]
+            },
+            options: { responsive: true, maintainAspectRatio: true }
+        });
+        return;
+    }
+    
+    const data = [];
+    const labels = [];
+    const colors = [];
+    
+    for (const boutique of BOUTIQUES_LIST) {
+        const boutiqueInvoices = statsAllInvoices.filter(inv => inv.boutique === boutique.id);
+        const totalCA = boutiqueInvoices.reduce((sum, inv) => sum + (inv.paiement?.montantPaye || 0), 0);
+        
+        if (totalCA > 0) {
+            labels.push(boutique.name);
+            data.push(totalCA);
+            colors.push(boutique.color);
+        }
+    }
+    
+    if (data.length === 0) {
+        repartitionVentesChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Aucune vente'],
+                datasets: [{ data: [1], backgroundColor: ['#cbd5e1'], borderWidth: 0 }]
+            }
+        });
+        return;
+    }
+    
+    const total = data.reduce((a, b) => a + b, 0);
+    
+    repartitionVentesChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: { 
+                    callbacks: { 
+                        label: (ctx) => `${ctx.label}: ${ctx.raw.toLocaleString('fr-FR')} FCFA (${((ctx.raw / total) * 100).toFixed(1)}%)` 
+                    } 
+                }
+            }
+        }
+    });
+}
+
+// Graphique Top 5 clients (par NOMBRE de poulets achetés)
+function updateTopClientsChart() {
+    console.log("📊 Mise à jour top clients");
+    
+    const ctx = document.getElementById('topClientsChart').getContext('2d');
+    if (topClientsChart) topClientsChart.destroy();
+    
+    // Vérifier qu'il y a des données
+    if (!statsAllInvoices || statsAllInvoices.length === 0) {
+        topClientsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Aucune donnée'],
+                datasets: [{
+                    label: 'Nombre de poulets achetés',
+                    data: [0],
+                    backgroundColor: '#cbd5e1',
+                    borderRadius: 8
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: true }
+        });
+        return;
+    }
+    
+    const clientPoulets = {};
+    
+    statsAllInvoices.forEach(inv => {
+        // Récupérer le nom du client
+        let clientName = inv.client?.name || '';
+        
+        // Si pas de nom, essayer de prendre le téléphone
+        if (!clientName || clientName === '' || clientName === 'Client non renseigné' || clientName === 'Anonyme') {
+            const phone = inv.client?.phone || '';
+            if (phone && phone !== 'Non renseigné' && phone !== '') {
+                clientName = `Client (${phone})`;
+            } else {
+                // Ignorer les clients sans nom ET sans téléphone
+                return;
+            }
+        }
+        
+        // Compter le nombre TOTAL de poulets pour ce client
+        let nombrePoulets = 0;
+        
+        if (inv.items && inv.items.length > 0) {
+            inv.items.forEach(item => {
+                nombrePoulets += (item.quantity || 0);
+            });
+        }
+        
+        if (nombrePoulets > 0) {
+            clientPoulets[clientName] = (clientPoulets[clientName] || 0) + nombrePoulets;
+        }
+    });
+    
+    // Trier par nombre de poulets (du plus grand au plus petit)
+    const sortedClients = Object.entries(clientPoulets)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+    
+    if (sortedClients.length === 0) {
+        topClientsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Aucun client'],
+                datasets: [{
+                    label: 'Nombre de poulets achetés',
+                    data: [0],
+                    backgroundColor: '#cbd5e1',
+                    borderRadius: 8
+                }]
+            }
+        });
+        return;
+    }
+    
+    topClientsChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: sortedClients.map(c => c[0]),
+            datasets: [{
+                label: '📊 Nombre de poulets achetés',
+                data: sortedClients.map(c => c[1]),
+                backgroundColor: '#10b981',
+                borderRadius: 8,
+                barPercentage: 0.7
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                tooltip: { 
+                    callbacks: { 
+                        label: (ctx) => `${ctx.raw} poulet(s)`
+                    } 
+                },
+                legend: {
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Nombre de poulets',
+                        color: '#64748b'
+                    },
+                    ticks: {
+                        stepSize: 1
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Clients',
+                        color: '#64748b'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Filtrer par mois et mettre à jour
+function applyMonthFilter() {
+    currentMonthFilter = document.getElementById('monthFilter').value;
+    currentYearFilter = parseInt(document.getElementById('yearFilter').value) || 2026;
+    updateEvolutionMensuelleChart();
+}
+
+// Initialiser les événements de la page
+function initBoutiqueStatsPage() {
+    console.log("🚀 Initialisation page statistiques boutiques");
+    
+    const productionSelect = document.getElementById('statsProductionSelect');
+    if (productionSelect) {
+        productionSelect.addEventListener('change', async function() {
+            currentStatsProductionId = this.value;
+            if (currentStatsProductionId) {
+                await loadInvoicesForProduction(currentStatsProductionId);
+            }
+        });
+    }
+    
+    const applyFilterBtn = document.getElementById('applyMonthFilter');
+    if (applyFilterBtn) {
+        // Supprimer les anciens écouteurs
+        const newBtn = applyFilterBtn.cloneNode(true);
+        applyFilterBtn.parentNode.replaceChild(newBtn, applyFilterBtn);
+        newBtn.addEventListener('click', applyMonthFilter);
+    }
+    
+    // Ajouter un bouton de rafraîchissement si besoin
+    const refreshChartsBtn = document.getElementById('refreshChartsBtn');
+    if (refreshChartsBtn) {
+        const newRefreshBtn = refreshChartsBtn.cloneNode(true);
+        refreshChartsBtn.parentNode.replaceChild(newRefreshBtn, refreshChartsBtn);
+        newRefreshBtn.addEventListener('click', function() {
+            if (currentStatsProductionId) {
+                loadInvoicesForProduction(currentStatsProductionId);
+            } else if (statsProductions && statsProductions.length > 0) {
+                currentStatsProductionId = statsProductions[0].id;
+                loadInvoicesForProduction(currentStatsProductionId);
+            }
+        });
+    }
+}
+
+// Appeler au chargement
+if (typeof loadProductionsForStats === 'function') {
+    loadProductionsForStats();
+}
+initBoutiqueStatsPage();
     </script>
    
 </body>
