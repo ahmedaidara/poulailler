@@ -1657,13 +1657,106 @@
     </div>
 </div>
             </section>
-           <section id="boutiquesSection" class="dashboard-section" style="display: none;">
+          <section id="boutiquesSection" class="dashboard-section" style="display: none;">
     <h2 class="section-title"><i class="fas fa-store"></i> Gestion des Boutiques</h2>
-    <!-- Section Distribution des Stocks -->
-<div class="table-container" style="margin-top: var(--space-xl);">
-    <h3 style="margin-bottom: var(--space-lg); color: var(--primary);">
-        <i class="fas fa-truck-loading"></i> Distribution des Stocks aux Boutiques
-    </h3>
+    
+    <!-- 2 DÉPÔTS PRINCIPAUX -->
+   <!-- 2 DÉPÔTS PRINCIPAUX -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+    <!-- Dépôt Sacré Coeur 1 -->
+    <div class="stat-card" style="border-top-color: #3B82F6;">
+        <div class="stat-icon" style="background: rgba(59,130,246,0.1); color:#3B82F6;">
+            <i class="fas fa-warehouse"></i>
+        </div>
+        <div class="stat-value" id="depotSC1Total">0</div>
+        <div class="stat-label">📦 DÉPÔT SACRÉ COEUR 1</div>
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <button class="btn btn-primary" onclick="gererStockDepot('sacre-coeur-1')" style="flex:1; padding: 8px;">
+                <i class="fas fa-edit"></i> Gérer
+            </button>
+            <button class="btn btn-success" onclick="ajouterStockDepot('sacre-coeur-1')" style="flex:1; padding: 8px; background:#10B981;">
+                <i class="fas fa-plus-circle"></i> Ajouter
+            </button>
+        </div>
+    </div>
+    
+    <!-- Dépôt Keur Massar -->
+    <div class="stat-card" style="border-top-color: #10B981;">
+        <div class="stat-icon" style="background: rgba(16,185,129,0.1); color:#10B981;">
+            <i class="fas fa-warehouse"></i>
+        </div>
+        <div class="stat-value" id="depotKMTotal">0</div>
+        <div class="stat-label">📦 DÉPÔT KEUR MASSAR</div>
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <button class="btn btn-primary" onclick="gererStockDepot('keur-massar')" style="flex:1; padding: 8px;">
+                <i class="fas fa-edit"></i> Gérer
+            </button>
+            <button class="btn btn-success" onclick="ajouterStockDepot('keur-massar')" style="flex:1; padding: 8px; background:#10B981;">
+                <i class="fas fa-plus-circle"></i> Ajouter
+            </button>
+        </div>
+    </div>
+</div>
+    
+    <!-- Liste des boutiques -->
+    <h3 class="section-title"><i class="fas fa-store"></i> Boutiques</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
+        <div class="stat-card" onclick="voirStockBoutique('sacre-coeur-1')" style="cursor: pointer; border-top-color:#3B82F6;">
+            <i class="fas fa-store" style="font-size:2rem; color:#3B82F6;"></i>
+            <div style="font-weight:bold;">Sacré Coeur 1</div>
+            <small>(Dépôt principal)</small>
+        </div>
+        <div class="stat-card" onclick="voirStockBoutique('keur-massar')" style="cursor: pointer; border-top-color:#10B981;">
+            <i class="fas fa-store" style="font-size:2rem; color:#10B981;"></i>
+            <div style="font-weight:bold;">Keur Massar</div>
+            <small>(Dépôt principal)</small>
+        </div>
+        <div class="stat-card" onclick="voirStockBoutique('sebikotane')" style="cursor: pointer; border-top-color:#F59E0B;">
+            <i class="fas fa-store" style="font-size:2rem; color:#F59E0B;"></i>
+            <div style="font-weight:bold;">Sebikotane</div>
+        </div>
+        <div class="stat-card" onclick="voirStockBoutique('front-terre')" style="cursor: pointer; border-top-color:#EF4444;">
+            <i class="fas fa-store" style="font-size:2rem; color:#EF4444;"></i>
+            <div style="font-weight:bold;">Front de Terre</div>
+        </div>
+        <div class="stat-card" onclick="voirStockBoutique('sacre-coeur-3')" style="cursor: pointer; border-top-color:#8B5CF6;">
+            <i class="fas fa-store" style="font-size:2rem; color:#8B5CF6;"></i>
+            <div style="font-weight:bold;">Sacré Coeur 3</div>
+        </div>
+        <div class="stat-card" onclick="voirStockBoutique('en-ligne')" style="cursor: pointer; border-top-color:#EC4899;">
+            <i class="fab fa-tiktok" style="font-size:2rem; color:#EC4899;"></i>
+            <div style="font-weight:bold;">En Ligne (TikTok)</div>
+        </div>
+    </div>
+    
+    <!-- Historique des transferts -->
+    <div class="table-container">
+        <div class="table-header">
+            <h3 style="margin:0;"><i class="fas fa-exchange-alt"></i> Historique des transferts de stock</h3>
+            <button class="btn btn-primary" onclick="chargerHistoriqueTransferts()">
+                <i class="fas fa-sync-alt"></i> Actualiser
+            </button>
+        </div>
+        <div class="table-wrapper">
+            <table class="records-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>De</th>
+                        <th>Vers</th>
+                        <th>Catégorie</th>
+                        <th>Quantité</th>
+                        <th>Motif</th>
+                    </tr>
+                </thead>
+                <tbody id="transfertsHistoryBody">
+                    <tr><td colspan="6" style="text-align:center; padding:30px;">Chargement...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+</section>
     
     <!-- Sélection Production -->
     <div style="background: var(--light-gray); padding: var(--space-lg); border-radius: var(--radius-lg); margin-bottom: var(--space-lg);">
@@ -1760,31 +1853,29 @@
         </div>
         
         <!-- Récapitulatif global et validation -->
-        <div style="margin-top: var(--space-xl); padding: var(--space-lg); background: #f0f9ff; border-radius: var(--radius-lg);">
-            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-md);">
-                <div>
-                    <strong>📦 Stock total disponible :</strong> 
-                    <span id="globalStockTotal" style="font-size: 1.2rem;">0</span>
-                </div>
-                <div>
-                    <strong>📤 Total distribué :</strong> 
-                    <span id="totalDistributed" style="font-size: 1.2rem; color: var(--primary);">0</span>
-                </div>
-                <div>
-                    <strong>⚠️ Reste à distribuer :</strong> 
-                    <span id="remainingToDistribute" style="font-size: 1.2rem; font-weight: bold;">0</span>
-                </div>
-            </div>
-            
-            <div class="modal-actions" style="margin-top: var(--space-lg);">
-                <button id="cancelDistributionBtn" class="btn btn-secondary">
-                    <i class="fas fa-times"></i> Annuler
-                </button>
-                <button id="saveDistributionBtn" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Enregistrer la Distribution
-                </button>
-            </div>
+       <!-- Récapitulatif global et validation -->
+<div style="margin-top: var(--space-xl); padding: var(--space-lg); background: #f0f9ff; border-radius: var(--radius-lg);">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-md);">
+        
+        <div>
+            <strong>📤 Total distribué :</strong> 
+            <span id="totalDistributed" style="font-size: 1.2rem; color: var(--primary);">0</span>
         </div>
+        <div>
+            <strong>⚠️ Reste à distribuer :</strong> 
+            <span id="remainingToDistribute" style="font-size: 1.2rem; font-weight: bold;">0</span>
+        </div>
+    </div>
+    
+    <div class="modal-actions" style="margin-top: var(--space-lg);">
+        <button id="cancelDistributionBtn" class="btn btn-secondary">
+            <i class="fas fa-times"></i> Annuler
+        </button>
+        <button id="saveDistributionBtn" class="btn btn-primary">
+            <i class="fas fa-save"></i> Enregistrer la Distribution
+        </button>
+    </div>
+</div>
     </div>
 </div>
 
@@ -1817,168 +1908,50 @@
         <p>Distribuez d'abord du stock aux boutiques</p>
     </div>
 </div>
-              <h3 style="margin: 0;">
-            <i class="fas fa-chart-bar"></i> Factures - Vue d'ensemble
+         <!-- Historique des Distributions -->
+<div class="table-container" style="margin-top: var(--space-xl);">
+    <div class="table-header">
+        <h3 style="margin: 0;">
+            <i class="fas fa-history"></i> Historique des Distributions
         </h3>
-    <!-- Boutiques Cards -->
-   <!-- Stats Grid pour 6 boutiques -->
-<div class="stats-grid" style="margin-bottom: var(--space-xl);">
-    <!-- Sacré Coeur 1 -->
-    <div class="stat-card" onclick="selectBoutique('sacre-coeur-1')" style="cursor: pointer; border-top: 4px solid #3B82F6;">
-        <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3B82F6;">
-            <i class="fas fa-map-marker-alt"></i>
-        </div>
-        <div class="stat-value" id="statsSacreCoeur1">0</div>
-        <div class="stat-label">Factures - Sacré Coeur 1</div>
-        <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
-            <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceSacreCoeur1">--/--/----</span>
-        </div>
+        <button id="refreshDistributionsBtn" class="btn btn-primary" style="padding: 8px 16px;">
+            <i class="fas fa-sync-alt"></i> Actualiser
+        </button>
     </div>
     
-    <!-- Keur Massar -->
-    <div class="stat-card" onclick="selectBoutique('keur-massar')" style="cursor: pointer; border-top: 4px solid #10B981;">
-        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10B981;">
-            <i class="fas fa-map-marker-alt"></i>
-        </div>
-        <div class="stat-value" id="statsKeurMassar">0</div>
-        <div class="stat-label">Factures - Keur Massar</div>
-        <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
-            <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceKeurMassar">--/--/----</span>
-        </div>
+    <div class="table-wrapper">
+        <table class="records-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Production</th>
+                    <th>Sacré Coeur 1</th>
+                    <th>Keur Massar</th>
+                    <th>Sebikotane</th>
+                    <th>Front de Terre</th>
+                    <th>Sacré Coeur 3</th>
+                    <th>En Ligne</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="distributionsHistoryTable">
+                <tr><td colspan="10" style="text-align: center; padding: 30px;">
+                    <i class="fas fa-spinner fa-spin"></i> Chargement...
+                </td></tr>
+            </tbody>
+        </table>
     </div>
     
-    <!-- Sebikotane -->
-    <div class="stat-card" onclick="selectBoutique('sebikotane')" style="cursor: pointer; border-top: 4px solid #F59E0B;">
-        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #F59E0B;">
-            <i class="fas fa-map-marker-alt"></i>
-        </div>
-        <div class="stat-value" id="statsSebikotane">0</div>
-        <div class="stat-label">Factures - Sebikotane</div>
-        <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
-            <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceSebikotane">--/--/----</span>
-        </div>
-    </div>
-    
-    <!-- Front de Terre -->
-    <div class="stat-card" onclick="selectBoutique('front-terre')" style="cursor: pointer; border-top: 4px solid #EF4444;">
-        <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #EF4444;">
-            <i class="fas fa-map-marker-alt"></i>
-        </div>
-        <div class="stat-value" id="statsFrontTerre">0</div>
-        <div class="stat-label">Factures - Front de Terre</div>
-        <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
-            <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceFrontTerre">--/--/----</span>
-        </div>
-    </div>
-    
-    <!-- Sacré Coeur 3 -->
-    <div class="stat-card" onclick="selectBoutique('sacre-coeur-3')" style="cursor: pointer; border-top: 4px solid #8B5CF6;">
-        <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8B5CF6;">
-            <i class="fas fa-map-marker-alt"></i>
-        </div>
-        <div class="stat-value" id="statsSacreCoeur3">0</div>
-        <div class="stat-label">Factures - Sacré Coeur 3</div>
-        <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
-            <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceSacreCoeur3">--/--/----</span>
-        </div>
-    </div>
-    
-    <!-- En Ligne (TikTok) -->
-    <div class="stat-card" onclick="selectBoutique('en-ligne')" style="cursor: pointer; border-top: 4px solid #EC4899;">
-        <div class="stat-icon" style="background: rgba(236, 72, 153, 0.1); color: #EC4899;">
-            <i class="fab fa-tiktok"></i>
-        </div>
-        <div class="stat-value" id="statsEnLigne">0</div>
-        <div class="stat-label">Factures - En Ligne (TikTok)</div>
-        <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
-            <i class="fas fa-calendar"></i> Dernière: <span id="lastInvoiceEnLigne">--/--/----</span>
-        </div>
+    <div id="emptyDistributions" class="empty-state" style="display: none;">
+        <i class="fas fa-box-open" style="font-size: 3rem; margin-bottom: var(--space-md); color: var(--light-gray);"></i>
+        <h3>Aucune distribution</h3>
+        <p>Les distributions de stock apparaîtront ici</p>
     </div>
 </div>
-
-<!-- Total des factures -->
-<div class="stat-card" style="border-top: 4px solid #1E293B;">
-    <div class="stat-icon" style="background: rgba(30, 41, 59, 0.1); color: #1E293B;">
-        <i class="fas fa-chart-pie"></i>
-    </div>
-    <div class="stat-value" id="statsTotalBoutiques">0</div>
-    <div class="stat-label">Total factures toutes boutiques</div>
-    <div style="margin-top: var(--space-sm); font-size: 0.8rem; color: var(--gray-text);">
-        <i class="fas fa-money-bill-wave"></i> CA total: <span id="totalCA">0 F CFA</span>
-    </div>
-</div>
+ 
     
-    <!-- Filtres -->
-    <div class="table-container" style="margin-top: var(--space-xl);">
-        <div class="table-header">
-           <div class="filters">
-    <button class="filter-btn active" data-boutique="all">Toutes boutiques</button>
-    <button class="filter-btn" data-boutique="sacre-coeur-1">Sacré Coeur 1</button>
-    <button class="filter-btn" data-boutique="keur-massar">Keur Massar</button>
-    <button class="filter-btn" data-boutique="sebikotane">Sebikotane</button>
-    <button class="filter-btn" data-boutique="front-terre">Front de Terre</button>
-    <button class="filter-btn" data-boutique="sacre-coeur-3">Sacré Coeur 3</button>
-    <button class="filter-btn" data-boutique="en-ligne">En Ligne (TikTok)</button>
-    <button class="filter-btn" data-boutique="today">Aujourd'hui</button>
-    <button class="filter-btn" data-boutique="week">Cette semaine</button>
-</div>
-            <div class="search-container">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="searchInvoice" class="search-input" placeholder="Rechercher facture...">
-            </div>
-        </div>
-        
-        <!-- Tableau des factures -->
-        <div class="table-wrapper">
-            <table class="records-table">
-                <thead>
-    <tr>
-        <th>Boutique</th>
-        <th>Date attribution</th>
-        <th>Production</th>
-        <th>Attribué</th>
-        <th>Vendu</th>
-        <th>Restant</th>
-        <th>Actions</th>
-    </tr>
-</thead>
-                <tbody id="invoicesTableBody">
-                    <!-- Les factures apparaîtront ici -->
-                </tbody>
-            </table>
-        </div>
-        
-        <div id="emptyInvoices" class="empty-state" style="display: none;">
-            <i class="fas fa-file-invoice" style="font-size: 3rem; margin-bottom: var(--space-md); color: var(--light-gray);"></i>
-            <h3>Aucune facture trouvée</h3>
-            <p>Les factures des gérantes apparaîtront ici</p>
-        </div>
-    </div>
-    
-    <!-- Modal de détails de facture -->
-    <div id="invoiceDetailModal" class="modal-overlay">
-        <div class="modal" style="max-width: 800px;">
-            <div class="modal-header">
-                <h2 class="modal-title"><i class="fas fa-file-invoice"></i> Détails de la Facture</h2>
-                <button class="close-modal" onclick="hideModal('invoiceDetailModal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div id="invoiceDetailContent">
-                <!-- Contenu dynamique -->
-            </div>
-            
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="hideModal('invoiceDetailModal')">
-                    <i class="fas fa-times"></i> Fermer
-                </button>
-                <button id="printInvoiceBtn" class="btn btn-primary">
-                    <i class="fas fa-print"></i> Imprimer
-                </button>
-            </div>
-        </div>
-    </div>
+   
 </section>
            <!-- Section Statistiques et Dépenses -->
 <section id="statsSection" class="dashboard-section" style="display: none;">
@@ -6459,7 +6432,7 @@ function initDistribution() {
     document.getElementById('saveDistributionBtn').addEventListener('click', saveDistribution);
 }
 
-      function initDistributionModerne() {
+    function initDistributionModerne() {
     console.log("🚀 Initialisation distribution moderne");
     
     const selectProd = document.getElementById('selectProductionDist');
@@ -6478,17 +6451,19 @@ function initDistribution() {
                 const date = new Date(prod.startDate);
                 const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
                 
-                // Calculer le stock disponible réel
+                // Calculer le stock disponible RÉEL (quantités restantes par catégorie)
                 let totalDisponible = 0;
                 const categories = ['small1Quantity','small2Quantity','medium1Quantity','medium2Quantity',
                                    'large1Quantity','large2Quantity','xlarge1Quantity','xlarge2Quantity'];
                 categories.forEach(cat => {
-                    totalDisponible += prod[cat] || 0;
+                    const qty = prod[cat] || 0;
+                    const sold = prod[cat.replace('Quantity', 'Sold')] || 0;
+                    totalDisponible += Math.max(0, qty - sold);
                 });
                 
                 const option = document.createElement('option');
                 option.value = doc.id;
-                option.textContent = `${prod.productionName || 'Production'} (${dateStr}) - ${totalDisponible} poulets`;
+                option.textContent = `${prod.productionName || 'Production'} (${dateStr}) - ${totalDisponible} poulets disponibles`;
                 option.dataset.production = JSON.stringify({
                     id: doc.id,
                     data: prod,
@@ -6772,29 +6747,35 @@ function setupDistributionForm() {
         { id: '8', name: '🐔 Géants (+2.4 kg)', qtyField: 'xlarge2Quantity', soldField: 'xlarge2Sold', priceField: 'xlarge2Price' }
     ];
     
-    // Calculer les disponibilités INITIALES par catégorie
+    // Calculer les disponibilités INITIALES par catégorie (STOCK TOTAL DISPONIBLE)
     const disponibilitesInitiales = {};
+    let stockTotalInitial = 0;
+    
     categories.forEach(cat => {
-        const stockInitial = production[cat.qtyField] || 0;
+        // Quantité restante = quantite initiale - deja vendu
+        const quantiteInitiale = production[cat.qtyField] || 0;
         const dejaVendu = production[cat.soldField] || 0;
-        const disponible = Math.max(0, stockInitial - dejaVendu);
+        const disponible = Math.max(0, quantiteInitiale - dejaVendu);
+        
         disponibilitesInitiales[cat.id] = {
             disponibleMax: disponible,
             disponibleRestant: disponible,
             name: cat.name,
             price: production[cat.priceField] || 0
         };
+        stockTotalInitial += disponible;
+        
+        console.log(`Catégorie ${cat.id}: ${quantiteInitiale} - ${dejaVendu} vendus = ${disponible} disponibles`);
     });
     
-    // Stock total initial
-   // Calculer le stock total disponible (somme de TOUTES les catégories)
-let stockTotalInitial = 0;
-for (const catId in disponibilitesInitiales) {
-    stockTotalInitial += disponibilitesInitiales[catId].disponibleMax;
-}
-
-document.getElementById('globalStockTotal').textContent = stockTotalInitial;
-document.getElementById('remainingToDistribute').textContent = stockTotalInitial;
+    console.log("📦 Stock total disponible initial:", stockTotalInitial);
+    
+    // Afficher le stock total disponible INITIAL
+    const stockTotalSpan = document.getElementById('globalStockTotal');
+    if (stockTotalSpan) stockTotalSpan.textContent = stockTotalInitial;
+    
+    const remainingSpan = document.getElementById('remainingToDistribute');
+    if (remainingSpan) remainingSpan.textContent = stockTotalInitial;
     
     // Liste des boutiques
     const boutiques = [
@@ -6815,18 +6796,21 @@ document.getElementById('remainingToDistribute').textContent = stockTotalInitial
         });
     });
     
-    // Stocker les disponibilités initiales dans une variable globale
+    // Stocker les données globales
     window.disponibilitesGlobales = JSON.parse(JSON.stringify(disponibilitesInitiales));
+    window.stockTotalInitialGlobal = stockTotalInitial;
+    window.boutiquesList = boutiques;
+    window.categoriesList = categories;
     
     // Fonction pour calculer le restant disponible pour une catégorie
-    function getRestantDisponible(categoryId) {
+    window.getRestantDisponible = function(categoryId) {
         let totalAttribue = 0;
         for (const boutique of boutiques) {
             totalAttribue += window.attributionsEnCours[boutique.id][categoryId] || 0;
         }
         const maxDispo = window.disponibilitesGlobales[categoryId].disponibleMax;
         return Math.max(0, maxDispo - totalAttribue);
-    }
+    };
     
     // Fonction pour mettre à jour l'affichage d'une boutique
     function updateBoutiqueDisplay(boutiqueId) {
@@ -6840,14 +6824,14 @@ document.getElementById('remainingToDistribute').textContent = stockTotalInitial
         let totalBoutique = 0;
         
         categories.forEach(cat => {
-            const restantGlobal = getRestantDisponible(cat.id);
+            const restantGlobal = window.getRestantDisponible(cat.id);
             const attribueActuel = window.attributionsEnCours[boutiqueId][cat.id] || 0;
             totalBoutique += attribueActuel;
+            const maxDispoTotal = window.disponibilitesGlobales[cat.id].disponibleMax;
             
-            if (restantGlobal === 0 && attribueActuel === 0) {
-                // Plus rien disponible
+            if (restantGlobal === 0 && attribueActuel === 0 && maxDispoTotal === 0) {
                 html += `
-                    <div class="categorie-distrib" style="margin-bottom: var(--space-md); padding: var(--space-sm); background: #fef2f2; border-radius: var(--radius-sm); border-left: 3px solid #ccc; opacity: 0.6;">
+                    <div style="margin-bottom: var(--space-md); padding: var(--space-sm); background: #fef2f2; border-radius: var(--radius-sm); border-left: 3px solid #ccc; opacity: 0.6;">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                             <div>
                                 <span style="font-weight: 500;">${cat.name}</span>
@@ -6858,16 +6842,16 @@ document.getElementById('remainingToDistribute').textContent = stockTotalInitial
                     </div>
                 `;
             } else {
-                // Afficher avec champ de saisie
                 const maxAttribuable = restantGlobal + attribueActuel;
+                const prix = window.disponibilitesGlobales[cat.id].price || 0;
                 
                 html += `
-                    <div class="categorie-distrib" style="margin-bottom: var(--space-md); padding: var(--space-sm); background: #f0fdf4; border-radius: var(--radius-sm); border-left: 3px solid ${boutique.color};">
+                    <div style="margin-bottom: var(--space-md); padding: var(--space-sm); background: #f0fdf4; border-radius: var(--radius-sm); border-left: 3px solid ${boutique.color};">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                             <div style="flex: 2;">
                                 <span style="font-weight: 500;">${cat.name}</span>
                                 <div><strong style="color: ${restantGlobal > 0 ? boutique.color : '#999'};">${restantGlobal} disponibles</strong> 
-                                <small style="color: #666;">(${window.disponibilitesGlobales[cat.id].price.toLocaleString('fr-FR')} F CFA/unité)</small></div>
+                                <small style="color: #666;">(${prix.toLocaleString('fr-FR')} F CFA/unité)</small></div>
                                 ${attribueActuel > 0 ? `<small style="color: ${boutique.color};">Déjà attribué: ${attribueActuel}</small>` : ''}
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
@@ -6876,13 +6860,13 @@ document.getElementById('remainingToDistribute').textContent = stockTotalInitial
                                        class="input-attribution" 
                                        data-boutique="${boutique.id}"
                                        data-category="${cat.id}"
-                                       data-max="${restantGlobal + attribueActuel}"
+                                       data-max="${maxAttribuable}"
                                        min="0" 
-                                       max="${restantGlobal + attribueActuel}"
+                                       max="${maxAttribuable}"
                                        value="${attribueActuel}"
                                        step="1"
                                        style="width: 80px; padding: 6px; border: 1px solid #ddd; border-radius: 6px; text-align: center;">
-                                <span class="max-indicator" style="font-size: 0.7rem; color: #888;">max ${restantGlobal + attribueActuel}</span>
+                                <span style="font-size: 0.7rem; color: #888;">max ${maxAttribuable}</span>
                             </div>
                         </div>
                     </div>
@@ -6892,15 +6876,15 @@ document.getElementById('remainingToDistribute').textContent = stockTotalInitial
         
         container.innerHTML = html;
         
-        // Mettre à jour le total de la boutiqu0
+        // Mettre à jour le total de la boutique
         const totalSpan = document.getElementById(boutique.totalSpanId);
         if (totalSpan) totalSpan.textContent = totalBoutique;
         
-        // Ajouter les écouteurs pour cette boutique
+        // Ajouter les écouteurs
         container.querySelectorAll('.input-attribution').forEach(input => {
             input.addEventListener('change', function() {
-    let val = parseInt(this.value) || 0;
-    const max = parseInt(this.getAttribute('data-max')) || 0;
+                let val = parseInt(this.value) || 0;
+                const max = parseInt(this.getAttribute('data-max')) || 0;
                 
                 const boutiqueId = this.getAttribute('data-boutique');
                 const categoryId = this.getAttribute('data-category');
@@ -6911,19 +6895,16 @@ document.getElementById('remainingToDistribute').textContent = stockTotalInitial
                 }
                 if (val < 0) this.value = 0;
                 
-                // Mettre à jour les attributions
                 window.attributionsEnCours[boutiqueId][categoryId] = val;
                 
-                // Récupérer le max actuel du restant global
-                const restantGlobal = getRestantDisponible(categoryId);
+                const restantGlobal = window.getRestantDisponible(categoryId);
                 const nouveauMax = restantGlobal + val;
                 this.setAttribute('data-max', nouveauMax);
                 
-                // Mettre à jour l'affichage du max
-                const maxSpan = this.parentElement.querySelector('.max-indicator');
+                const maxSpan = this.parentElement.querySelector('span');
                 if (maxSpan) maxSpan.textContent = `max ${nouveauMax}`;
                 
-                // Mettre à jour TOUTES les boutiques (pour que les disponibilités se mettent à jour)
+                // Mettre à jour tous les affichages
                 updateAllBoutiquesDisplay();
             });
         });
@@ -6938,59 +6919,93 @@ document.getElementById('remainingToDistribute').textContent = stockTotalInitial
     }
     
     // Fonction pour mettre à jour les totaux globaux
-  function updateGlobalTotals() {
-    let totalGlobalDistribue = 0;
-    let stockTotalDisponible = 0;
-    
-    // 1. Calculer le stock TOTAL disponible (somme de TOUTES les catégories)
-    for (const catId in window.disponibilitesGlobales) {
-        const catData = window.disponibilitesGlobales[catId];
-        stockTotalDisponible += catData.disponibleMax;
-    }
-    
-    // 2. Calculer le total distribué (somme de toutes les attributions)
-    for (const boutique of boutiques) {
-        for (const catId in window.attributionsEnCours[boutique.id]) {
-            totalGlobalDistribue += window.attributionsEnCours[boutique.id][catId] || 0;
+    function updateGlobalTotals() {
+        let totalGlobalDistribue = 0;
+        
+        for (const boutique of boutiques) {
+            for (const catId in window.attributionsEnCours[boutique.id]) {
+                totalGlobalDistribue += window.attributionsEnCours[boutique.id][catId] || 0;
+            }
         }
+        
+        // Utiliser window.stockTotalInitialGlobal qui a été défini plus haut
+        const stockRestant = Math.max(0, window.stockTotalInitialGlobal - totalGlobalDistribue);
+        
+        const stockTotalSpan = document.getElementById('globalStockTotal');
+        const totalDistribSpan = document.getElementById('totalDistributed');
+        const remainingSpan = document.getElementById('remainingToDistribute');
+        
+        if (stockTotalSpan) stockTotalSpan.textContent = window.stockTotalInitialGlobal;
+        if (totalDistribSpan) totalDistribSpan.textContent = totalGlobalDistribue;
+        if (remainingSpan) remainingSpan.textContent = stockRestant;
+        
+        if (remainingSpan) {
+            if (stockRestant === 0) {
+                remainingSpan.style.color = '#10B981';
+            } else if (stockRestant < 0) {
+                remainingSpan.style.color = '#EF4444';
+            } else {
+                remainingSpan.style.color = '#F59E0B';
+            }
+        }
+        
+        const saveBtn = document.getElementById('saveDistributionBtn');
+        if (saveBtn) saveBtn.disabled = (stockRestant < 0);
     }
     
-    // 3. Calculer le reste à distribuer
-    const remaining = stockTotalDisponible - totalGlobalDistribue;
+    // Initialiser l'affichage
+    boutiques.forEach(boutique => {
+        updateBoutiqueDisplay(boutique.id);
+    });
     
-    // 4. Mettre à jour l'affichage
-    const stockTotalElem = document.getElementById('globalStockTotal');
-    if (stockTotalElem) {
-        stockTotalElem.textContent = stockTotalDisponible;
-    }
-    
-    document.getElementById('totalDistributed').textContent = totalGlobalDistribue;
-    document.getElementById('remainingToDistribute').textContent = remaining;
-    
-    // 5. Changer la couleur selon la valeur
-    const remainingSpan = document.getElementById('remainingToDistribute');
-    if (remaining < 0) {
-        remainingSpan.style.color = '#EF4444';
-        remainingSpan.style.fontWeight = 'bold';
-    } else if (remaining === 0) {
-        remainingSpan.style.color = '#10B981';
-    } else {
-        remainingSpan.style.color = '#F59E0B';
-    }
-    
-    // 6. Activer/désactiver le bouton sauvegarder
-    const saveBtn = document.getElementById('saveDistributionBtn');
-    if (saveBtn) {
-        saveBtn.disabled = (remaining < 0);
-    }
+    // Exposer les fonctions globalement
+    window.updateAllBoutiquesDisplay = updateAllBoutiquesDisplay;
+    window.updateGlobalTotals = updateGlobalTotals;
 }
 
 // Fonction pour mettre à jour tous les totaux
+// Fonction pour mettre à jour tous les totaux
 function updateAllTotals() {
-    // Stock total disponible
-    const stockTotal = currentProductionForDistribution.stockRestant;
+    // Stock total disponible INITIAL
+    let stockTotalInitial = 0;
     
-    // Calculer le total distribué par boutique et global
+    // Calculer le total disponible INITIAL par catégorie
+    const categoriesTotal = {
+        '1': 0, '2': 0, '3': 0, '4': 0,
+        '5': 0, '6': 0, '7': 0, '8': 0
+    };
+    
+    // Récupérer les disponibilités initiales depuis les inputs max
+    document.querySelectorAll('.input-attribution').forEach(input => {
+        const maxValue = parseInt(input.getAttribute('data-max')) || 0;
+        const category = input.getAttribute('data-category');
+        const currentValue = parseInt(input.value) || 0;
+        
+        // La max value inclut déjà ce qui est déjà attribué
+        // Pour avoir le total initial, on fait max - current (car max = initial + current)
+        const initialValue = maxValue - currentValue;
+        
+        if (category && initialValue > 0) {
+            categoriesTotal[category] += initialValue;
+        }
+    });
+    
+    // Calculer le stock total disponible initial
+    for (let cat in categoriesTotal) {
+        stockTotalInitial += categoriesTotal[cat];
+    }
+    
+    // Si aucun stock disponible, essayer depuis currentProductionForDistribution
+    if (stockTotalInitial === 0 && currentProductionForDistribution) {
+        const production = currentProductionForDistribution.data;
+        const stockDispo = (production.small1Quantity || 0) + (production.small2Quantity || 0) +
+                          (production.medium1Quantity || 0) + (production.medium2Quantity || 0) +
+                          (production.large1Quantity || 0) + (production.large2Quantity || 0) +
+                          (production.xlarge1Quantity || 0) + (production.xlarge2Quantity || 0);
+        stockTotalInitial = stockDispo;
+    }
+    
+    // Calculer le total distribué actuel
     let totalGlobalDistribue = 0;
     const totauxBoutiques = {};
     
@@ -7010,24 +7025,32 @@ function updateAllTotals() {
         if (span) span.textContent = total;
     }
     
-    // Mettre à jour les totaux globaux
-    document.getElementById('totalDistributed').textContent = totalGlobalDistribue;
-    const remaining = stockTotal - totalGlobalDistribue;
-    document.getElementById('remainingToDistribute').textContent = remaining;
+    // Le stock restant disponible = stock total initial - total déjà distribué
+    const stockRestantDisponible = Math.max(0, stockTotalInitial - totalGlobalDistribue);
     
+    // Mettre à jour les affichages GLOBAUX
+    const stockTotalSpan = document.getElementById('globalStockTotal');
     const remainingSpan = document.getElementById('remainingToDistribute');
-    if (remaining < 0) {
-        remainingSpan.style.color = '#EF4444';
-        remainingSpan.style.fontWeight = 'bold';
-    } else if (remaining === 0) {
-        remainingSpan.style.color = '#10B981';
-    } else {
-        remainingSpan.style.color = '#F59E0B';
+    
+    if (stockTotalSpan) stockTotalSpan.textContent = stockTotalInitial;
+    document.getElementById('totalDistributed').textContent = totalGlobalDistribue;
+    if (remainingSpan) remainingSpan.textContent = stockRestantDisponible;
+    
+    // Mettre à jour la couleur
+    if (remainingSpan) {
+        if (stockRestantDisponible < 0) {
+            remainingSpan.style.color = '#EF4444';
+            remainingSpan.style.fontWeight = 'bold';
+        } else if (stockRestantDisponible === 0) {
+            remainingSpan.style.color = '#10B981';
+        } else {
+            remainingSpan.style.color = '#F59E0B';
+        }
     }
     
     // Désactiver le bouton sauvegarder si dépassement
     const saveBtn = document.getElementById('saveDistributionBtn');
-    if (saveBtn) saveBtn.disabled = (remaining < 0);
+    if (saveBtn) saveBtn.disabled = (stockRestantDisponible < 0);
 }
 
 // Fonction pour réinitialiser tous les champs de distribution
@@ -7399,7 +7422,10 @@ if (document.getElementById('selectProductionDist')) {
 }
 
 // Charger les statistiques
+// Charger les statistiques - VERSION CORRIGÉE
 function loadStats() {
+    console.log("📊 Chargement des statistiques...");
+    
     // Déterminer la période
     let startDate, endDate;
     const today = new Date();
@@ -7428,24 +7454,25 @@ function loadStats() {
             endDate = null;
     }
     
-    // Préparer la requête
-    let invoicesQuery = db.collection('invoices');
-    
-    // Filtrer par boutique si spécifié
-    if (currentStatsBoutique !== 'all') {
-        invoicesQuery = invoicesQuery.where('boutique', '==', currentStatsBoutique);
-    }
-    
-    // Exécuter la requête
-    invoicesQuery.get()
+    // Récupérer TOUTES les factures
+    db.collection('invoices').get()
         .then(snapshot => {
+            console.log(`📋 ${snapshot.size} factures trouvées`);
+            
+            // Structure pour les statistiques par boutique
+            // UTILISEZ LES MÊMES IDs QUE DANS Firestore
+            const boutiqueStats = {
+                'sacre-coeur-1': { revenue: 0, invoices: 0, chickens: 0, lastDate: null },
+                'keur-massar': { revenue: 0, invoices: 0, chickens: 0, lastDate: null },
+                'sebikotane': { revenue: 0, invoices: 0, chickens: 0, lastDate: null },
+                'front-terre': { revenue: 0, invoices: 0, chickens: 0, lastDate: null },
+                'sacre-coeur-3': { revenue: 0, invoices: 0, chickens: 0, lastDate: null },
+                'en-ligne': { revenue: 0, invoices: 0, chickens: 0, lastDate: null }
+            };
+            
             let totalRevenue = 0;
             let totalInvoices = 0;
             let totalChickens = 0;
-            let boutiqueStats = {
-                'sacre-coeur': { revenue: 0, invoices: 0, chickens: 0 },
-                'keur-massar': { revenue: 0, invoices: 0, chickens: 0 }
-            };
             
             snapshot.forEach(doc => {
                 const invoice = doc.data();
@@ -7458,8 +7485,13 @@ function loadStats() {
                     }
                 }
                 
-                // Accumuler les totaux
-                totalRevenue += invoice.total || 0;
+                // Filtrer par boutique si spécifié
+                if (currentStatsBoutique !== 'all' && invoice.boutique !== currentStatsBoutique) {
+                    return; // Skip cette facture
+                }
+                
+                // Accumuler les totaux généraux
+                totalRevenue += invoice.paiement?.montantPaye || invoice.total || 0;
                 totalInvoices++;
                 
                 // Compter les poulets
@@ -7469,22 +7501,28 @@ function loadStats() {
                     });
                 }
                 
-                // Statistiques par boutique
-                if (invoice.boutique) {
-                    if (!boutiqueStats[invoice.boutique]) {
-                        boutiqueStats[invoice.boutique] = { revenue: 0, invoices: 0, chickens: 0 };
-                    }
-                    
-                    boutiqueStats[invoice.boutique].revenue += invoice.total || 0;
-                    boutiqueStats[invoice.boutique].invoices++;
+                // Statistiques par boutique (utilisez l'ID exact de Firestore)
+                const boutiqueId = invoice.boutique;
+                if (boutiqueStats[boutiqueId]) {
+                    boutiqueStats[boutiqueId].revenue += invoice.paiement?.montantPaye || invoice.total || 0;
+                    boutiqueStats[boutiqueId].invoices++;
                     
                     if (invoice.items) {
                         invoice.items.forEach(item => {
-                            boutiqueStats[invoice.boutique].chickens += item.quantity || 0;
+                            boutiqueStats[boutiqueId].chickens += item.quantity || 0;
                         });
                     }
+                    
+                    // Dernière facture
+                    if (!boutiqueStats[boutiqueId].lastDate || invoiceDate > boutiqueStats[boutiqueId].lastDate) {
+                        boutiqueStats[boutiqueId].lastDate = invoiceDate;
+                    }
+                } else {
+                    console.log(`⚠️ Boutique non reconnue: ${boutiqueId}`);
                 }
             });
+            
+            console.log("📊 Statistiques par boutique:", boutiqueStats);
             
             // Mettre à jour l'interface
             document.getElementById('totalRevenueStats').textContent = totalRevenue.toLocaleString('fr-FR') + ' F CFA';
@@ -7495,11 +7533,55 @@ function loadStats() {
             
             // Mettre à jour les détails par boutique
             updateBoutiqueStatsDetails(boutiqueStats);
-      loadStatsStocks('all');
+            
+            // Mettre à jour les stats des boutiques dans la section boutique
+            updateBoutiqueCards(boutiqueStats);
+            
+            loadStatsStocks('all');
             
         }).catch(error => {
-            console.error('Erreur chargement stats:', error);
+            console.error('❌ Erreur chargement stats:', error);
+            showMessage('Erreur de chargement des statistiques', 'error');
         });
+}
+
+// Mettre à jour les cartes des boutiques (section boutiques)
+function updateBoutiqueCards(boutiqueStats) {
+    // Mapping des IDs vers les IDs HTML
+    const mapping = {
+        'sacre-coeur-1': { statId: 'statsSacreCoeur1', lastId: 'lastInvoiceSacreCoeur1' },
+        'keur-massar': { statId: 'statsKeurMassar', lastId: 'lastInvoiceKeurMassar' },
+        'sebikotane': { statId: 'statsSebikotane', lastId: 'lastInvoiceSebikotane' },
+        'front-terre': { statId: 'statsFrontTerre', lastId: 'lastInvoiceFrontTerre' },
+        'sacre-coeur-3': { statId: 'statsSacreCoeur3', lastId: 'lastInvoiceSacreCoeur3' },
+        'en-ligne': { statId: 'statsEnLigne', lastId: 'lastInvoiceEnLigne' }
+    };
+    
+    for (const [boutiqueId, stats] of Object.entries(boutiqueStats)) {
+        const map = mapping[boutiqueId];
+        if (map) {
+            // Mettre à jour le nombre de factures
+            const statElement = document.getElementById(map.statId);
+            if (statElement) statElement.textContent = stats.invoices;
+            
+            // Mettre à jour la dernière facture
+            const lastElement = document.getElementById(map.lastId);
+            if (lastElement && stats.lastDate) {
+                const date = new Date(stats.lastDate);
+                lastElement.textContent = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
+            }
+        }
+    }
+    
+    // Mettre à jour le total global
+    const totalFactures = Object.values(boutiqueStats).reduce((sum, s) => sum + s.invoices, 0);
+    const totalCA = Object.values(boutiqueStats).reduce((sum, s) => sum + s.revenue, 0);
+    
+    const totalElement = document.getElementById('statsTotalBoutiques');
+    if (totalElement) totalElement.textContent = totalFactures;
+    
+    const caElement = document.getElementById('totalCA');
+    if (caElement) caElement.textContent = totalCA.toLocaleString('fr-FR') + ' F CFA';
 }
 
 // Mettre à jour les détails par boutique
@@ -8389,6 +8471,7 @@ function showSection(sectionId) {
         initBoutiqueFilters();
         loadAttributedStocksDashboard(); // AJOUTEZ CETTE LIGNE
         initStockDashboardFilters(); // AJOUTEZ CETTE LIGNE
+      loadDistributionsHistory();
     }
 }
       
@@ -10223,7 +10306,484 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 });
         
+      // ==============================================
+// NOUVEAU SYSTÈME DE TRANSFERT DE STOCK
+// ==============================================
+
+// Les 8 catégories de poulets
+const CATEGORIES_STOCK = [
+    { id: '1', nom: 'Très petits (1-1.1 kg)', prix: 2000 },
+    { id: '2', nom: 'Petits (1.2 kg)', prix: 2500 },
+    { id: '3', nom: 'Moyens-petits (1.3-1.4 kg)', prix: 3000 },
+    { id: '4', nom: 'Moyens (1.5-1.6 kg)', prix: 3300 },
+    { id: '5', nom: 'Moyens-grands (1.7-1.9 kg)', prix: 3500 },
+    { id: '6', nom: 'Grands (2 kg)', prix: 3700 },
+    { id: '7', nom: 'Très grands (2.1-2.3 kg)', prix: 4000 },
+    { id: '8', nom: 'Géants (+2.4 kg)', prix: 4500 }
+];
+
+// Noms des boutiques
+const BOUTIQUES_NOMS = {
+    'sacre-coeur-1': 'Sacré Coeur 1',
+    'keur-massar': 'Keur Massar',
+    'sebikotane': 'Sebikotane',
+    'front-terre': 'Front de Terre',
+    'sacre-coeur-3': 'Sacré Coeur 3',
+    'en-ligne': 'En Ligne (TikTok)'
+};
+
+// Charger les totaux des dépôts
+async function chargerTotauxDepots() {
+    try {
+        // Dépôt Sacré Coeur 1
+        const sc1Snapshot = await db.collection('stocks_boutiques').doc('sacre-coeur-1').get();
+        if (sc1Snapshot.exists) {
+            const stock = sc1Snapshot.data();
+            let total = 0;
+            for (let i = 1; i <= 8; i++) {
+                total += stock[`cat${i}`] || 0;
+            }
+            document.getElementById('depotSC1Total').innerHTML = total;
+        }
+        
+        // Dépôt Keur Massar
+        const kmSnapshot = await db.collection('stocks_boutiques').doc('keur-massar').get();
+        if (kmSnapshot.exists) {
+            const stock = kmSnapshot.data();
+            let total = 0;
+            for (let i = 1; i <= 8; i++) {
+                total += stock[`cat${i}`] || 0;
+            }
+            document.getElementById('depotKMTotal').innerHTML = total;
+        }
+    } catch(e) { console.error(e); }
+}
+
+// Gérer le stock d'un dépôt (ouvrir modal)
+function gererStockDepot(boutiqueId) {
+    const modal = document.createElement('div');
+    modal.id = 'gererStockModal';
+    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px;';
+    
+    modal.innerHTML = `
+        <div style="background:white;border-radius:20px;width:100%;max-width:700px;max-height:85vh;overflow-y:auto;padding:25px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <h2><i class="fas fa-boxes"></i> Gérer le stock - ${BOUTIQUES_NOMS[boutiqueId]}</h2>
+                <button onclick="this.closest('#gererStockModal').remove()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button>
+            </div>
+            
+            <div id="stockDepotContent">
+                <div style="text-align:center;padding:40px;"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>
+            </div>
+            
+            <div style="margin-top:20px;text-align:center;">
+                <button onclick="this.closest('#gererStockModal').remove()" class="btn btn-secondary">Fermer</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    chargerStockDepot(boutiqueId);
+}
+
+// Charger le stock d'un dépôt
+async function chargerStockDepot(boutiqueId) {
+    const container = document.getElementById('stockDepotContent');
+    if (!container) return;
+    
+    try {
+        const doc = await db.collection('stocks_boutiques').doc(boutiqueId).get();
+        let stock = doc.exists ? doc.data() : {};
+        
+        let html = `
+            <div style="background:#f0f9ff;padding:15px;border-radius:10px;margin-bottom:20px;">
+                <strong>💰 Ce dépôt sert à redistribuer le stock aux autres boutiques</strong>
+            </div>
+            <div style="display:grid;gap:15px;">
+        `;
+        
+        for (const cat of CATEGORIES_STOCK) {
+            const qty = stock[`cat${cat.id}`] || 0;
+            html += `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:#f8fafc;border-radius:8px;border-left:4px solid #3B82F6;">
+                    <div>
+                        <strong>${cat.nom}</strong><br>
+                        <small>${cat.prix.toLocaleString('fr-FR')} F CFA</small>
+                    </div>
+                    <div style="font-size:1.2rem;font-weight:bold;color:#3B82F6;">${qty}</div>
+                </div>
+            `;
+        }
+        
+        html += `</div>`;
+        html += `
+            <div style="margin-top:20px;padding:15px;background:#fef3c7;border-radius:10px;">
+                <h4><i class="fas fa-arrow-right"></i> Transférer du stock vers une boutique</h4>
+                <div style="display:grid;gap:10px;margin-top:10px;">
+                    <select id="transfertBoutiqueDest" class="form-input">
+                        <option value="">-- Choisir une boutique --</option>
+                        <option value="sebikotane">Sebikotane</option>
+                        <option value="front-terre">Front de Terre</option>
+                        <option value="sacre-coeur-3">Sacré Coeur 3</option>
+                        <option value="en-ligne">En Ligne (TikTok)</option>
+                    </select>
+                    <select id="transfertCategorie" class="form-input">
+                        ${CATEGORIES_STOCK.map(cat => `<option value="${cat.id}">${cat.nom}</option>`).join('')}
+                    </select>
+                    <input type="number" id="transfertQuantite" class="form-input" placeholder="Quantité à transférer" min="1">
+                    <input type="text" id="transfertMotif" class="form-input" placeholder="Motif (optionnel)">
+                    <button onclick="effectuerTransfert('${boutiqueId}')" class="btn btn-primary">
+                        <i class="fas fa-exchange-alt"></i> Transférer
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+        
+    } catch(e) {
+        container.innerHTML = `<div style="color:red;">Erreur: ${e.message}</div>`;
+    }
+}
+
+// Effectuer un transfert de stock
+async function effectuerTransfert(deBoutique) {
+    const versBoutique = document.getElementById('transfertBoutiqueDest').value;
+    const categorieId = document.getElementById('transfertCategorie').value;
+    const quantite = parseInt(document.getElementById('transfertQuantite').value) || 0;
+    const motif = document.getElementById('transfertMotif').value || 'Transfert de stock';
+    
+    if (!versBoutique) {
+        showMessage('Sélectionnez une boutique destinataire', 'error');
+        return;
+    }
+    
+    if (quantite <= 0) {
+        showMessage('Quantité invalide', 'error');
+        return;
+    }
+    
+    showMessage('Traitement...', 'warning');
+    
+    try {
+        // 1. Vérifier que le dépôt source a assez de stock
+        const sourceDoc = await db.collection('stocks_boutiques').doc(deBoutique).get();
+        const sourceStock = sourceDoc.exists ? sourceDoc.data() : {};
+        const stockActuel = sourceStock[`cat${categorieId}`] || 0;
+        
+        if (quantite > stockActuel) {
+            showMessage(`Stock insuffisant ! Disponible: ${stockActuel}`, 'error');
+            return;
+        }
+        
+        // 2. Enlever du dépôt source
+        await db.collection('stocks_boutiques').doc(deBoutique).update({
+            [`cat${categorieId}`]: stockActuel - quantite
+        });
+        
+        // 3. Ajouter à la boutique destination
+        const destDoc = await db.collection('stocks_boutiques').doc(versBoutique).get();
+        const destStock = destDoc.exists ? destDoc.data() : {};
+        const destActuel = destStock[`cat${categorieId}`] || 0;
+        
+        await db.collection('stocks_boutiques').doc(versBoutique).set({
+            [`cat${categorieId}`]: destActuel + quantite
+        }, { merge: true });
+        
+        // 4. Enregistrer l'historique
+        await db.collection('transferts_stock').add({
+            de: deBoutique,
+            deNom: BOUTIQUES_NOMS[deBoutique],
+            vers: versBoutique,
+            versNom: BOUTIQUES_NOMS[versBoutique],
+            categorieId: categorieId,
+            categorieNom: CATEGORIES_STOCK.find(c => c.id === categorieId)?.nom || '',
+            quantite: quantite,
+            motif: motif,
+            date: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        showMessage(`✅ ${quantite} poulets transférés vers ${BOUTIQUES_NOMS[versBoutique]}`, 'success');
+        
+        // Fermer modal et rafraîchir
+        document.getElementById('gererStockModal')?.remove();
+        chargerTotauxDepots();
+        chargerHistoriqueTransferts();
+        
+    } catch(e) {
+        console.error(e);
+        showMessage('Erreur: ' + e.message, 'error');
+    }
+}
+
+// Voir le stock d'une boutique
+async function voirStockBoutique(boutiqueId) {
+    const modal = document.createElement('div');
+    modal.id = 'voirStockModal';
+    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px;';
+    
+    modal.innerHTML = `
+        <div style="background:white;border-radius:20px;width:100%;max-width:600px;max-height:85vh;overflow-y:auto;padding:25px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <h2><i class="fas fa-store"></i> Stock - ${BOUTIQUES_NOMS[boutiqueId]}</h2>
+                <button onclick="this.closest('#voirStockModal').remove()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button>
+            </div>
+            <div id="stockBoutiqueContent"><div style="text-align:center;padding:40px;"><i class="fas fa-spinner fa-spin"></i> Chargement...</div></div>
+            <div style="margin-top:20px;text-align:center;">
+                <button onclick="this.closest('#voirStockModal').remove()" class="btn btn-secondary">Fermer</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    try {
+        const doc = await db.collection('stocks_boutiques').doc(boutiqueId).get();
+        const stock = doc.exists ? doc.data() : {};
+        
+        let html = '<div style="display:grid;gap:10px;">';
+        let total = 0;
+        
+        for (const cat of CATEGORIES_STOCK) {
+            const qty = stock[`cat${cat.id}`] || 0;
+            total += qty;
+            html += `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:#f8fafc;border-radius:8px;">
+                    <div><strong>${cat.nom}</strong><br><small>${cat.prix.toLocaleString('fr-FR')} F CFA</small></div>
+                    <div style="font-size:1.1rem;font-weight:bold;color:${qty > 0 ? '#10B981' : '#999'};">${qty}</div>
+                </div>
+            `;
+        }
+        
+        html += `
+            <div style="margin-top:15px;padding:15px;background:#f0f9ff;border-radius:10px;text-align:center;">
+                <strong>📦 TOTAL : ${total} poulets</strong>
+            </div>
+        `;
+        html += `</div>`;
+        
+        document.getElementById('stockBoutiqueContent').innerHTML = html;
+        
+    } catch(e) {
+        document.getElementById('stockBoutiqueContent').innerHTML = `<div style="color:red;">Erreur: ${e.message}</div>`;
+    }
+}
+
+// Charger l'historique des transferts
+async function chargerHistoriqueTransferts() {
+    const tbody = document.getElementById('transfertsHistoryBody');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
+    
+    try {
+        const snapshot = await db.collection('transferts_stock')
+            .orderBy('date', 'desc')
+            .limit(50)
+            .get();
+        
+        if (snapshot.empty) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;">Aucun transfert enregistré</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        
+        snapshot.forEach(doc => {
+            const t = doc.data();
+            let date = new Date();
+            if (t.date?.toDate) date = t.date.toDate();
+            else if (t.date) date = new Date(t.date);
+            
+            const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()} ${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}`;
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td style="padding:10px;">${dateStr}</td>
+                <td style="padding:10px;">${t.deNom || t.de}</td>
+                <td style="padding:10px;">${t.versNom || t.vers}</td>
+                <td style="padding:10px;">${t.categorieNom || `Catégorie ${t.categorieId}`}</td>
+                <td style="padding:10px; font-weight:bold; color:#3B82F6;">${t.quantite}</td>
+                <td style="padding:10px;">${t.motif || '-'}</td>
+            `;
+            tbody.appendChild(row);
+        });
+        
+    } catch(e) {
+        console.error(e);
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:red;">Erreur: ${e.message}</td></tr>`;
+    }
+}
+
+// Initialiser les stocks des boutiques (à appeler une fois)
+async function initialiserStocksBoutiques() {
+    const boutiques = ['sacre-coeur-1', 'keur-massar', 'sebikotane', 'front-terre', 'sacre-coeur-3', 'en-ligne'];
+    
+    for (const b of boutiques) {
+        const doc = await db.collection('stocks_boutiques').doc(b).get();
+        if (!doc.exists) {
+            // Créer un stock vide pour la boutique
+            await db.collection('stocks_boutiques').doc(b).set({
+                cat1: 0, cat2: 0, cat3: 0, cat4: 0,
+                cat5: 0, cat6: 0, cat7: 0, cat8: 0,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+        }
+    }
+    
+    // Vérifier la collection transferts
+    const transfertsSnapshot = await db.collection('transferts_stock').limit(1).get();
+    if (transfertsSnapshot.empty) {
+        console.log('Collection transferts_stock prête');
+    }
+    
+    chargerTotauxDepots();
+    chargerHistoriqueTransferts();
+}
+
+// Modifier la fonction showSection pour charger les infos quand on va sur Boutiques
+const ancienneShowSection = window.showSection;
+window.showSection = function(sectionId) {
+    if (ancienneShowSection) ancienneShowSection(sectionId);
+    if (sectionId === 'boutiques') {
+        setTimeout(() => {
+            chargerTotauxDepots();
+            chargerHistoriqueTransferts();
+        }, 500);
+    }
+};
+
+// Appeler l'initialisation après connexion
+setTimeout(() => {
+    if (typeof db !== 'undefined') {
+        initialiserStocksBoutiques();
+    }
+}, 3000);
       
+      // ==============================================
+// AJOUTER DU STOCK DIRECTEMENT AUX DÉPÔTS
+// ==============================================
+
+// Fonction pour ajouter du stock à un dépôt
+function ajouterStockDepot(boutiqueId) {
+    const modal = document.createElement('div');
+    modal.id = 'ajoutStockModal';
+    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px;';
+    
+    // Générer les options des catégories
+    let categoriesOptions = '';
+    for (let i = 1; i <= 8; i++) {
+        let nom = '';
+        if (i === 1) nom = 'Très petits (1-1.1 kg) - 2000 F CFA';
+        else if (i === 2) nom = 'Petits (1.2 kg) - 2500 F CFA';
+        else if (i === 3) nom = 'Moyens-petits (1.3-1.4 kg) - 3000 F CFA';
+        else if (i === 4) nom = 'Moyens (1.5-1.6 kg) - 3300 F CFA';
+        else if (i === 5) nom = 'Moyens-grands (1.7-1.9 kg) - 3500 F CFA';
+        else if (i === 6) nom = 'Grands (2 kg) - 3700 F CFA';
+        else if (i === 7) nom = 'Très grands (2.1-2.3 kg) - 4000 F CFA';
+        else if (i === 8) nom = 'Géants (+2.4 kg) - 4500 F CFA';
+        categoriesOptions += `<option value="${i}">${nom}</option>`;
+    }
+    
+    modal.innerHTML = `
+        <div style="background:white;border-radius:20px;width:100%;max-width:500px;padding:25px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <h3><i class="fas fa-plus-circle"></i> Ajouter du stock - ${BOUTIQUES_NOMS[boutiqueId]}</h3>
+                <button onclick="this.closest('#ajoutStockModal').remove()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button>
+            </div>
+            
+            <div class="form-group" style="margin-bottom:15px;">
+                <label>Catégorie</label>
+                <select id="ajoutCategorie" class="form-input" style="width:100%;padding:12px;">
+                    ${categoriesOptions}
+                </select>
+            </div>
+            
+            <div class="form-group" style="margin-bottom:15px;">
+                <label>Quantité à ajouter</label>
+                <input type="number" id="ajoutQuantite" class="form-input" min="1" value="1" style="width:100%;padding:12px;">
+            </div>
+            
+            <div class="form-group" style="margin-bottom:20px;">
+                <label>Motif (optionnel)</label>
+                <input type="text" id="ajoutMotif" class="form-input" placeholder="Ex: Nouvelle production" style="width:100%;padding:12px;">
+            </div>
+            
+            <div style="display:flex;gap:10px;">
+                <button onclick="this.closest('#ajoutStockModal').remove()" class="btn btn-secondary" style="flex:1;">Annuler</button>
+                <button onclick="confirmerAjoutStock('${boutiqueId}')" class="btn btn-primary" style="flex:1;background:#10B981;">
+                    <i class="fas fa-save"></i> Ajouter
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// Confirmer l'ajout de stock
+async function confirmerAjoutStock(boutiqueId) {
+    const categorieId = document.getElementById('ajoutCategorie').value;
+    const quantite = parseInt(document.getElementById('ajoutQuantite').value) || 0;
+    const motif = document.getElementById('ajoutMotif').value || 'Ajout de stock';
+    
+    if (quantite <= 0) {
+        showMessage('Quantité invalide', 'error');
+        return;
+    }
+    
+    // Noms des catégories
+    const categoriesNoms = {
+        '1': 'Très petits (1-1.1 kg)',
+        '2': 'Petits (1.2 kg)',
+        '3': 'Moyens-petits (1.3-1.4 kg)',
+        '4': 'Moyens (1.5-1.6 kg)',
+        '5': 'Moyens-grands (1.7-1.9 kg)',
+        '6': 'Grands (2 kg)',
+        '7': 'Très grands (2.1-2.3 kg)',
+        '8': 'Géants (+2.4 kg)'
+    };
+    
+    showMessage('Ajout en cours...', 'warning');
+    
+    try {
+        // Récupérer le stock actuel
+        const doc = await db.collection('stocks_boutiques').doc(boutiqueId).get();
+        const stockActuel = doc.exists ? doc.data() : {};
+        const ancienneQty = stockActuel[`cat${categorieId}`] || 0;
+        
+        // Mettre à jour le stock
+        await db.collection('stocks_boutiques').doc(boutiqueId).set({
+            [`cat${categorieId}`]: ancienneQty + quantite
+        }, { merge: true });
+        
+        // Enregistrer dans l'historique
+        await db.collection('transferts_stock').add({
+            de: 'ADMIN',
+            deNom: 'Administrateur',
+            vers: boutiqueId,
+            versNom: BOUTIQUES_NOMS[boutiqueId],
+            categorieId: categorieId,
+            categorieNom: categoriesNoms[categorieId],
+            quantite: quantite,
+            motif: motif + ' (Ajout direct)',
+            date: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        showMessage(`✅ ${quantite} ${categoriesNoms[categorieId]} ajoutés à ${BOUTIQUES_NOMS[boutiqueId]}`, 'success');
+        
+        // Fermer la modal
+        document.getElementById('ajoutStockModal')?.remove();
+        
+        // Rafraîchir les affichages
+        chargerTotauxDepots();
+        chargerHistoriqueTransferts();
+        
+    } catch(e) {
+        console.error(e);
+        showMessage('Erreur: ' + e.message, 'error');
+    }
+}
       // Développer par AHMED SAID IDDA AIDARA
     </script>
   <script>
@@ -11192,6 +11752,257 @@ document.addEventListener('DOMContentLoaded', function() {
 // Trouvez votre fonction loadStats() et ajoutez cette ligne à la fin :
 // loadStatsStocks('all');
 // addRefreshButton(); // Décommentez si vous voulez ajouter le bouton
+    
+    // ==============================================
+// HISTORIQUE DES DISTRIBUTIONS
+// ==============================================
+
+// ==============================================
+// HISTORIQUE DES DISTRIBUTIONS - VERSION CORRIGÉE
+// ==============================================
+
+// ==============================================
+// HISTORIQUE DES DISTRIBUTIONS - VERSION ULTRA SIMPLE
+// ==============================================
+// ==============================================
+// HISTORIQUE DES DISTRIBUTIONS - VERSION CORRIGÉE
+// ==============================================
+
+async function loadDistributionsHistory() {
+    console.log("📦 Chargement historique des distributions...");
+    
+    const tbody = document.getElementById('distributionsHistoryTable');
+    const emptyState = document.getElementById('emptyDistributions');
+    
+    if (!tbody) return;
+    
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 30px;"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
+    
+    try {
+        const snapshot = await db.collection('stock_distributions')
+            .orderBy('createdAt', 'desc')
+            .get();
+        
+        console.log(`📊 ${snapshot.size} distributions trouvées`);
+        
+        if (snapshot.empty) {
+            tbody.innerHTML = '';
+            if (emptyState) emptyState.style.display = 'block';
+            return;
+        }
+        
+        if (emptyState) emptyState.style.display = 'none';
+        tbody.innerHTML = '';
+        
+        snapshot.forEach(doc => {
+            const dist = doc.data();
+            
+            // Date
+            let date;
+            if (dist.createdAt?.toDate) {
+                date = dist.createdAt.toDate();
+            } else if (dist.date) {
+                date = new Date(dist.date);
+            } else {
+                date = new Date();
+            }
+            const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()} ${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}`;
+            
+            // Récupérer les distributions
+            const distributions = dist.distributions || {};
+            
+            // Calculer les totaux par boutique
+            const sc1 = distributions['sacre-coeur-1'] || {};
+            const km = distributions['keur-massar'] || {};
+            const seb = distributions['sebikotane'] || {};
+            const ft = distributions['front-terre'] || {};
+            const sc3 = distributions['sacre-coeur-3'] || {};
+            const enligne = distributions['en-ligne'] || {};
+            
+            // Somme des quantités par boutique
+            const qtySC1 = Object.values(sc1).reduce((a, b) => a + b, 0);
+            const qtyKM = Object.values(km).reduce((a, b) => a + b, 0);
+            const qtySEB = Object.values(seb).reduce((a, b) => a + b, 0);
+            const qtyFT = Object.values(ft).reduce((a, b) => a + b, 0);
+            const qtySC3 = Object.values(sc3).reduce((a, b) => a + b, 0);
+            const qtyEnLigne = Object.values(enligne).reduce((a, b) => a + b, 0);
+            
+            const total = dist.totalDistributed || (qtySC1 + qtyKM + qtySEB + qtyFT + qtySC3 + qtyEnLigne);
+            
+            console.log(`📊 ${dateStr} - SC1:${qtySC1}, KM:${qtyKM}, SEB:${qtySEB}, FT:${qtyFT}, SC3:${qtySC3}, EnLigne:${qtyEnLigne}, Total:${total}`);
+            
+            const row = document.createElement('tr');
+            row.style.borderBottom = '1px solid #eee';
+            row.innerHTML = `
+                <td style="padding: 10px;">${dateStr}</td>
+                <td style="padding: 10px;"><strong>${dist.productionName || dist.productionId || 'Production'}</strong></td>
+                <td style="padding: 10px; text-align: center; ${qtySC1 > 0 ? 'color: #3B82F6; font-weight: bold;' : 'color: #999;'}">${qtySC1 > 0 ? qtySC1 : '-'}</td>
+                <td style="padding: 10px; text-align: center; ${qtyKM > 0 ? 'color: #10B981; font-weight: bold;' : 'color: #999;'}">${qtyKM > 0 ? qtyKM : '-'}</td>
+                <td style="padding: 10px; text-align: center; ${qtySEB > 0 ? 'color: #F59E0B; font-weight: bold;' : 'color: #999;'}">${qtySEB > 0 ? qtySEB : '-'}</td>
+                <td style="padding: 10px; text-align: center; ${qtyFT > 0 ? 'color: #EF4444; font-weight: bold;' : 'color: #999;'}">${qtyFT > 0 ? qtyFT : '-'}</td>
+                <td style="padding: 10px; text-align: center; ${qtySC3 > 0 ? 'color: #8B5CF6; font-weight: bold;' : 'color: #999;'}">${qtySC3 > 0 ? qtySC3 : '-'}</td>
+                <td style="padding: 10px; text-align: center; ${qtyEnLigne > 0 ? 'color: #EC4899; font-weight: bold;' : 'color: #999;'}">${qtyEnLigne > 0 ? qtyEnLigne : '-'}</td>
+                <td style="padding: 10px; text-align: center; font-weight: bold;">${total}</td>
+                <td style="padding: 10px; text-align: center;">
+                    <button class="action-btn-small view" onclick="viewDistributionDetail('${doc.id}')" title="Voir détails">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+        
+        console.log(`✅ ${snapshot.size} distributions affichées`);
+        
+    } catch (error) {
+        console.error("❌ Erreur:", error);
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 30px; color: red;">Erreur: ${error.message}</td></tr>`;
+    }
+}
+
+// Voir les détails d'une distribution - VERSION CORRIGÉE
+async function viewDistributionDetail(distributionId) {
+    try {
+        const doc = await db.collection('stock_distributions').doc(distributionId).get();
+        
+        if (!doc.exists) {
+            showMessage('Distribution non trouvée', 'error');
+            return;
+        }
+        
+        const dist = doc.data();
+        const date = dist.createdAt?.toDate ? dist.createdAt.toDate() : new Date(dist.date);
+        const distributions = dist.distributions || {};
+        
+        // Noms des catégories
+        const categoryNames = {
+            '1': '🐔 Très petits (1-1.1 kg) - 2000 F CFA',
+            '2': '🐔 Petits (1.2 kg) - 2500 F CFA',
+            '3': '🐔 Moyens-petits (1.3-1.4 kg) - 3000 F CFA',
+            '4': '🐔 Moyens (1.5-1.6 kg) - 3300 F CFA',
+            '5': '🐔 Moyens-grands (1.7-1.9 kg) - 3500 F CFA',
+            '6': '🐔 Grands (2 kg) - 3700 F CFA',
+            '7': '🐔 Très grands (2.1-2.3 kg) - 4000 F CFA',
+            '8': '🐔 Géants (+2.4 kg) - 4500 F CFA'
+        };
+        
+        // Liste des boutiques
+        const boutiques = [
+            { id: 'sacre-coeur-1', name: 'Sacré Coeur 1', color: '#3B82F6' },
+            { id: 'keur-massar', name: 'Keur Massar', color: '#10B981' },
+            { id: 'sebikotane', name: 'Sebikotane', color: '#F59E0B' },
+            { id: 'front-terre', name: 'Front de Terre', color: '#EF4444' },
+            { id: 'sacre-coeur-3', name: 'Sacré Coeur 3', color: '#8B5CF6' },
+            { id: 'en-ligne', name: 'En Ligne (TikTok)', color: '#EC4899' }
+        ];
+        
+        let detailsHTML = `
+            <div style="max-width: 800px;">
+                <h3 style="margin-bottom: 15px; color: #1e293b;">
+                    <i class="fas fa-truck-loading"></i> Détail de la distribution
+                </h3>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <p><strong>📅 Date:</strong> ${date.toLocaleDateString('fr-FR')} à ${date.toLocaleTimeString('fr-FR')}</p>
+                    <p><strong>🏷️ Production:</strong> ${dist.productionName || 'Non spécifiée'}</p>
+                    <p><strong>📦 Total distribué:</strong> <span style="font-weight: bold; color: #3B82F6;">${dist.totalDistributed || 0}</span> poulets</p>
+                </div>
+                
+                <h4 style="margin-bottom: 15px;">📊 Détail par boutique</h4>
+        `;
+        
+        let grandTotal = 0;
+        
+        for (const boutique of boutiques) {
+            const items = distributions[boutique.id] || {};
+            const totalBoutique = Object.values(items).reduce((a, b) => a + b, 0);
+            
+            if (totalBoutique > 0) {
+                grandTotal += totalBoutique;
+                
+                detailsHTML += `
+                    <div style="margin-top: 15px; padding: 15px; border-left: 4px solid ${boutique.color}; background: #f8fafc; border-radius: 8px;">
+                        <h5 style="margin: 0 0 10px 0; color: ${boutique.color};">
+                            <i class="fas fa-store"></i> ${boutique.name}
+                        </h5>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px;">
+                `;
+                
+                for (const [catId, qty] of Object.entries(items)) {
+                    if (qty > 0) {
+                        detailsHTML += `
+                            <div style="background: white; padding: 8px 12px; border-radius: 6px; border: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 0.85rem;">${categoryNames[catId] || `Catégorie ${catId}`}</span>
+                                <span style="font-weight: bold; color: ${boutique.color}; font-size: 1.1rem;">${qty}</span>
+                            </div>
+                        `;
+                    }
+                }
+                
+                detailsHTML += `
+                        </div>
+                        <div style="margin-top: 10px; text-align: right; font-weight: bold; color: ${boutique.color};">
+                            Total: ${totalBoutique} poulets
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        if (grandTotal === 0) {
+            detailsHTML += `
+                <div style="text-align: center; padding: 40px; color: #999;">
+                    <i class="fas fa-box-open" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <p>Aucune distribution détaillée</p>
+                </div>
+            `;
+        }
+        
+        detailsHTML += `</div>`;
+        
+        // Afficher dans une modal
+        const modal = document.createElement('div');
+        modal.id = 'distributionDetailModal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+        `;
+        
+        modal.innerHTML = `
+            <div style="background: white; border-radius: 15px; padding: 25px; width: 100%; max-width: 750px; max-height: 85vh; overflow-y: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #e0e0e0;">
+                    <h2 style="margin: 0; color: #1e293b;"><i class="fas fa-info-circle"></i> Détails Distribution</h2>
+                    <button onclick="this.closest('#distributionDetailModal').remove()" 
+                            style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666;">&times;</button>
+                </div>
+                ${detailsHTML}
+                <div style="margin-top: 20px; text-align: center; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                    <button onclick="this.closest('#distributionDetailModal').remove()" 
+                            class="btn btn-secondary" style="background: #666; color: white; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer;">
+                        <i class="fas fa-times"></i> Fermer
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+    } catch (error) {
+        console.error("Erreur:", error);
+        showMessage('Erreur chargement détails: ' + error.message, 'error');
+    }
+}
+
+// Actualiser l'historique
+document.getElementById('refreshDistributionsBtn')?.addEventListener('click', loadDistributionsHistory);
 </script>
   <!-- =============================== -->
 <!-- MODAL GESTION DES DÉPENSES -->
@@ -11389,4 +12200,4 @@ setTimeout(() => {
 
 
 
-  
+   
