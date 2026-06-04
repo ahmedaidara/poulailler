@@ -1204,6 +1204,26 @@
     border-color: #3B82F6 !important;
     background: #eff6ff !important;
 }
+      
+      /* Cacher la section "Sélectionner une Production" */
+#boutiquesSection > div[style*="background: var(--light-gray)"] {
+    display: none !important;
+}
+
+/* Cacher le formulaire de distribution */
+#distributionForm {
+    display: none !important;
+}
+
+/* Cacher l'historique des distributions */
+#boutiquesSection .table-container:has(h3:contains("Historique des Distributions")) {
+    display: none !important;
+}
+
+/* Version plus simple - cacher par titre */
+h3:contains("Historique des Distributions") {
+    display: none !important;
+}
     </style>
 </head>
 <body>
@@ -1811,197 +1831,7 @@
 </section>
     
     <!-- Sélection Production -->
-    <div style="background: var(--light-gray); padding: var(--space-lg); border-radius: var(--radius-lg); margin-bottom: var(--space-lg);">
-        <h4 style="margin-bottom: var(--space-md);">1. Sélectionner une Production</h4>
-        <div class="form-grid">
-            <div class="form-group">
-                <label for="selectProductionDist" class="form-label">Production</label>
-                <select id="selectProductionDist" class="form-input">
-                    <option value="">-- Choisir une production --</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="stockTotalDispo" class="form-label">Stock </label>
-                <input type="text" id="stockTotalDispo" class="form-input" readonly value="0">
-            </div>
-        </div>
-    </div>
-
-    <!-- DISTRIBUTION PAR BOUTIQUE - Version améliorée -->
-    <div id="distributionForm" style="display: none;">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: var(--space-xl);">
-            
-            <!-- BOUTIQUE 1 : Sacré Coeur 1 -->
-            <div class="price-category" id="boutique-sacre-coeur-1" style="border-left: 4px solid #3B82F6;">
-                <h4><i class="fas fa-store" style="color: #3B82F6;"></i> Sacré Coeur 1</h4>
-                <div id="categories-sacre-coeur-1" class="categories-distribution"></div>
-                <div style="margin-top: var(--space-md); padding: var(--space-md); background: #f8fafc; border-radius: var(--radius-md);">
-                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                        <span>Total à attribuer :</span>
-                        <span id="total-sacre-coeur-1" class="total-boutique">0</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- BOUTIQUE 2 : Keur Massar -->
-            <div class="price-category" id="boutique-keur-massar" style="border-left: 4px solid #10B981;">
-                <h4><i class="fas fa-store" style="color: #10B981;"></i> Keur Massar</h4>
-                <div id="categories-keur-massar" class="categories-distribution"></div>
-                <div style="margin-top: var(--space-md); padding: var(--space-md); background: #f8fafc; border-radius: var(--radius-md);">
-                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                        <span>Total à attribuer :</span>
-                        <span id="total-keur-massar" class="total-boutique">0</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- BOUTIQUE 3 : Sebikotane -->
-            <div class="price-category" id="boutique-sebikotane" style="border-left: 4px solid #F59E0B;">
-                <h4><i class="fas fa-store" style="color: #F59E0B;"></i> Sebikotane</h4>
-                <div id="categories-sebikotane" class="categories-distribution"></div>
-                <div style="margin-top: var(--space-md); padding: var(--space-md); background: #f8fafc; border-radius: var(--radius-md);">
-                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                        <span>Total à attribuer :</span>
-                        <span id="total-sebikotane" class="total-boutique">0</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- BOUTIQUE 4 : Front de Terre -->
-            <div class="price-category" id="boutique-front-terre" style="border-left: 4px solid #EF4444;">
-                <h4><i class="fas fa-store" style="color: #EF4444;"></i> Front de Terre</h4>
-                <div id="categories-front-terre" class="categories-distribution"></div>
-                <div style="margin-top: var(--space-md); padding: var(--space-md); background: #f8fafc; border-radius: var(--radius-md);">
-                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                        <span>Total à attribuer :</span>
-                        <span id="total-front-terre" class="total-boutique">0</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- BOUTIQUE 5 : Sacré Coeur 3 -->
-            <div class="price-category" id="boutique-sacre-coeur-3" style="border-left: 4px solid #8B5CF6;">
-                <h4><i class="fas fa-store" style="color: #8B5CF6;"></i> Sacré Coeur 3</h4>
-                <div id="categories-sacre-coeur-3" class="categories-distribution"></div>
-                <div style="margin-top: var(--space-md); padding: var(--space-md); background: #f8fafc; border-radius: var(--radius-md);">
-                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                        <span>Total à attribuer :</span>
-                        <span id="total-sacre-coeur-3" class="total-boutique">0</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- BOUTIQUE 6 : En Ligne TikTok -->
-            <div class="price-category" id="boutique-en-ligne" style="border-left: 4px solid #EC4899;">
-                <h4><i class="fab fa-tiktok" style="color: #EC4899;"></i> En Ligne (TikTok)</h4>
-                <div id="categories-en-ligne" class="categories-distribution"></div>
-                <div style="margin-top: var(--space-md); padding: var(--space-md); background: #f8fafc; border-radius: var(--radius-md);">
-                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                        <span>Total à attribuer :</span>
-                        <span id="total-en-ligne" class="total-boutique">0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Récapitulatif global et validation -->
-       <!-- Récapitulatif global et validation -->
-<div style="margin-top: var(--space-xl); padding: var(--space-lg); background: #f0f9ff; border-radius: var(--radius-lg);">
-    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-md);">
-        
-        <div>
-            <strong>📤 Total distribué :</strong> 
-            <span id="totalDistributed" style="font-size: 1.2rem; color: var(--primary);">0</span>
-        </div>
-        <div>
-            <strong>⚠️ Reste à distribuer :</strong> 
-            <span id="remainingToDistribute" style="font-size: 1.2rem; font-weight: bold;">0</span>
-        </div>
-    </div>
-    
-    <div class="modal-actions" style="margin-top: var(--space-lg);">
-        <button id="cancelDistributionBtn" class="btn btn-secondary">
-            <i class="fas fa-times"></i> Annuler
-        </button>
-        <button id="saveDistributionBtn" class="btn btn-primary">
-            <i class="fas fa-save"></i> Enregistrer la Distribution
-        </button>
-    </div>
-</div>
-    </div>
-</div>
-
-             
-             <!-- Tableau de bord des stocks attribués -->
-<div class="table-container" style="margin-top: var(--space-2xl);">
-    <div class="table-header">
-        <h3 style="margin: 0;">
-             
-        </h3>
-       
-    </div>
-    
-    <div class="table-wrapper">
-        <table class="records-table">
-           <thead>
-    <tr>
-        
-    </tr>
-</thead>
-            <tbody id="attributedStocksTableBody">
-                <!-- Rempli dynamiquement -->
-            </tbody>
-        </table>
-    </div>
-    
-    <div id="emptyStocksState" class="empty-state" style="display: none;">
-        <i class="fas fa-box-open" style="font-size: 3rem; margin-bottom: var(--space-md); color: var(--light-gray);"></i>
-        <h3>Aucun stock attribué</h3>
-        <p>Distribuez d'abord du stock aux boutiques</p>
-    </div>
-</div>
-         <!-- Historique des Distributions -->
-<div class="table-container" style="margin-top: var(--space-xl);">
-    <div class="table-header">
-        <h3 style="margin: 0;">
-            <i class="fas fa-history"></i> Historique des Distributions
-        </h3>
-        <button id="refreshDistributionsBtn" class="btn btn-primary" style="padding: 8px 16px;">
-            <i class="fas fa-sync-alt"></i> Actualiser
-        </button>
-    </div>
-    
-    <div class="table-wrapper">
-        <table class="records-table">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Production</th>
-                    <th>Sacré Coeur 1</th>
-                    <th>Keur Massar</th>
-                    <th>Sebikotane</th>
-                    <th>Front de Terre</th>
-                    <th>Sacré Coeur 3</th>
-                    <th>En Ligne</th>
-                    <th>Total</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="distributionsHistoryTable">
-                <tr><td colspan="10" style="text-align: center; padding: 30px;">
-                    <i class="fas fa-spinner fa-spin"></i> Chargement...
-                </td></tr>
-            </tbody>
-        </table>
-    </div>
-    
-    <div id="emptyDistributions" class="empty-state" style="display: none;">
-        <i class="fas fa-box-open" style="font-size: 3rem; margin-bottom: var(--space-md); color: var(--light-gray);"></i>
-        <h3>Aucune distribution</h3>
-        <p>Les distributions de stock apparaîtront ici</p>
-    </div>
-</div>
- 
+   
     
    
 </section>
@@ -10641,7 +10471,7 @@ async function chargerHistoriqueTransferts() {
     const tbody = document.getElementById('transfertsHistoryBody');
     if (!tbody) return;
     
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
+    tbody.innerHTML = '<td><td colspan="6" style="text-align:center;padding:30px;"><i class="fas fa-spinner fa-spin"></i> Chargement...</tr></tr>';
     
     try {
         const snapshot = await db.collection('transferts_stock')
@@ -10675,6 +10505,9 @@ async function chargerHistoriqueTransferts() {
             `;
             tbody.appendChild(row);
         });
+        
+        // APRÈS AVOIR CHARGÉ L'HISTORIQUE, METTRE À JOUR LES STOCKS
+        await calculerStocksReels();
         
     } catch(e) {
         console.error(e);
@@ -11363,47 +11196,96 @@ window.showSection = function(sectionId) {
 async function mettreAJourTousLesStocks() {
     console.log("📊 Mise à jour des stocks des boutiques...");
     
-    const boutiques = [
-        'sacre-coeur-1', 'keur-massar', 'sebikotane', 
-        'front-terre', 'sacre-coeur-3', 'en-ligne'
-    ];
+    // Utiliser la fonction de calcul réel
+    await calculerStocksReels();
+}
+      
+      // ==============================================
+// CALCULER LE STOCK RÉEL DE CHAQUE BOUTIQUE
+// ==============================================
+
+// ==============================================
+// CALCULER LE STOCK RÉEL DEPUIS L'HISTORIQUE DES TRANSFERTS
+// ==============================================
+
+async function calculerStocksReels() {
+    console.log("📊 Calcul des stocks depuis l'historique des transferts...");
     
-    for (const boutiqueId of boutiques) {
-        try {
-            const doc = await db.collection('stocks_boutiques').doc(boutiqueId).get();
-            const stock = doc.exists ? doc.data() : {};
+    // Initialiser tous les stocks à 0
+    let stocks = {
+        'sacre-coeur-1': 0,
+        'keur-massar': 0,
+        'sebikotane': 0,
+        'front-terre': 0,
+        'sacre-coeur-3': 0,
+        'en-ligne': 0
+    };
+    
+    try {
+        // Récupérer TOUS les transferts
+        const transfertsSnapshot = await db.collection('transferts_stock').get();
+        
+        console.log(`📋 Nombre de transferts trouvés: ${transfertsSnapshot.size}`);
+        
+        transfertsSnapshot.forEach(doc => {
+            const transfert = doc.data();
+            const vers = transfert.vers; // boutique destination
+            const quantite = transfert.quantite || 0;
             
-            // Calculer le total
-            let total = 0;
-            for (let i = 1; i <= 8; i++) {
-                total += stock[`cat${i}`] || 0;
+            console.log(`- Transfert: ${quantite} vers ${vers}`);
+            
+            if (stocks.hasOwnProperty(vers)) {
+                stocks[vers] += quantite;
             }
-            
-            // Mettre à jour l'affichage
+        });
+        
+        // Afficher les résultats
+        console.log("📊 Stocks calculés:", stocks);
+        
+        // Mettre à jour l'affichage des boutiques
+        for (const [boutiqueId, total] of Object.entries(stocks)) {
             const element = document.getElementById(`stock-${boutiqueId}`);
             if (element) {
                 const valueSpan = element.querySelector('div:last-child');
                 if (valueSpan) {
                     valueSpan.innerHTML = total.toLocaleString('fr-FR') + ' poulets';
-                    // Changer la couleur si stock faible
+                    
                     if (total === 0) {
                         valueSpan.style.color = '#EF4444';
                     } else if (total < 50) {
                         valueSpan.style.color = '#F59E0B';
                     } else {
-                        valueSpan.style.color = boutiqueId === 'sacre-coeur-1' ? '#3B82F6' : 
-                                                boutiqueId === 'keur-massar' ? '#10B981' :
-                                                boutiqueId === 'sebikotane' ? '#F59E0B' :
-                                                boutiqueId === 'front-terre' ? '#EF4444' :
-                                                boutiqueId === 'sacre-coeur-3' ? '#8B5CF6' : '#EC4899';
+                        valueSpan.style.color = '#10B981';
                     }
                 }
             }
-        } catch(e) {
-            console.error(`Erreur pour ${boutiqueId}:`, e);
         }
+        
+        // Mettre à jour les dépôts
+        document.getElementById('depotSC1Total').innerHTML = stocks['sacre-coeur-1'];
+        document.getElementById('depotKMTotal').innerHTML = stocks['keur-massar'];
+        
+        return stocks;
+        
+    } catch(error) {
+        console.error("❌ Erreur calcul stocks:", error);
+        return stocks;
     }
 }
+      
+      // ==============================================
+// FORCER LE RAFFRAÎCHISSEMENT DES STOCKS
+// ==============================================
+
+async function forcerRafraichissementStocks() {
+    console.log("🔄 Force le rafraîchissement des stocks...");
+    await calculerStocksReels();
+    await chargerHistoriqueTransferts();
+    showMessage("✅ Stocks mis à jour !", "success");
+}
+
+// Ajouter un bouton temporaire pour tester
+console.log("Pour forcer le rafraîchissement, tapez: forcerRafraichissementStocks()");
       // Développer par AHMED SAID IDDA AIDARA
     </script>
   <script>
