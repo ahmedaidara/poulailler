@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Gestion des Stocks - DAKAR CHICKEN EXPRESS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3c2c 0%, #2a5a3a 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .production-selector {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .production-selector label {
+            font-size: 0.85rem;
+        }
+
+        .production-selector select {
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: none;
+            font-weight: bold;
+            background: white;
+            cursor: pointer;
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0;
+        }
+
+        .stock-section {
+            flex: 1.2;
+            padding: 25px;
+            background: #f8fafc;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .invoice-section {
+            flex: 1;
+            padding: 25px;
+            background: white;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 16px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+
+        .category-card:hover {
+            border-color: #2a5a3a;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .category-name {
+            font-weight: bold;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+
+        .category-price {
+            background: #2a5a3a;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .category-weight {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-bottom: 12px;
+        }
+
+        .category-stock {
+            background: #f0fdf4;
+            padding: 8px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .category-stock span {
+            font-weight: bold;
+            color: #10b981;
+            font-size: 1.1rem;
+        }
+
+        .category-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .category-input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .category-input:focus {
+            border-color: #2a5a3a;
+            outline: none;
+        }
+
+        .btn-update-cat {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-update-cat:hover {
+            background: #d97706;
+        }
+
+        .stock-actions {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-save-all {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-save-all:hover {
+            background: #059669;
+        }
+
+        /* Section Facture */
+        .client-info {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .input-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .input-group input {
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .input-group input:focus {
+            border-color: #2a5a3a;
+            outline: none;
+        }
+
+        .summary {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 16px;
+            margin: 20px 0;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0 0 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #1e293b;
+            border-top: 2px solid #e2e8f0;
+            margin-top: 10px;
+        }
+
+        .paiement-section {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 16px;
+            margin: 20px 0;
+        }
+
+        .mode-paiement {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .mode-paiement label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 30px;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+        }
+
+        .mode-paiement input:checked + span {
+            color: #10b981;
+        }
+
+        .montant-input {
+            margin-bottom: 15px;
+        }
+
+        .montant-input input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        .paiement-resume {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .paiement-resume div {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .btn-primary {
+            background: #2a5a3a;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #1e3c2c;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #334155;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-paye { background: #d1fae5; color: #059669; padding: 5px 10px; border-radius: 20px; font-size: 0.7rem; }
+        .status-partiel { background: #fef3c7; color: #d97706; padding: 5px 10px; border-radius: 20px; font-size: 0.7rem; }
+        .status-impaye { background: #fee2e2; color: #dc2626; padding: 5px 10px; border-radius: 20px; font-size: 0.7rem; }
+
+        .message {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.success { background: #10b981; }
+        .message.error { background: #ef4444; }
+        .message.warning { background: #f59e0b; }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @media (max-width: 900px) {
+            .main-content { flex-direction: column; }
+            .stock-section { border-right: none; border-bottom: 1px solid #e2e8f0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1><i class="fas fa-chicken"></i> DAKAR CHICKEN EXPRESS</h1>
+        <div class="production-selector">
+            <label><i class="fas fa-calendar-alt"></i> Production :</label>
+            <select id="productionSelect">
+                <option value="">-- Chargement des productions --</option>
+            </select>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <!-- SECTION STOCK - GESTION DES CATÉGORIES -->
+        <div class="stock-section">
+            <div class="section-title">
+                <i class="fas fa-boxes"></i> Gestion des Stocks par Catégorie
+            </div>
+
+            <div id="categoriesContainer" class="categories-grid">
+                <div style="text-align: center; padding: 40px; grid-column: 1/-1;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+                    <p>Sélectionnez une production...</p>
+                </div>
+            </div>
+
+            <div class="stock-actions">
+                <button id="saveAllBtn" class="btn-save-all">
+                    <i class="fas fa-save"></i> Enregistrer toutes les modifications
+                </button>
+            </div>
+        </div>
+
+        <!-- SECTION FACTURE -->
+        <div class="invoice-section">
+            <div class="section-title">
+                <i class="fas fa-file-invoice"></i> Nouvelle Facture
+            </div>
+
+            <!-- Informations client -->
+            <div class="client-info">
+                <h3 style="margin-bottom: 15px; font-size: 1rem;">
+                    <i class="fas fa-user-circle"></i> Informations Client
+                </h3>
+                <div class="info-grid">
+                    <div class="input-group">
+                        <label>Nom et Prénom</label>
+                        <input type="text" id="clientName" placeholder="Ex: Moussa Diallo">
+                    </div>
+                    <div class="input-group">
+                        <label>Numéro de Téléphone</label>
+                        <input type="tel" id="clientPhone" placeholder="Ex: 77 777 77 77">
+                    </div>
+                    <div class="input-group">
+                        <label>Adresse (Optionnel)</label>
+                        <input type="text" id="clientAddress" placeholder="Ex: Dakar, Yoff">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sélection des poulets pour la facture -->
+            <h3 style="margin-bottom: 15px; font-size: 1rem;">
+                <i class="fas fa-shopping-cart"></i> Sélection des Poulets
+            </h3>
+            <div id="invoiceCategoriesContainer" class="categories-grid">
+                <div style="text-align: center; padding: 40px; grid-column: 1/-1;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+                    <p>Chargement des catégories disponibles...</p>
+                </div>
+            </div>
+
+            <!-- Résumé de la commande -->
+            <div class="summary">
+                <h3 style="margin-bottom: 15px; font-size: 1rem;">
+                    <i class="fas fa-calculator"></i> Récapitulatif
+                </h3>
+                <div id="selectedItemsList">
+                    <div style="text-align: center; color: #999; padding: 20px;">
+                        <i class="fas fa-shopping-cart" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                        <p>Aucun poulet sélectionné</p>
+                    </div>
+                </div>
+                <div class="summary-total">
+                    <span>TOTAL TTC</span>
+                    <span id="totalAmount" style="color: #2a5a3a;">0 F CFA</span>
+                </div>
+            </div>
+
+            <!-- Section Paiement -->
+            <div class="paiement-section">
+                <h3 style="margin-bottom: 15px; font-size: 1rem;">
+                    <i class="fas fa-money-bill-wave"></i> Paiement
+                </h3>
+                
+                <div class="mode-paiement">
+                    <label>
+                        <input type="radio" name="modePaiement" value="especes" checked> 💵 Espèces
+                    </label>
+                    <label>
+                        <input type="radio" name="modePaiement" value="wave"> 📱 Wave
+                    </label>
+                    <label>
+                        <input type="radio" name="modePaiement" value="orange"> 📱 Orange Money
+                    </label>
+                </div>
+
+                <div class="montant-input">
+                    <label style="display: block; margin-bottom: 8px;">Montant reçu (F CFA)</label>
+                    <input type="number" id="montantPaye" value="0" min="0" step="100">
+                </div>
+
+                <div class="paiement-resume">
+                    <div><span>Total facture :</span> <strong id="resumeTotal">0 F CFA</strong></div>
+                    <div><span>Payé :</span> <strong id="resumePaye">0 F CFA</strong></div>
+                    <div><span>⚠️ Reste :</span> <strong id="resumeReste">0 F CFA</strong></div>
+                </div>
+
+                <div id="statutPaiement" style="text-align: center; padding: 8px; border-radius: 8px; display: none;"></div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions">
+                <button id="generatePdfBtn" class="btn-secondary">
+                    <i class="fas fa-file-pdf"></i> Générer PDF
+                </button>
+                <button id="saveInvoiceBtn" class="btn-primary">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Configuration Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyAAQ9G3w94aM7iGc_ufHMzdCvrwzzEzlhI",
+        authDomain: "poulailler-3515e.firebaseapp.com",
+        projectId: "poulailler-3515e",
+        storageBucket: "poulailler-3515e.firebasestorage.app",
+        messagingSenderId: "482441929117",
+        appId: "1:482441929117:web:7970df401b0125560acf74"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Variables globales
+    let allProductions = [];
+    let currentProduction = null;
+    let currentBoutique = { id: 'sacre-coeur-3', name: 'SACRÉ COEUR 3', phone: '77 777 77 81' };
+    let selectedItems = {};
+    
+    // Les 8 catégories
+    const categories = [
+        { id: '1', name: "Très petits", weight: "1.0-1.1 kg", defaultPrice: 2000, fieldQty: 'small1Quantity', fieldSold: 'small1Sold', fieldPrice: 'small1Price' },
+        { id: '2', name: "Petits", weight: "1.2 kg", defaultPrice: 2500, fieldQty: 'small2Quantity', fieldSold: 'small2Sold', fieldPrice: 'small2Price' },
+        { id: '3', name: "Moyens-petits", weight: "1.3-1.4 kg", defaultPrice: 3000, fieldQty: 'medium1Quantity', fieldSold: 'medium1Sold', fieldPrice: 'medium1Price' },
+        { id: '4', name: "Moyens", weight: "1.5-1.6 kg", defaultPrice: 3300, fieldQty: 'medium2Quantity', fieldSold: 'medium2Sold', fieldPrice: 'medium2Price' },
+        { id: '5', name: "Moyens-grands", weight: "1.7-1.9 kg", defaultPrice: 3500, fieldQty: 'large1Quantity', fieldSold: 'large1Sold', fieldPrice: 'large1Price' },
+        { id: '6', name: "Grands", weight: "2.0 kg", defaultPrice: 3700, fieldQty: 'large2Quantity', fieldSold: 'large2Sold', fieldPrice: 'large2Price' },
+        { id: '7', name: "Très grands", weight: "2.1-2.3 kg", defaultPrice: 4000, fieldQty: 'xlarge1Quantity', fieldSold: 'xlarge1Sold', fieldPrice: 'xlarge1Price' },
+        { id: '8', name: "Géants", weight: "+2.4 kg", defaultPrice: 4500, fieldQty: 'xlarge2Quantity', fieldSold: 'xlarge2Sold', fieldPrice: 'xlarge2Price' }
+    ];
+
+    // Initialisation
+    document.addEventListener('DOMContentLoaded', function() {
+        loadProductions();
+        setupEventListeners();
+        
+        // Date par défaut
+        document.getElementById('montantPaye').addEventListener('input', updatePaiementResume);
+    });
+
+    // Charger les productions
+    async function loadProductions() {
+        try {
+            const snapshot = await db.collection('poulailler_records')
+                .orderBy('startDate', 'desc')
+                .get();
+            
+            allProductions = [];
+            snapshot.forEach(doc => {
+                allProductions.push({ id: doc.id, ...doc.data() });
+            });
+            
+            const select = document.getElementById('productionSelect');
+            select.innerHTML = '<option value="">-- Sélectionner une production --</option>';
+            
+            allProductions.forEach(prod => {
+                const date = prod.startDate ? new Date(prod.startDate).toLocaleDateString('fr-FR') : 'Date inconnue';
+                const option = document.createElement('option');
+                option.value = prod.id;
+                option.textContent = `${prod.productionName || 'Production'} - ${date} (${prod.initialStock || 0} poulets)`;
+                select.appendChild(option);
+            });
+            
+            // Sélectionner la première production par défaut
+            if (allProductions.length > 0) {
+                select.value = allProductions[0].id;
+                await loadProduction(allProductions[0].id);
+            }
+            
+            select.addEventListener('change', async function() {
+                if (this.value) {
+                    await loadProduction(this.value);
+                }
+            });
+            
+        } catch (error) {
+            console.error('Erreur:', error);
+            showMessage('Erreur chargement productions', 'error');
+        }
+    }
+
+    // Charger une production spécifique
+    async function loadProduction(productionId) {
+        try {
+            const doc = await db.collection('poulailler_records').doc(productionId).get();
+            if (doc.exists) {
+                currentProduction = { id: doc.id, ...doc.data() };
+                displayCategories(currentProduction);
+                displayInvoiceCategories(currentProduction);
+                showMessage(`Production chargée : ${currentProduction.productionName || 'Sans nom'}`, 'success');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            showMessage('Erreur chargement production', 'error');
+        }
+    }
+
+    // Afficher les catégories avec les stocks (section gauche)
+    function displayCategories(production) {
+        const container = document.getElementById('categoriesContainer');
+        container.innerHTML = '';
+        
+        categories.forEach(cat => {
+            const currentQty = production[cat.fieldQty] || 0;
+            const currentPrice = production[cat.fieldPrice] || cat.defaultPrice;
+            const dejaVendu = production[cat.fieldSold] || 0;
+            const restant = currentQty - dejaVendu;
+            
+            const card = document.createElement('div');
+            card.className = 'category-card';
+            card.innerHTML = `
+                <div class="category-header">
+                    <span class="category-name">${cat.name}</span>
+                    <span class="category-price" id="price_display_${cat.id}">${currentPrice.toLocaleString('fr-FR')} F CFA</span>
+                </div>
+                <div class="category-weight">${cat.weight}</div>
+                <div class="category-stock">
+                    📦 Stock total : <span id="stock_display_${cat.id}">${currentQty}</span> | 
+                    Vendu : ${dejaVendu} | 
+                    Restant : <span style="color: ${restant > 0 ? '#10b981' : '#ef4444'}">${restant}</span>
+                </div>
+                <div class="category-input-group">
+                    <input type="number" id="qty_${cat.id}" class="category-input" value="${currentQty}" min="0" placeholder="Nouvelle quantité">
+                    <input type="number" id="price_${cat.id}" class="category-input" value="${currentPrice}" min="0" step="100" placeholder="Prix" style="width: 100px;">
+                    <button class="btn-update-cat" onclick="updateSingleCategory('${cat.id}')">
+                        <i class="fas fa-save"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // Mettre à jour une seule catégorie
+    window.updateSingleCategory = async function(categoryId) {
+        if (!currentProduction) {
+            showMessage('Aucune production sélectionnée', 'error');
+            return;
+        }
+        
+        const cat = categories.find(c => c.id === categoryId);
+        if (!cat) return;
+        
+        const newQuantity = parseInt(document.getElementById(`qty_${categoryId}`).value) || 0;
+        const newPrice = parseInt(document.getElementById(`price_${categoryId}`).value) || 0;
+        
+        try {
+            const updateData = {};
+            updateData[cat.fieldQty] = newQuantity;
+            updateData[cat.fieldPrice] = newPrice;
+            updateData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+            
+            await db.collection('poulailler_records').doc(currentProduction.id).update(updateData);
+            
+            // Mettre à jour l'affichage
+            currentProduction[cat.fieldQty] = newQuantity;
+            currentProduction[cat.fieldPrice] = newPrice;
+            
+            document.getElementById(`price_display_${categoryId}`).textContent = newPrice.toLocaleString('fr-FR') + ' F CFA';
+            document.getElementById(`stock_display_${categoryId}`).textContent = newQuantity;
+            
+            // Rafraîchir aussi la section facture
+            displayInvoiceCategories(currentProduction);
+            
+            showMessage(`${cat.name} mis à jour : ${newQuantity} poulets à ${newPrice} F CFA`, 'success');
+            
+        } catch (error) {
+            console.error('Erreur:', error);
+            showMessage('Erreur lors de la mise à jour', 'error');
+        }
+    };
+
+    // Enregistrer toutes les modifications
+    document.getElementById('saveAllBtn').addEventListener('click', async function() {
+        if (!currentProduction) {
+            showMessage('Aucune production sélectionnée', 'error');
+            return;
+        }
+        
+        const updateData = {};
+        
+        for (const cat of categories) {
+            const newQuantity = parseInt(document.getElementById(`qty_${cat.id}`).value) || 0;
+            const newPrice = parseInt(document.getElementById(`price_${cat.id}`).value) || 0;
+            updateData[cat.fieldQty] = newQuantity;
+            updateData[cat.fieldPrice] = newPrice;
+        }
+        updateData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+        
+        try {
+            await db.collection('poulailler_records').doc(currentProduction.id).update(updateData);
+            
+            // Mettre à jour currentProduction
+            for (const cat of categories) {
+                currentProduction[cat.fieldQty] = parseInt(document.getElementById(`qty_${cat.id}`).value) || 0;
+                currentProduction[cat.fieldPrice] = parseInt(document.getElementById(`price_${cat.id}`).value) || 0;
+                document.getElementById(`price_display_${cat.id}`).textContent = currentProduction[cat.fieldPrice].toLocaleString('fr-FR') + ' F CFA';
+                document.getElementById(`stock_display_${cat.id}`).textContent = currentProduction[cat.fieldQty];
+            }
+            
+            displayInvoiceCategories(currentProduction);
+            showMessage('Toutes les modifications ont été enregistrées !', 'success');
+            
+        } catch (error) {
+            console.error('Erreur:', error);
+            showMessage('Erreur lors de l\'enregistrement', 'error');
+        }
+    });
+
+    // Afficher les catégories pour la facture (section droite)
+    function displayInvoiceCategories(production) {
+        const container = document.getElementById('invoiceCategoriesContainer');
+        container.innerHTML = '';
+        
+        categories.forEach(cat => {
+            const qtyTotal = production[cat.fieldQty] || 0;
+            const dejaVendu = production[cat.fieldSold] || 0;
+            const disponible = Math.max(0, qtyTotal - dejaVendu);
+            const prix = production[cat.fieldPrice] || cat.defaultPrice;
+            
+            const card = document.createElement('div');
+            card.className = 'category-card';
+            card.innerHTML = `
+                <div class="category-header">
+                    <span class="category-name">${cat.name}</span>
+                    <span class="category-price">${prix.toLocaleString('fr-FR')} F CFA</span>
+                </div>
+                <div class="category-weight">${cat.weight}</div>
+                <div class="category-stock">
+                    📦 Disponible : <span style="font-weight: bold; color: ${disponible > 0 ? '#10b981' : '#ef4444'}">${disponible}</span>
+                </div>
+                <input type="number" 
+                       id="invoice_qty_${cat.id}"
+                       class="category-input"
+                       data-id="${cat.id}"
+                       data-name="${cat.name}"
+                       data-weight="${cat.weight}"
+                       data-price="${prix}"
+                       max="${disponible}"
+                       min="0"
+                       value="0"
+                       placeholder="Quantité à vendre"
+                       oninput="updateSummary()">
+            `;
+            container.appendChild(card);
+        });
+        
+        // Réinitialiser les items sélectionnés
+        selectedItems = {};
+        updateSummary();
+    }
+
+    // Mettre à jour le résumé de la facture
+    function updateSummary() {
+        selectedItems = {};
+        let total = 0;
+        
+        categories.forEach(cat => {
+            const input = document.getElementById(`invoice_qty_${cat.id}`);
+            if (input) {
+                let quantity = parseInt(input.value) || 0;
+                const max = parseInt(input.max) || 0;
+                if (quantity > max) {
+                    quantity = max;
+                    input.value = max;
+                }
+                const price = parseInt(input.getAttribute('data-price')) || 0;
+                
+                if (quantity > 0) {
+                    selectedItems[cat.id] = {
+                        id: cat.id,
+                        name: cat.name,
+                        weight: cat.weight,
+                        price: price,
+                        quantity: quantity,
+                        subtotal: quantity * price
+                    };
+                    total += quantity * price;
+                }
+            }
+        });
+        
+        // Mettre à jour l'affichage
+        document.getElementById('totalAmount').textContent = total.toLocaleString('fr-FR') + ' F CFA';
+        updatePaiementResume();
+        updateSelectedItemsList();
+    }
+
+    // Mettre à jour la liste des items sélectionnés
+    function updateSelectedItemsList() {
+        const container = document.getElementById('selectedItemsList');
+        
+        if (Object.keys(selectedItems).length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; color: #999; padding: 20px;">
+                    <i class="fas fa-shopping-cart" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                    <p>Aucun poulet sélectionné</p>
+                </div>
+            `;
+            return;
+        }
+        
+        let html = '';
+        Object.values(selectedItems).forEach(item => {
+            html += `
+                <div class="summary-item">
+                    <div>
+                        <strong>${item.name}</strong><br>
+                        <small style="color: #666;">${item.weight}</small>
+                    </div>
+                    <div style="text-align: right;">
+                        <div>${item.quantity} × ${item.price.toLocaleString('fr-FR')} F CFA</div>
+                        <div style="font-weight: bold; color: #2a5a3a;">${item.subtotal.toLocaleString('fr-FR')} F CFA</div>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    // Mettre à jour le résumé du paiement
+    function updatePaiementResume() {
+        const totalText = document.getElementById('totalAmount').textContent;
+        const total = parseInt(totalText.replace(/\D/g, '')) || 0;
+        const montantPaye = parseInt(document.getElementById('montantPaye').value) || 0;
+        const reste = Math.max(0, total - montantPaye);
+        
+        document.getElementById('resumeTotal').textContent = total.toLocaleString('fr-FR') + ' F CFA';
+        document.getElementById('resumePaye').textContent = montantPaye.toLocaleString('fr-FR') + ' F CFA';
+        document.getElementById('resumeReste').textContent = reste.toLocaleString('fr-FR') + ' F CFA';
+        
+        const statutDiv = document.getElementById('statutPaiement');
+        const modePaiement = document.querySelector('input[name="modePaiement"]:checked')?.value || 'especes';
+        const modeTexte = modePaiement === 'especes' ? 'Espèces' : (modePaiement === 'wave' ? 'Wave' : 'Orange Money');
+        
+        if (montantPaye === 0) {
+            statutDiv.style.display = 'none';
+        } else if (montantPaye >= total) {
+            statutDiv.style.display = 'block';
+            statutDiv.style.background = '#d1fae5';
+            statutDiv.style.color = '#059669';
+            statutDiv.innerHTML = `<i class="fas fa-check-circle"></i> Payé intégralement (${modeTexte})`;
+        } else {
+            statutDiv.style.display = 'block';
+            statutDiv.style.background = '#fef3c7';
+            statutDiv.style.color = '#d97706';
+            statutDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> Paiement partiel : reste ${reste.toLocaleString('fr-FR')} F CFA (${modeTexte})`;
+        }
+    }
+
+    // Enregistrer la facture
+    document.getElementById('saveInvoiceBtn').addEventListener('click', async function() {
+        if (Object.keys(selectedItems).length === 0) {
+            showMessage('Veuillez sélectionner au moins un poulet', 'error');
+            return;
+        }
+        
+        const clientName = document.getElementById('clientName').value.trim();
+        const clientPhone = document.getElementById('clientPhone').value.trim();
+        const total = parseInt(document.getElementById('totalAmount').textContent.replace(/\D/g, '')) || 0;
+        const montantPaye = parseInt(document.getElementById('montantPaye').value) || 0;
+        const modePaiement = document.querySelector('input[name="modePaiement"]:checked')?.value || 'especes';
+        const reste = total - montantPaye;
+        
+        let statut = 'impaye';
+        if (montantPaye === 0) statut = 'impaye';
+        else if (montantPaye >= total) statut = 'paye';
+        else statut = 'partiel';
+        
+        // Générer numéro de facture
+        const now = new Date();
+        const invoiceNumber = `FACT-${currentBoutique.id.substring(0,2).toUpperCase()}-${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}-${Math.floor(Math.random()*1000)}`;
+        
+        const invoiceData = {
+            boutique: currentBoutique.id,
+            boutiqueName: currentBoutique.name,
+            boutiquePhone: currentBoutique.phone,
+            productionId: currentProduction.id,
+            productionName: currentProduction.productionName,
+            client: {
+                name: clientName || 'Client non renseigné',
+                phone: clientPhone || 'Non renseigné',
+                address: document.getElementById('clientAddress').value.trim() || 'Non renseigné'
+            },
+            items: Object.values(selectedItems).map(item => ({
+                id: item.id,
+                name: item.name,
+                weight: item.weight,
+                price: item.price,
+                quantity: item.quantity,
+                subtotal: item.subtotal
+            })),
+            total: total,
+            paiement: {
+                montantPaye: montantPaye,
+                resteAPayer: reste,
+                modePaiement: modePaiement,
+                statut: statut,
+                datePaiement: new Date().toISOString()
+            },
+            invoiceNumber: invoiceNumber,
+            date: firebase.firestore.FieldValue.serverTimestamp(),
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        showMessage('Enregistrement en cours...', 'warning');
+        
+        try {
+            // 1. Enregistrer la facture
+            await db.collection('invoices').add(invoiceData);
+            
+            // 2. Mettre à jour les quantités vendues dans la production
+            const updateData = {};
+            for (const [catId, item] of Object.entries(selectedItems)) {
+                const cat = categories.find(c => c.id === catId);
+                if (cat) {
+                    const currentSold = currentProduction[cat.fieldSold] || 0;
+                    updateData[cat.fieldSold] = currentSold + item.quantity;
+                }
+            }
+            updateData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+            
+            await db.collection('poulailler_records').doc(currentProduction.id).update(updateData);
+            
+            // 3. Mettre à jour currentProduction
+            for (const [catId, item] of Object.entries(selectedItems)) {
+                const cat = categories.find(c => c.id === catId);
+                if (cat) {
+                    currentProduction[cat.fieldSold] = (currentProduction[cat.fieldSold] || 0) + item.quantity;
+                }
+            }
+            
+            showMessage(`✅ Facture ${invoiceNumber} enregistrée !`, 'success');
+            
+            // 4. Réinitialiser le formulaire de vente
+            document.getElementById('clientName').value = '';
+            document.getElementById('clientPhone').value = '';
+            document.getElementById('clientAddress').value = '';
+            document.getElementById('montantPaye').value = '0';
+            categories.forEach(cat => {
+                const input = document.getElementById(`invoice_qty_${cat.id}`);
+                if (input) input.value = 0;
+            });
+            selectedItems = {};
+            updateSummary();
+            
+            // 5. Rafraîchir l'affichage des stocks
+            displayCategories(currentProduction);
+            displayInvoiceCategories(currentProduction);
+            
+            // 6. Proposer de générer le PDF
+            if (confirm('Facture enregistrée ! Voulez-vous générer le PDF ?')) {
+                generatePDF(invoiceData);
+            }
+            
+        } catch (error) {
+            console.error('Erreur:', error);
+            showMessage('Erreur: ' + error.message, 'error');
+        }
+    });
+
+    // Générer PDF
+    async function generatePDF(invoice) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const margin = 15;
+        let currentY = 20;
+        
+        // En-tête
+        doc.setFontSize(20);
+        doc.setFont("helvetica", "bold");
+        doc.text("DAKAR CHICKEN EXPRESS", pageWidth / 2, currentY, { align: 'center' });
+        currentY += 10;
+        doc.setFontSize(12);
+        doc.text(invoice.boutiqueName, pageWidth / 2, currentY, { align: 'center' });
+        currentY += 10;
+        doc.setFontSize(10);
+        doc.text(`Tél: ${invoice.boutiquePhone}`, pageWidth / 2, currentY, { align: 'center' });
+        currentY += 20;
+        
+        // Infos facture
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.text("FACTURE", margin, currentY);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.text(`N°: ${invoice.invoiceNumber}`, pageWidth - margin, currentY, { align: 'right' });
+        currentY += 8;
+        
+        const date = new Date();
+        doc.text(`Date: ${date.toLocaleDateString('fr-FR')}`, pageWidth - margin, currentY, { align: 'right' });
+        currentY += 15;
+        
+        // Client
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.text("CLIENT:", margin, currentY);
+        currentY += 7;
+        doc.setFont("helvetica", "normal");
+        doc.text(`Nom: ${invoice.client.name}`, margin + 10, currentY);
+        currentY += 6;
+        doc.text(`Tél: ${invoice.client.phone}`, margin + 10, currentY);
+        currentY += 6;
+        if (invoice.client.address !== 'Non renseigné') {
+            doc.text(`Adresse: ${invoice.client.address}`, margin + 10, currentY);
+            currentY += 6;
+        }
+        currentY += 10;
+        
+        // Tableau
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.text("DESCRIPTION", margin, currentY);
+        doc.text("QTÉ", margin + 100, currentY);
+        doc.text("P.U.", margin + 130, currentY);
+        doc.text("TOTAL", pageWidth - margin - 30, currentY, { align: 'right' });
+        currentY += 7;
+        
+        doc.setDrawColor(200, 200, 200);
+        doc.line(margin, currentY, pageWidth - margin, currentY);
+        currentY += 5;
+        
+        doc.setFont("helvetica", "normal");
+        invoice.items.forEach(item => {
+            if (currentY > 250) {
+                doc.addPage();
+                currentY = 20;
+            }
+            doc.text(`${item.name} (${item.weight})`, margin, currentY);
+            doc.text(item.quantity.toString(), margin + 100, currentY);
+            doc.text(`${item.price.toLocaleString('fr-FR')}`, margin + 130, currentY);
+            doc.text(`${item.subtotal.toLocaleString('fr-FR')} F CFA`, pageWidth - margin, currentY, { align: 'right' });
+            currentY += 7;
+        });
+        
+        currentY += 10;
+        doc.line(margin, currentY, pageWidth - margin, currentY);
+        currentY += 10;
+        
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.text(`TOTAL: ${invoice.total.toLocaleString('fr-FR')} F CFA`, pageWidth - margin, currentY, { align: 'right' });
+        currentY += 20;
+        
+        // Paiement
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.text("PAIEMENT:", margin, currentY);
+        currentY += 7;
+        doc.setFont("helvetica", "normal");
+        const modeTexte = invoice.paiement.modePaiement === 'especes' ? 'Espèces' : (invoice.paiement.modePaiement === 'wave' ? 'Wave' : 'Orange Money');
+        doc.text(`Mode: ${modeTexte}`, margin + 10, currentY);
+        currentY += 6;
+        doc.text(`Montant reçu: ${invoice.paiement.montantPaye.toLocaleString('fr-FR')} F CFA`, margin + 10, currentY);
+        currentY += 6;
+        if (invoice.paiement.resteAPayer > 0) {
+            doc.setTextColor(239, 68, 68);
+            doc.text(`Reste à payer: ${invoice.paiement.resteAPayer.toLocaleString('fr-FR')} F CFA`, margin + 10, currentY);
+            doc.setTextColor(0, 0, 0);
+        }
+        
+        // Footer
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text("Merci pour votre confiance !", pageWidth / 2, 280, { align: 'center' });
+        
+        doc.save(`Facture_${invoice.invoiceNumber}.pdf`);
+        showMessage('PDF généré !', 'success');
+    }
+
+    // Générer PDF depuis l'historique
+    window.generatePDFFromHistory = function(invoice) {
+        generatePDF(invoice);
+    };
+
+    // Afficher un message
+    function showMessage(text, type) {
+        const message = document.createElement('div');
+        message.className = `message ${type}`;
+        message.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i> ${text}`;
+        document.body.appendChild(message);
+        setTimeout(() => {
+            message.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => message.remove(), 300);
+        }, 3000);
+    }
+
+    // Ajouter l'animation slideOut
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Configuration des écouteurs
+    function setupEventListeners() {
+        document.getElementById('generatePdfBtn').addEventListener('click', function() {
+            if (Object.keys(selectedItems).length === 0) {
+                showMessage('Veuillez sélectionner des articles', 'error');
+                return;
+            }
+            const total = parseInt(document.getElementById('totalAmount').textContent.replace(/\D/g, '')) || 0;
+            const montantPaye = parseInt(document.getElementById('montantPaye').value) || 0;
+            const modePaiement = document.querySelector('input[name="modePaiement"]:checked')?.value || 'especes';
+            let statut = 'impaye';
+            if (montantPaye === 0) statut = 'impaye';
+            else if (montantPaye >= total) statut = 'paye';
+            else statut = 'partiel';
+            
+            const fakeInvoice = {
+                boutique: currentBoutique.id,
+                boutiqueName: currentBoutique.name,
+                boutiquePhone: currentBoutique.phone,
+                client: {
+                    name: document.getElementById('clientName').value.trim() || 'Client non renseigné',
+                    phone: document.getElementById('clientPhone').value.trim() || 'Non renseigné',
+                    address: document.getElementById('clientAddress').value.trim() || 'Non renseigné'
+                },
+                items: Object.values(selectedItems),
+                total: total,
+                paiement: { montantPaye: montantPaye, resteAPayer: total - montantPaye, modePaiement: modePaiement, statut: statut },
+                invoiceNumber: `TMP-${Date.now()}`
+            };
+            generatePDF(fakeInvoice);
+        });
+    }
+</script>
+
+</body>
+</html>
