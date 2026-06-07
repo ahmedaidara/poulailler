@@ -3154,6 +3154,7 @@ async function loadCaisseProductions() {
 
 // ========== CHARGER UNIQUEMENT LES FACTURES D'UNE PRODUCTION SPÉCIFIQUE ==========
 // ========== CHARGER LES FACTURES D'UNE PRODUCTION (VERSION CORRIGÉE) ==========
+// ========== CHARGER LES FACTURES POUR LA CAISSE (VERSION CORRIGÉE) ==========
 async function loadCaisseInvoices(productionId) {
     if (!productionId) return;
     
@@ -3161,9 +3162,9 @@ async function loadCaisseInvoices(productionId) {
     container.innerHTML = `<div style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i><p>Chargement...</p></div>`;
     
     try {
-        caisseCurrentProductionId = productionId; // ← STOCKER L'ID
+        caisseCurrentProductionId = productionId;
         
-        // Récupérer TOUTES les commandes TikTok
+        // 1️⃣ Récupérer TOUTES les commandes TikTok (sans filtre productionId)
         const tiktokSnap = await db.collection('orders')
             .where('boutique', '==', 'en-ligne')
             .get();
@@ -3175,51 +3176,59 @@ async function loadCaisseInvoices(productionId) {
                 id: doc.id,
                 boutique: 'en-ligne',
                 boutiqueName: 'TikTok Shop',
-                productionId: order.productionId || null, // ← GARDER LE productionId
-                client: order.client || { name: 'Client TikTok' },
+                productionId: order.productionId || productionId,
+                client: order.client || { name: 'Client TikTok', phone: order.client?.phone || '' },
                 items: order.items || [],
                 total: order.total || 0,
                 paiement: {
                     montantPaye: order.paymentReceived || 0,
                     resteAPayer: (order.total || 0) - (order.paymentReceived || 0),
-                    statut: order.paymentStatus || 'impaye',
-                    modePaiement: order.paymentMethod || 'especes'
+                    statut: order.paymentStatus === 'paye' ? 'paye' : (order.paymentStatus === 'partiel' ? 'partiel' : 'impaye'),
+                    modePaiement: order.paymentMethod || 'wave'
                 },
                 date: order.createdAt?.toDate ? order.createdAt.toDate() : new Date(order.createdAt),
                 invoiceNumber: order.orderNumber || `CMD-${doc.id.slice(0,8)}`
             });
         });
         
-        // Récupérer les factures physiques
-        const stocksSnap = await db.collection('stocks_attribues')
-            .where('productionId', '==', productionId)
-            .get();
-        
-        const stockIds = [];
-        stocksSnap.forEach(doc => stockIds.push(doc.id));
-        
+        // 2️⃣ Récupérer TOUTES les factures physiques (sans filtre productionId)
         const physicalInvoices = [];
-        for (const stockId of stockIds) {
-            const invSnap = await db.collection('invoices')
-                .where('stockAttribueId', '==', stockId)
-                .get();
-            
-            invSnap.forEach(doc => {
-                const inv = doc.data();
-                physicalInvoices.push({ id: doc.id, ...inv, productionId: productionId });
-            });
-        }
+        const invoicesSnap = await db.collection('invoices').get();
         
-        // Fusion
+        invoicesSnap.forEach(doc => {
+            const inv = doc.data();
+            // Ajouter un productionId par défaut si manquant
+            if (!inv.productionId) {
+                inv.productionId = productionId;
+            }
+            physicalInvoices.push({ 
+                id: doc.id, 
+                ...inv, 
+                productionId: inv.productionId || productionId 
+            });
+        });
+        
+        // 3️⃣ Fusionner les deux listes
         caisseAllInvoices = [...physicalInvoices, ...tiktokOrders];
         
-        console.log(`✅ ${physicalInvoices.length} factures + ${tiktokOrders.length} TikTok`);
-        console.log(`📊 Commandes TikTok avec productionId:`, tiktokOrders.map(o => ({ id: o.id, prodId: o.productionId })));
+        console.log(`✅ Total factures chargées: ${caisseAllInvoices.length}`);
+        console.log(`   - Factures physiques: ${physicalInvoices.length}`);
+        console.log(`   - Commandes TikTok: ${tiktokOrders.length}`);
+        
+        // Afficher les premières factures pour debug
+        if (caisseAllInvoices.length > 0) {
+            console.log("📋 Aperçu des factures:", caisseAllInvoices.slice(0, 3).map(i => ({
+                boutique: i.boutique,
+                total: i.total,
+                montantPaye: i.paiement?.montantPaye,
+                date: i.date
+            })));
+        }
         
         renderCaisseResults();
         
     } catch (error) {
-        console.error(error);
+        console.error("Erreur chargement factures:", error);
         container.innerHTML = `<div style="text-align:center;padding:40px;color:red;">Erreur: ${error.message}</div>`;
     }
 }
@@ -3371,19 +3380,12 @@ function getCaisseBoutiqueColor(boutiqueId) {
 }
 
 // Afficher les résultats de la caisse
-// ========== AFFICHER UNIQUEMENT LES FACTURES DE LA PRODUCTION SÉLECTIONNÉE ==========
+// ========== AFFICHER LES RÉSULTATS DE LA CAISSE (VERSION CORRIGÉE) ==========
 function renderCaisseResults() {
     const container = document.getElementById('caisseResultsContainer');
     
-    // 🔥 FILTRAGE STRICT PA R PRODUCTION
-    let filteredInvoices = caisseAllInvoices.filter(inv => {
-        // Pour les factures physiques
-        if (inv.productionId === caisseCurrentProductionId) return true;
-        // Pour les commandes TikTok
-        if (inv.productionId === caisseCurrentProductionId) return true;
-        // Si pas de productionId, vérifier par la date (fallback)
-        return false;
-    });
+    // 🔥 NE PAS FILTRER PAR PRODUCTION - Prendre TOUTES les factures
+    let filteredInvoices = [...caisseAllInvoices];
     
     // Appliquer le filtre de période
     if (caisseCurrentPeriod === 'today') {
@@ -3399,7 +3401,11 @@ function renderCaisseResults() {
         }
     }
     
-    console.log(`📊 Factures après filtrage: ${filteredInvoices.length} (sur ${caisseAllInvoices.length} totales)`);
+    console.log(`📊 Factures après filtrage période: ${filteredInvoices.length}`);
+    
+    // Calculer le total des montants pour debug
+    let totalMontants = filteredInvoices.reduce((sum, inv) => sum + (inv.paiement?.montantPaye || 0), 0);
+    console.log(`💰 Total des montants payés dans les factures filtrées: ${totalMontants.toLocaleString('fr-FR')} FCFA`);
     
     // Préparer le texte de la période
     let periodText = '';
@@ -3412,14 +3418,21 @@ function renderCaisseResults() {
     }
     
     // Liste des boutiques
-    const boutiqueIds = ['sacre-coeur-1', 'keur-massar', 'sebikotane', 'front-terre', 'sacre-coeur-3', 'en-ligne'];
+    const boutiqueIds = [
+        { id: 'sacre-coeur-1', name: 'Sacré Coeur 1', color: '#3B82F6' },
+        { id: 'keur-massar', name: 'Keur Massar', color: '#10B981' },
+        { id: 'sebikotane', name: 'Sebikotane', color: '#F59E0B' },
+        { id: 'front-terre', name: 'Front de Terre', color: '#EF4444' },
+        { id: 'sacre-coeur-3', name: 'Sacré Coeur 3', color: '#8B5CF6' },
+        { id: 'en-ligne', name: 'TikTok Shop', color: '#EC4899' }
+    ];
     
     let html = `
         <div style="margin-bottom: 20px;">
             <div class="caisse-period-info">
                 <span><i class="fas fa-calendar"></i> <strong>Période:</strong> ${periodText}</span>
                 <span><i class="fas fa-chart-simple"></i> <strong>Total factures:</strong> ${filteredInvoices.length}</span>
-                <span><i class="fas fa-store"></i> <strong>Production sélectionnée:</strong> ${caisseCurrentProductionId ? caisseCurrentProductionId.substring(0, 8) : 'Aucune'}</span>
+                <span><i class="fas fa-money-bill-wave"></i> <strong>Total encaissé période:</strong> ${filteredInvoices.reduce((sum, inv) => sum + (inv.paiement?.montantPaye || 0), 0).toLocaleString('fr-FR')} FCFA</span>
             </div>
         </div>
     `;
@@ -3429,10 +3442,8 @@ function renderCaisseResults() {
     };
     
     // Générer une carte pour chaque boutique
-    for (const boutiqueId of boutiqueIds) {
-        const stats = calculateCaisseBoutiqueStats(filteredInvoices, boutiqueId);
-        const boutiqueName = getCaisseBoutiqueName(boutiqueId);
-        const boutiqueColor = getCaisseBoutiqueColor(boutiqueId);
+    for (const boutique of boutiqueIds) {
+        const stats = calculateCaisseBoutiqueStats(filteredInvoices, boutique.id);
         
         totalGeneral.especes += stats.especes;
         totalGeneral.wave += stats.wave;
@@ -3443,9 +3454,9 @@ function renderCaisseResults() {
         
         html += `
             <div class="caisse-boutique-card">
-                <div class="caisse-boutique-header" style="background: linear-gradient(135deg, ${boutiqueColor} 0%, ${boutiqueColor}cc 100%);">
-                    <h3><i class="fas fa-store"></i> ${boutiqueName}</h3>
-                    <div class="badge">${stats.nbFactures} facture(s)</div>
+                <div class="caisse-boutique-header" style="background: linear-gradient(135deg, ${boutique.color} 0%, ${boutique.color}cc 100%);">
+                    <h3><i class="fas fa-store"></i> ${boutique.name}</h3>
+                    <div class="badge">${stats.nbFactures} facture(s) | ${stats.totalPaye.toLocaleString('fr-FR')} F CFA</div>
                 </div>
                 <div class="caisse-stats-grid">
                     <div class="caisse-stat-card especes">
@@ -3505,63 +3516,6 @@ function renderCaisseResults() {
         </div>
     `;
     
-    // Détail des factures
-    if (filteredInvoices.length > 0 && filteredInvoices.length <= 50) {
-        html += `
-            <div class="caisse-boutique-card" style="margin-top: 20px;">
-                <div class="caisse-boutique-header" style="background: linear-gradient(135deg, #475569 0%, #334155 100%);">
-                    <h3><i class="fas fa-list"></i> Détail des factures</h3>
-                    <div class="badge">${filteredInvoices.length} facture(s)</div>
-                </div>
-                <div style="padding: 20px; overflow-x: auto;">
-                    <table class="caisse-detail-table">
-                        <thead>
-                            <tr><th>Date</th><th>N° Facture</th><th>Boutique</th><th>Client</th><th>Total</th><th>Payé</th><th>Mode</th><th>Statut</th></tr>
-                        </thead>
-                        <tbody>
-        `;
-        
-        const sortedInvoices = [...filteredInvoices].sort((a, b) => {
-            const dateA = a.date?.seconds ? a.date.seconds : new Date(a.date).getTime();
-            const dateB = b.date?.seconds ? b.date.seconds : new Date(b.date).getTime();
-            return dateB - dateA;
-        });
-        
-        for (const inv of sortedInvoices) {
-            let date;
-            if (inv.date && inv.date.seconds) {
-                date = new Date(inv.date.seconds * 1000);
-            } else {
-                date = new Date(inv.date || Date.now());
-            }
-            const dateStr = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
-            
-            const paiement = inv.paiement || { montantPaye: 0, modePaiement: 'especes', statut: 'impaye' };
-            const boutiqueName = getCaisseBoutiqueName(inv.boutique);
-            
-            let modeIcon = paiement.modePaiement === 'especes' ? '💵' : (paiement.modePaiement === 'wave' ? '📱' : '📱');
-            let modeText = paiement.modePaiement === 'especes' ? 'Espèces' : (paiement.modePaiement === 'wave' ? 'Wave' : 'Orange');
-            
-            let statutText = '', statutColor = '';
-            if (paiement.statut === 'paye') { statutText = 'Payé'; statutColor = '#10b981'; }
-            else if (paiement.statut === 'partiel') { statutText = 'Partiel'; statutColor = '#f59e0b'; }
-            else { statutText = 'Impayé'; statutColor = '#ef4444'; }
-            
-            html += `<tr>
-                <td>${dateStr}</td>
-                <td><strong>${inv.invoiceNumber || 'N/A'}</strong></td>
-                <td>${boutiqueName}</td>
-                <td>${inv.client?.name || 'Anonyme'}</td>
-                <td>${(inv.total || 0).toLocaleString('fr-FR')} F</td>
-                <td style="color:#10b981;">${(paiement.montantPaye || 0).toLocaleString('fr-FR')} F</td>
-                <td>${modeIcon} ${modeText}</td>
-                <td style="color:${statutColor};">${statutText}</td>
-            </tr>`;
-        }
-        
-        html += `</tbody></table></div></div>`;
-    }
-    
     container.innerHTML = html;
 }
 
@@ -3578,7 +3532,7 @@ async function refreshCaisse() {
     }
 }
 
-// Initialiser les événements de la page Caisse
+// Initialiser les événements de la page Caisse 
 function initCaissePage() {
     console.log("💰 Initialisation page Caisse");
     
