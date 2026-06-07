@@ -633,7 +633,7 @@
       <button class="nav-btn" data-section="tiktokstats">📱 TikTok Shop</button>
           <button class="nav-btn" data-section="boutiquestats">📈 Statistiques Boutiques</button>
       <button class="nav-btn" data-section="caisse">💰 Caisse</button>
-      <button class="nav-btn" data-section="versement">💰 Versements</button>
+      <button class="nav-btn" onclick="openVersementIframe()">💰 Versements</button>
 
     </div>
 
@@ -4084,7 +4084,42 @@ if (typeof loadProductionsForStats === 'function') {
     loadProductionsForStats();
 }
 initBoutiqueStatsPage();
+      
+    // Ouvrir la page versement en iframe plein écran
+function openVersementIframe() {
+    // Créer le modal
+    const modal = document.createElement('div');
+    modal.id = 'versementIframeModal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: white;
+        z-index: 100000;
+        display: flex;
+        flex-direction: column;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: #1e3c2c; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin: 0;"><i class="fas fa-money-bill-wave"></i> Gestion des Versements</h2>
+            <button id="closeIframeBtn" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">
+                <i class="fas fa-times"></i> Fermer
+            </button>
+        </div>
+        <iframe src="versement.html" style="flex: 1; border: none; width: 100%;"></iframe>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Écouteur d'événement pour le bouton Fermer
+    document.getElementById('closeIframeBtn').addEventListener('click', function() {
+        modal.remove();
+    });
+}
     </script>
    
 </body>
-</html>        
+</html>     
