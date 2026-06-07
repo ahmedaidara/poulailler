@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -3125,7 +3125,7 @@ async function loadCaisseProductions() {
         
         caisseProductions = [...allProductions];
         
-        // Trier par date de début (plus récente d'abord)
+        // Trier par ate d début (plus récente d'abord)
         caisseProductions.sort((a, b) => {
             const dateA = new Date(a.startDate || 0);
             const dateB = new Date(b.startDate || 0);
@@ -3375,7 +3375,7 @@ function getCaisseBoutiqueColor(boutiqueId) {
 function renderCaisseResults() {
     const container = document.getElementById('caisseResultsContainer');
     
-    // 🔥 FILTRAGE STRICT PAR PRODUCTION
+    // 🔥 FILTRAGE STRICT PA R PRODUCTION
     let filteredInvoices = caisseAllInvoices.filter(inv => {
         // Pour les factures physiques
         if (inv.productionId === caisseCurrentProductionId) return true;
@@ -3635,6 +3635,7 @@ let versementsData = {}; // Stocke les versements par boutique
 
 // Charger les versements depuis Firebase
 async function loadVersements() {
+    console.log("🔄 Chargement des versements...");
     const snapshot = await db.collection('versements').get();
     versementsData = {};
     snapshot.forEach(doc => {
@@ -3649,7 +3650,9 @@ async function loadVersements() {
             date: data.date,
             commentaire: data.commentaire
         });
+        console.log(`📦 Versement trouvé: ${key} = ${data.montant} F CFA`);
     });
+    console.log("✅ Versements chargés:", Object.keys(versementsData));
 }
 
 // Sauvegarder un versement
@@ -3821,15 +3824,8 @@ async function refreshVersementPage() {
     
     container.innerHTML = '<div style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>';
     
-    // Charger TOUS les versements depuis Firebase
-    const allVersements = {};
-    const versementsSnapshot = await db.collection('versements').get();
-    versementsSnapshot.forEach(doc => {
-        const v = doc.data();
-        const key = `${v.productionId}_${v.boutiqueId}`;
-        if (!allVersements[key]) allVersements[key] = 0;
-        allVersements[key] += v.montant || 0;
-    });
+    // RECHARGER LES VERSEMENTS À CHAQUE FOIS
+    await loadVersements();
     
     const boutiqueIds = [
         { id: 'sacre-coeur-1', name: 'Sacré Coeur 1', color: '#3B82F6' },
@@ -3846,8 +3842,7 @@ async function refreshVersementPage() {
         let encaissement = 0;
         
         if (versementCurrentProductionId === 'all') {
-            // ===== TOUTES LES PRODUCTIONS =====
-            // 1. Récupérer TOUTES les factures de cette boutique
+            // TOUTES LES PRODUCTIONS
             const invoicesSnap = await db.collection('invoices')
                 .where('boutique', '==', boutique.id)
                 .get();
@@ -3856,53 +3851,47 @@ async function refreshVersementPage() {
                 encaissement += doc.data().paiement?.montantPaye || 0;
             });
             
-            // 2. Pour TikTok Shop, récupérer TOUTES les commandes
             if (boutique.id === 'en-ligne') {
                 const ordersSnap = await db.collection('orders')
                     .where('boutique', '==', 'en-ligne')
                     .get();
-                
                 ordersSnap.forEach(doc => {
                     encaissement += doc.data().paymentReceived || 0;
                 });
             }
         } else {
-            // ===== PRODUCTION SPÉCIFIQUE =====
-            // 1. Récupérer les stocks attribués pour cette production
-            const stocksSnap = await db.collection('stocks_attribues')
+            // PRODUCTION SPÉCIFIQUE
+            const invoicesSnap = await db.collection('invoices')
                 .where('productionId', '==', versementCurrentProductionId)
                 .where('boutique', '==', boutique.id)
                 .get();
             
-            for (const stock of stocksSnap.docs) {
-                const invoicesSnap = await db.collection('invoices')
-                    .where('stockAttribueId', '==', stock.id)
-                    .get();
-                
-                invoicesSnap.forEach(doc => {
-                    encaissement += doc.data().paiement?.montantPaye || 0;
-                });
-            }
+            invoicesSnap.forEach(doc => {
+                encaissement += doc.data().paiement?.montantPaye || 0;
+            });
             
-            // 2. Pour TikTok Shop avec cette production
             if (boutique.id === 'en-ligne') {
                 const ordersSnap = await db.collection('orders')
                     .where('boutique', '==', 'en-ligne')
                     .where('productionId', '==', versementCurrentProductionId)
                     .get();
-                
                 ordersSnap.forEach(doc => {
                     encaissement += doc.data().paymentReceived || 0;
                 });
             }
         }
         
-        // Récupérer le total versé pour cette boutique et production
+        // Récupérer le total versé depuis versementsData
         const key = `${versementCurrentProductionId}_${boutique.id}`;
-        const totalVerse = allVersements[key] || 0;
+        let totalVerse = 0;
+        if (versementsData[key]) {
+            versementsData[key].forEach(v => {
+                totalVerse += v.montant;
+            });
+        }
+        
         const reste = encaissement - totalVerse;
         
-        // Déterminer la couleur du reste
         let resteColor = '#f59e0b';
         let resteTexte = `Reste ${Math.abs(reste).toLocaleString('fr-FR')} F`;
         if (reste === 0) {
@@ -3957,7 +3946,7 @@ async function refreshVersementPage() {
 }
       
       
-      async function verserMontantAdmin(productionId, boutiqueId, boutiqueName) {
+     async function verserMontantAdmin(productionId, boutiqueId, boutiqueName) {
     const montantInput = document.getElementById(`montant_${boutiqueId}`);
     const commentInput = document.getElementById(`comment_${boutiqueId}`);
     
@@ -3970,11 +3959,12 @@ async function refreshVersementPage() {
     }
     
     try {
+        // Enregistrer le versement
         await db.collection('versements').add({
             productionId: productionId === 'all' ? 'all' : productionId,
             boutiqueId: boutiqueId,
             boutiqueName: boutiqueName,
-            montant: montant, 
+            montant: montant,
             commentaire: commentaire || `Versement du ${new Date().toLocaleDateString('fr-FR')}`,
             date: firebase.firestore.FieldValue.serverTimestamp(),
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -3982,16 +3972,17 @@ async function refreshVersementPage() {
         
         alert(`✅ Versement de ${montant.toLocaleString('fr-FR')} F CFA enregistré pour ${boutiqueName}`);
         
-        // Réinitialiser le champ montant
-        montantInput.value = 0;
-        commentInput.value = '';
+        // Réinitialiser les champs
+        if (montantInput) montantInput.value = 0;
+        if (commentInput) commentInput.value = '';
         
-        // Recharger la page
-        await refreshVersementPage();
+        // FORCER LE RECHARGEMENT COMPLET
+        await loadVersements();  // Recharger les données des versements
+        await refreshVersementPage();  // Rafraîchir l'affichage
         
     } catch (error) {
         console.error('Erreur:', error);
-        alert('Erreur lors de l\'enregistrement');
+        alert('Erreur lors de l\'enregistrement: ' + error.message);
     }
 }
 
@@ -4096,4 +4087,4 @@ initBoutiqueStatsPage();
     </script>
    
 </body>
-</html>    
+</html>        
