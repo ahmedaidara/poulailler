@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -791,64 +791,100 @@
     }
 
     // Afficher catégories stock
-    function displayCategories() {
-        const container = document.getElementById('categoriesContainer');
-        if (!container || !currentProduction) return;
-        container.innerHTML = '';
+ function displayCategories() {
+    const container = document.getElementById('categoriesContainer');
+    if (!container || !currentProduction) return;
+    container.innerHTML = '';
+    
+    categories.forEach(cat => {
+        let qty = currentProduction[cat.fieldQty] || 0;
+        const price = currentProduction[cat.fieldPrice] || cat.defaultPrice;
+        const sold = currentProduction[cat.fieldSold] || 0;
+        const restant = Math.max(0, qty - sold);
         
-        categories.forEach(cat => {
-            const qty = currentProduction[cat.fieldQty] || 0;
-            const price = currentProduction[cat.fieldPrice] || cat.defaultPrice;
-            const sold = currentProduction[cat.fieldSold] || 0;
-            const restant = Math.max(0, qty - sold);
-            
-            const card = document.createElement('div');
-            card.className = 'category-card';
-            card.innerHTML = `
-                <div class="category-header">
-                    <span class="category-name">${cat.name}</span>
-                    <span class="category-price" id="price_display_${cat.id}">${price.toLocaleString()} F CFA</span>
-                </div>
-                <div class="category-weight">${cat.weight}</div>
-                <div class="category-stock">
-                    📦 Stock: <span id="stock_display_${cat.id}">${qty}</span> | 
-                    Vendu: ${sold} | 
-                    Restant: <span style="color:${restant>0?'#10b981':'#ef4444'}">${restant}</span>
-                </div>
-                <div class="category-input-group">
-                    <input type="number" id="qty_${cat.id}" class="category-input" value="${qty}" min="0" placeholder="Qté">
-                    <input type="number" id="price_${cat.id}" class="category-input" value="${price}" min="0" step="100" placeholder="Prix" style="width:100px">
-                    <button class="btn-update-cat" onclick="updateCategory('${cat.id}')"><i class="fas fa-save"></i></button>
-                </div>
-            `;
-            container.appendChild(card);
-        });
+        const card = document.createElement('div');
+        card.className = 'category-card';
+        card.innerHTML = `
+            <div class="category-header">
+                <span class="category-name">${cat.name}</span>
+                <span class="category-price" id="price_display_${cat.id}">${price.toLocaleString()} F CFA</span>
+            </div>
+            <div class="category-weight">${cat.weight}</div>
+            <div class="category-stock">
+                📦 Stock: <span id="stock_display_${cat.id}">${qty}</span> | 
+                Vendu: ${sold} | 
+                Restant: <span style="color:${restant>0?'#10b981':'#ef4444'}">${restant}</span>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 10px;">
+                <button class="btn-quantity decrement" data-id="${cat.id}" style="background:#ef4444; color:white; border:none; width:40px; border-radius:8px; cursor:pointer; font-size:1.2rem;">-</button>
+                <input type="number" id="qty_${cat.id}" class="category-input" value="${qty}" min="0" step="1" style="flex:1; text-align:center;">
+                <button class="btn-quantity increment" data-id="${cat.id}" style="background:#10b981; color:white; border:none; width:40px; border-radius:8px; cursor:pointer; font-size:1.2rem;">+</button>
+            </div>
+            <div class="category-input-group">
+                <input type="number" id="price_${cat.id}" class="category-input" value="${price}" min="0" step="100" placeholder="Prix" style="width:100%">
+                <button class="btn-update-cat" onclick="updateCategory('${cat.id}')"><i class="fas fa-save"></i> Modifier</button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+
+    // Attacher les événements + et -
+    document.querySelectorAll('.btn-quantity.increment').forEach(btn => {
+        btn.removeEventListener('click', handleIncrement);
+        btn.addEventListener('click', handleIncrement);
+    });
+    document.querySelectorAll('.btn-quantity.decrement').forEach(btn => {
+        btn.removeEventListener('click', handleDecrement);
+        btn.addEventListener('click', handleDecrement);
+    });
+}
+
+function handleIncrement(e) {
+    const catId = e.currentTarget.getAttribute('data-id');
+    const input = document.getElementById(`qty_${catId}`);
+    if (input) {
+        let newVal = (parseInt(input.value) || 0) + 1;
+        input.value = newVal;
+        // Auto-save immédiat
+        updateCategory(catId);
     }
+}
 
-    // Mettre à jour catégorie
-    window.updateCategory = async function(catId) {
-        if (!currentProduction) return;
-        const cat = categories.find(c => c.id === catId);
-        if (!cat) return;
-        
-        const newQty = parseInt(document.getElementById(`qty_${catId}`).value) || 0;
-        const newPrice = parseInt(document.getElementById(`price_${catId}`).value) || 0;
-        
-        try {
-            const update = {};
-            update[cat.fieldQty] = newQty;
-            update[cat.fieldPrice] = newPrice;
-            await db.collection('poulailler_records').doc(currentProduction.id).update(update);
-            currentProduction[cat.fieldQty] = newQty;
-            currentProduction[cat.fieldPrice] = newPrice;
-            displayCategories();
-            displayInvoiceCategories();
-            showMessage(`${cat.name} mis à jour`, 'success');
-        } catch(error) {
-            showMessage('Erreur', 'error');
-        }
-    };
-
+function handleDecrement(e) {
+    const catId = e.currentTarget.getAttribute('data-id');
+    const input = document.getElementById(`qty_${catId}`);
+    if (input) {
+        let newVal = Math.max(0, (parseInt(input.value) || 0) - 1);
+        input.value = newVal;
+        // Auto-save immédiat
+        updateCategory(catId);
+    }
+}
+window.updateCategory = async function(catId) {
+    if (!currentProduction) return;
+    const cat = categories.find(c => c.id === catId);
+    if (!cat) return;
+    
+    const newQty = parseInt(document.getElementById(`qty_${catId}`).value) || 0;
+    const newPrice = parseInt(document.getElementById(`price_${catId}`).value) || 0;
+    
+    // 🔁 On ne réinitialise pas, on écrase simplement la valeur (comportement classique)
+    // Mais ici l'utilisateur contrôle via + et -
+    
+    try {
+        const update = {};
+        update[cat.fieldQty] = newQty;
+        update[cat.fieldPrice] = newPrice;
+        await db.collection('poulailler_records').doc(currentProduction.id).update(update);
+        currentProduction[cat.fieldQty] = newQty;
+        currentProduction[cat.fieldPrice] = newPrice;
+        displayCategories();        // Rafraîchit l'affichage
+        displayInvoiceCategories(); // Rafraîchit la facture
+        showMessage(`${cat.name} mis à jour (stock = ${newQty})`, 'success');
+    } catch(error) {
+        showMessage('Erreur mise à jour', 'error');
+    }
+};
     // Afficher catégories facture
     function displayInvoiceCategories() {
         const container = document.getElementById('invoiceCategoriesContainer');
