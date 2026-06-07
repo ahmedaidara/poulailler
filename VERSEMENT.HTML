@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHICKEN EXPRESS - Gestion des Versements</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+        body {
+            background: #f0f4f8;
+            padding: 20px;
+        }
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 32px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #1e3c2c, #2a5a3a);
+            color: white;
+            padding: 20px 28px;
+        }
+        header h1 { font-size: 1.8rem; display: flex; align-items: center; gap: 12px; }
+        .sub { opacity: 0.8; font-size: 0.85rem; margin-top: 6px; }
+        .nav-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            background: #e9ecef;
+            padding: 12px 24px;
+            border-bottom: 1px solid #ccc;
+        }
+        .nav-btn {
+            background: transparent;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #2c3e50;
+        }
+        .nav-btn.active {
+            background: #2c7a4d;
+            color: white;
+        }
+        .section {
+            display: none;
+            padding: 28px;
+            animation: fade 0.2s ease;
+        }
+        .section.active-section { display: block; }
+        @keyframes fade { from { opacity:0; } to { opacity:1; } }
+        
+        .production-selector {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            color: white;
+        }
+        .production-selector label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .production-selector select {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .filters-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+        }
+        .filters-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #1e293b;
+        }
+        .filters-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .filter-btn {
+            background: #f1f5f9;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        .filter-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        .custom-date {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .custom-date input {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+        }
+        .btn-apply {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        
+        .versement-card {
+            background: white;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+        .versement-header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            color: white;
+        }
+        .versement-header h3 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .versement-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+        .versement-stat {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+        }
+        .versement-stat .label {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+        .versement-stat .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .value.encaissement { color: #10b981; }
+        .value.verse { color: #3b82f6; }
+        .value.reste.positif { color: #f59e0b; }
+        .value.reste.zero { color: #10b981; }
+        .value.reste.negatif { color: #ef4444; }
+        
+        .versement-actions {
+            padding: 15px 20px;
+            background: #f1f5f9;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            border-top: 1px solid #e2e8f0;
+        }
+        .versement-input-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        .versement-input-group label {
+            display: block;
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+        .versement-input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+        .btn-verser {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-verser:hover { background: #059669; }
+        .btn-supprimer {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-supprimer:hover { background: #dc2626; }
+        
+        .historique-versements {
+            margin: 10px 20px;
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+        .historique-versements summary {
+            cursor: pointer;
+            color: #64748b;
+            font-weight: bold;
+        }
+        .historique-versements table {
+            width: 100%;
+            font-size: 0.75rem;
+            margin-top: 10px;
+            border-collapse: collapse;
+        }
+        .historique-versements td, .historique-versements th {
+            padding: 8px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+        }
+        .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        .loading {
+            text-align: center;
+            padding: 60px;
+            background: white;
+            border-radius: 20px;
+        }
+        .total-general {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            text-align: center;
+        }
+        .total-general-item {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 15px;
+        }
+        .total-general-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        .delete-all-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+        .delete-all-btn:hover { background: #b91c1c; }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            margin: 20px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+        }
+        .btn-confirm { background: #dc2626; color: white; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; margin-right: 10px; }
+        .btn-cancel { background: #666; color: white; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; }
+        @media (max-width: 768px) {
+            .versement-stats { grid-template-columns: 1fr; }
+            .versement-actions { flex-direction: column; }
+            .versement-input-group { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="appMain" class="app-container">
+    <header>
+        <h1>🐓 CHICKEN EXPRESS</h1>
+        <div class="sub">Gestion des versements</div>
+    </header>
+    <div class="nav-bar">
+        <button class="nav-btn active" data-section="versement">💰 Versements</button>
+    </div>
+
+    <div id="versementSection" class="section active-section">
+        <div class="stats-boutiques-container">
+            <h2 style="margin-bottom: 20px;">💰 VERSEMENTS - Gestion des dépôts</h2>
+            
+            <div class="production-selector">
+                <label><i class="fas fa-calendar-alt"></i> Sélectionner une production :</label>
+                <select id="versementProductionSelect">
+                    <option value="all">📊 TOUTES LES PRODUCTIONS</option>
+                </select>
+            </div>
+            
+            <div class="filters-bar">
+                <div class="filters-title"><i class="fas fa-filter"></i> Filtrage par date</div>
+                <div class="filters-buttons">
+                    <button class="filter-btn" data-period="all">📅 Toutes</button>
+                    <button class="filter-btn" data-period="today">📆 Aujourd'hui</button>
+                    <button class="filter-btn" data-period="week">📅 Cette semaine</button>
+                    <button class="filter-btn" data-period="month">📆 Ce mois</button>
+                    <button class="filter-btn" data-period="year">📅 Cette année</button>
+                </div>
+                <div class="custom-date">
+                    <input type="date" id="customStartDate" placeholder="Date début">
+                    <span>à</span>
+                    <input type="date" id="customEndDate" placeholder="Date fin">
+                    <button class="btn-apply" id="applyCustomDate">🔍 Filtrer</button>
+                </div>
+            </div>
+            
+            <button class="delete-all-btn" id="deleteAllVersementsBtn">
+                <i class="fas fa-trash-alt"></i> 🗑️ SUPPRIMER TOUS LES VERSEMENTS
+            </button>
+            
+            <div id="totalGeneral" class="total-general" style="display: none;"></div>
+            
+            <div id="versementGrid">
+                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement des données...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAAQ9G3w94aM7iGc_ufHMzdCvrwzzEzlhI",
+        authDomain: "poulailler-3515e.firebaseapp.com",
+        projectId: "poulailler-3515e",
+        storageBucket: "poulailler-3515e.firebasestorage.app",
+        messagingSenderId: "482441929117",
+        appId: "1:482441929117:web:7970df401b0125560acf74"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const BOUTIQUES = [
+        { id: 'sacre-coeur-1', name: 'Sacré Coeur 1', color: '#3B82F6' },
+        { id: 'keur-massar', name: 'Keur Massar', color: '#10B981' },
+        { id: 'sebikotane', name: 'Sebikotane', color: '#F59E0B' },
+        { id: 'front-terre', name: 'Front de Terre', color: '#EF4444' },
+        { id: 'sacre-coeur-3', name: 'Sacré Coeur 3', color: '#8B5CF6' },
+        { id: 'en-ligne', name: 'TikTok Shop', color: '#EC4899' }
+    ];
+
+    let toutesProductions = [];
+    let productionActuelle = 'all';
+    let tousVersements = [];
+    let periodeFiltre = 'all';
+    let dateDebut = null;
+    let dateFin = null;
+
+    function showMessage(msg, type) {
+        const div = document.createElement('div');
+        div.style.cssText = `position:fixed;top:20px;right:20px;padding:12px 20px;border-radius:10px;color:white;z-index:10000;background:${type === 'success' ? '#10b981' : '#ef4444'};animation:fadeInOut 3s ease`;
+        div.innerHTML = msg;
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), 3000);
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `@keyframes fadeInOut{0%{opacity:0;transform:translateX(100px)}15%{opacity:1;transform:translateX(0)}85%{opacity:1;transform:translateX(0)}100%{opacity:0;transform:translateX(100px)}}`;
+    document.head.appendChild(style);
+
+    function filtrerVersementsParDate(versements) {
+        if (periodeFiltre === 'all' && !dateDebut) return versements;
+        
+        const now = new Date();
+        let start = null, end = null;
+        
+        if (dateDebut && dateFin) {
+            start = new Date(dateDebut);
+            start.setHours(0,0,0,0);
+            end = new Date(dateFin);
+            end.setHours(23,59,59,999);
+        } else if (periodeFiltre === 'today') {
+            start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+        } else if (periodeFiltre === 'week') {
+            const day = now.getDay();
+            start = new Date(now);
+            start.setDate(now.getDate() - day + (day === 0 ? -6 : 1));
+            start.setHours(0,0,0,0);
+            end = new Date(start);
+            end.setDate(start.getDate() + 7);
+        } else if (periodeFiltre === 'month') {
+            start = new Date(now.getFullYear(), now.getMonth(), 1);
+            end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+        } else if (periodeFiltre === 'year') {
+            start = new Date(now.getFullYear(), 0, 1);
+            end = new Date(now.getFullYear() + 1, 0, 1);
+        }
+        
+        if (!start) return versements;
+        
+        return versements.filter(v => {
+            let date = v.date?.toDate ? v.date.toDate() : (v.date ? new Date(v.date) : null);
+            if (!date) return false;
+            return date >= start && date < end;
+        });
+    }
+
+    async function chargerProductions() {
+        const select = document.getElementById('versementProductionSelect');
+        try {
+            const snapshot = await db.collection('poulailler_records').orderBy('startDate', 'desc').get();
+            toutesProductions = [];
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const date = data.startDate ? new Date(data.startDate) : new Date();
+                toutesProductions.push({
+                    id: doc.id,
+                    name: data.productionName || `Production du ${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`,
+                    date: date
+                });
+            });
+            
+            select.innerHTML = '<option value="all">📊 TOUTES LES PRODUCTIONS</option>';
+            toutesProductions.forEach(p => {
+                select.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+            });
+            
+            await chargerVersements();
+            await rafraichirAffichage();
+            
+            select.addEventListener('change', async (e) => {
+                productionActuelle = e.target.value;
+                await rafraichirAffichage();
+            });
+        } catch (error) {
+            console.error(error);
+            select.innerHTML = '<option value="all">Erreur de chargement</option>';
+        }
+    }
+
+    async function chargerVersements() {
+        try {
+            const snapshot = await db.collection('versements').get();
+            tousVersements = [];
+            snapshot.forEach(doc => {
+                tousVersements.push({ id: doc.id, ...doc.data() });
+            });
+            console.log('Versements chargés:', tousVersements.length);
+        } catch (error) {
+            console.error('Erreur chargement versements:', error);
+        }
+    }
+
+    async function supprimerVersement(versementId, boutiqueName) {
+        if (confirm(`Supprimer ce versement pour ${boutiqueName} ?`)) {
+            try {
+                await db.collection('versements').doc(versementId).delete();
+                showMessage('✅ Versement supprimé', 'success');
+                await chargerVersements();
+                await rafraichirAffichage();
+            } catch (error) {
+                showMessage('Erreur: ' + error.message, 'error');
+            }
+        }
+    }
+
+    async function supprimerTousVersements() {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #dc2626;"></i>
+                <h2>⚠️ SUPPRESSION TOTALE</h2>
+                <p>Cette action est IRRÉVERSIBLE !</p>
+                <p>Tapez <strong>"SUPPRIMER TOUT"</strong> pour confirmer :</p>
+                <input type="text" id="confirmInput" placeholder="SUPPRIMER TOUT">
+                <div>
+                    <button class="btn-confirm" id="confirmBtn">🗑️ SUPPRIMER</button>
+                    <button class="btn-cancel" id="cancelBtn">Annuler</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        document.getElementById('cancelBtn').onclick = () => modal.remove();
+        document.getElementById('confirmBtn').onclick = async () => {
+            const input = document.getElementById('confirmInput');
+            if (input.value === 'SUPPRIMER TOUT') {
+                try {
+                    const snapshot = await db.collection('versements').get();
+                    for (const doc of snapshot.docs) {
+                        await db.collection('versements').doc(doc.id).delete();
+                    }
+                    showMessage('✅ Tous les versements ont été supprimés', 'success');
+                    modal.remove();
+                    await chargerVersements();
+                    await rafraichirAffichage();
+                } catch (error) {
+                    showMessage('Erreur: ' + error.message, 'error');
+                }
+            } else {
+                showMessage('Code incorrect', 'error');
+            }
+        };
+    }
+
+    async function getEncaissement(boutiqueId, productionId, periode, dateD, dateF) {
+        let total = 0;
+        try {
+            let query = db.collection('invoices').where('boutique', '==', boutiqueId);
+            if (productionId !== 'all') query = query.where('productionId', '==', productionId);
+            const snapshot = await query.get();
+            
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                let inclure = true;
+                if (dateD && dateF && data.date) {
+                    let d = data.date?.toDate ? data.date.toDate() : new Date(data.date);
+                    if (d < dateD || d > dateF) inclure = false;
+                } else if (periode !== 'all') {
+                    const now = new Date();
+                    let d = data.date?.toDate ? data.date.toDate() : new Date(data.date);
+                    if (periode === 'today' && d.toDateString() !== now.toDateString()) inclure = false;
+                    else if (periode === 'week') {
+                        const startWeek = new Date(now);
+                        startWeek.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1));
+                        startWeek.setHours(0,0,0,0);
+                        if (d < startWeek) inclure = false;
+                    }
+                    else if (periode === 'month' && (d.getMonth() !== now.getMonth() || d.getFullYear() !== now.getFullYear())) inclure = false;
+                    else if (periode === 'year' && d.getFullYear() !== now.getFullYear()) inclure = false;
+                }
+                if (inclure) total += data.paiement?.montantPaye || 0;
+            });
+            
+            if (boutiqueId === 'en-ligne') {
+                let tiktokQuery = db.collection('orders').where('boutique', '==', 'en-ligne');
+                if (productionId !== 'all') tiktokQuery = tiktokQuery.where('productionId', '==', productionId);
+                const tiktokSnap = await tiktokQuery.get();
+                tiktokSnap.forEach(doc => total += doc.data().paymentReceived || 0);
+            }
+        } catch (error) {
+            console.error('Erreur calcul encaissement:', error);
+        }
+        return total;
+    }
+
+    async function rafraichirAffichage() {
+        const container = document.getElementById('versementGrid');
+        const totalGeneralDiv = document.getElementById('totalGeneral');
+        container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>';
+        
+        let grandTotalEncaisse = 0;
+        let grandTotalVerse = 0;
+        
+        let versementsFiltres = filtrerVersementsParDate(tousVersements);
+        let html = '';
+        
+        let dateD = dateDebut ? new Date(dateDebut) : null;
+        let dateF = dateFin ? new Date(dateFin) : null;
+        if (dateD) dateD.setHours(0,0,0,0);
+        if (dateF) dateF.setHours(23,59,59,999);
+        
+        for (const boutique of BOUTIQUES) {
+            const encaissement = await getEncaissement(boutique.id, productionActuelle, periodeFiltre, dateD, dateF);
+            
+            const versementsBoutique = versementsFiltres.filter(v => 
+                v.boutiqueId === boutique.id && 
+                (productionActuelle === 'all' || v.productionId === productionActuelle)
+            );
+            
+            const totalVerse = versementsBoutique.reduce((sum, v) => sum + (v.montant || 0), 0);
+            const reste = encaissement - totalVerse;
+            
+            grandTotalEncaisse += encaissement;
+            grandTotalVerse += totalVerse;
+            
+            let resteClass = 'positif';
+            let resteTexte = `Reste ${Math.abs(reste).toLocaleString('fr-FR')} F`;
+            if (reste === 0) { resteClass = 'zero'; resteTexte = '✓ Soldé'; }
+            else if (reste < 0) { resteClass = 'negatif'; resteTexte = '⚠️ Dépassement'; }
+            
+            let historiqueHtml = '';
+            if (versementsBoutique.length > 0) {
+                historiqueHtml = `
+                    <details class="historique-versements">
+                        <summary>📜 Historique (${versementsBoutique.length} versements)</summary>
+                        <table>
+                            <thead><tr><th>Date</th><th>Montant</th><th>Commentaire</th><th>Action</th></tr></thead>
+                            <tbody>
+                                ${versementsBoutique.map(v => {
+                                    let dateStr = 'Date inconnue';
+                                    if (v.date && v.date.toDate) dateStr = v.date.toDate().toLocaleDateString('fr-FR');
+                                    else if (v.date) dateStr = new Date(v.date).toLocaleDateString('fr-FR');
+                                    return `<tr>
+                                        <td>${dateStr}</td>
+                                        <td>${(v.montant || 0).toLocaleString('fr-FR')} F</td>
+                                        <td>${v.commentaire || '-'}</td>
+                                        <td><button class="btn-supprimer" onclick="supprimerVersement('${v.id}', '${boutique.name}')"><i class="fas fa-trash"></i> Suppr</button></td>
+                                    </tr>`;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </details>
+                `;
+            }
+            
+            html += `
+                <div class="versement-card">
+                    <div class="versement-header" style="background: linear-gradient(135deg, ${boutique.color} 0%, ${boutique.color}cc 100%);">
+                        <h3><i class="fas fa-store"></i> ${boutique.name}</h3>
+                        <div class="badge">${totalVerse > 0 ? totalVerse.toLocaleString('fr-FR') + ' F versés' : 'Aucun versement'}</div>
+                    </div>
+                    <div class="versement-stats">
+                        <div class="versement-stat">
+                            <div class="label">💰 Encaissement total</div>
+                            <div class="value encaissement">${encaissement.toLocaleString('fr-FR')} F CFA</div>
+                            <div class="label">(argent reçu des clients)</div>
+                        </div>
+                        <div class="versement-stat">
+                            <div class="label">🏦 Déjà versé</div>
+                            <div class="value verse">${totalVerse.toLocaleString('fr-FR')} F CFA</div>
+                            <div class="label">(argent déjà remis)</div>
+                        </div>
+                        <div class="versement-stat">
+                            <div class="label">⚠️ Reste à verser</div>
+                            <div class="value reste ${resteClass}">${Math.abs(reste).toLocaleString('fr-FR')} F CFA</div>
+                            <div class="label">${resteTexte}</div>
+                        </div>
+                    </div>
+                    ${historiqueHtml}
+                    <div class="versement-actions">
+                        <div class="versement-input-group">
+                            <label>Montant à verser (F CFA)</label>
+                            <input type="number" id="montant_${boutique.id}" value="${Math.max(0, reste)}" min="0" max="${Math.max(0, reste)}" step="1000">
+                        </div>
+                        <div class="versement-input-group">
+                            <label>Commentaire (optionnel)</label>
+                            <input type="text" id="comment_${boutique.id}" placeholder="Versement du ${new Date().toLocaleDateString('fr-FR')}">
+                        </div>
+                        <button class="btn-verser" onclick="enregistrerVersement('${boutique.id}', '${boutique.name}')">
+                            <i class="fas fa-save"></i> Enregistrer versement
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        const resteGlobal = grandTotalEncaisse - grandTotalVerse;
+        totalGeneralDiv.style.display = 'grid';
+        totalGeneralDiv.innerHTML = `
+            <div class="total-general-item">
+                <div class="total-general-value">${grandTotalEncaisse.toLocaleString('fr-FR')} F</div>
+                <div>Total encaissé</div>
+            </div>
+            <div class="total-general-item">
+                <div class="total-general-value">${grandTotalVerse.toLocaleString('fr-FR')} F</div>
+                <div>Total versé</div>
+            </div>
+            <div class="total-general-item">
+                <div class="total-general-value" style="color: ${resteGlobal >= 0 ? '#fbbf24' : '#ef4444'}">${Math.abs(resteGlobal).toLocaleString('fr-FR')} F</div>
+                <div>${resteGlobal >= 0 ? 'Reste à verser' : 'Dépassement'}</div>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+    }
+
+    window.enregistrerVersement = async function(boutiqueId, boutiqueName) {
+        const montantInput = document.getElementById(`montant_${boutiqueId}`);
+        const commentInput = document.getElementById(`comment_${boutiqueId}`);
+        const montant = parseInt(montantInput.value) || 0;
+        const commentaire = commentInput.value || '';
+        
+        if (montant <= 0) { showMessage('Entrez un montant valide', 'error'); return; }
+        
+        try {
+            await db.collection('versements').add({
+                boutiqueId: boutiqueId,
+                boutiqueName: boutiqueName,
+                productionId: productionActuelle === 'all' ? 'all' : productionActuelle,
+                montant: montant,
+                commentaire: commentaire || `Versement du ${new Date().toLocaleDateString('fr-FR')}`,
+                date: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            showMessage(`✅ Versement de ${montant.toLocaleString('fr-FR')} F CFA enregistré`, 'success');
+            montantInput.value = 0;
+            commentInput.value = '';
+            await chargerVersements();
+            await rafraichirAffichage();
+        } catch (error) {
+            showMessage('Erreur: ' + error.message, 'error');
+        }
+    };
+
+    window.supprimerVersement = supprimerVersement;
+
+    function initFiltres() {
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                periodeFiltre = btn.getAttribute('data-period');
+                dateDebut = null;
+                dateFin = null;
+                document.getElementById('customStartDate').value = '';
+                document.getElementById('customEndDate').value = '';
+                rafraichirAffichage();
+            });
+        });
+        
+        document.getElementById('applyCustomDate').addEventListener('click', () => {
+            const start = document.getElementById('customStartDate').value;
+            const end = document.getElementById('customEndDate').value;
+            if (start && end) {
+                periodeFiltre = 'custom';
+                dateDebut = start;
+                dateFin = end;
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                rafraichirAffichage();
+            } else {
+                showMessage('Sélectionnez une date de début et de fin', 'error');
+            }
+        });
+        
+        document.getElementById('deleteAllVersementsBtn').addEventListener('click', supprimerTousVersements);
+    }
+
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active-section'));
+            document.getElementById(this.getAttribute('data-section') + 'Section').classList.add('active-section');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    }); 
+
+    chargerProductions();
+    initFiltres();
+</script>
+</body>
+</html>
