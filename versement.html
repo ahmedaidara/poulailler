@@ -607,7 +607,10 @@
                     else if (periode === 'month' && (d.getMonth() !== now.getMonth() || d.getFullYear() !== now.getFullYear())) inclure = false;
                     else if (periode === 'year' && d.getFullYear() !== now.getFullYear()) inclure = false;
                 }
-                if (inclure) total += data.paiement?.montantPaye || 0;
+                if (inclure) if (data.paiement?.modePaiement === 'especes') {
+    total += data.paiement?.montantPaye || 0;
+}
+
             });
             
             if (boutiqueId === 'en-ligne') {
