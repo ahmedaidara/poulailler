@@ -667,7 +667,7 @@
             <div class="stat-card" style="border-left-color: #10b981;">
                 <h3>🏦 CAISSE TOTALE (Global)</h3>
                 <div class="stat-number" id="dashboardTotalCaisseGlobal">0 FCFA</div>
-                <div class="stat-sub">somme de TOUS les montants versés</div>
+                <div class="stat-sub">somme de TOUS les montants NON versés</div>
             </div>
         </div>
 
@@ -1160,7 +1160,7 @@ function getTotalSalesAll() {
     return allInvoices.reduce((sum, inv) => sum + (inv.paiement?.montantPaye || 0), 0);
 }
 
-function renderDashboardMetrics() {
+async function renderDashboardMetrics() {
     const totalStockAll = getTotalStockAllProductions();
     const totalRemainingAll = getTotalRemainingAll();
     const totalSalesAll = getTotalSalesAll();
@@ -1175,21 +1175,37 @@ function renderDashboardMetrics() {
 
     document.getElementById("statTotalStockAllProd").innerText = totalStockAll.toLocaleString();
     document.getElementById("statTotalRemainingAll").innerText = totalRemainingAll.toLocaleString();
-     
     document.getElementById("statTotalNbVentes").innerText = totalNbVentes.toLocaleString();
-     
 
     // ========== NOUVEAU : STATISTIQUES GLOBALES (TOUTES BOUTIQUES) ==========
-    // Calculer à partir de TOUTES les factures (allInvoices)
     let totalVenduGlobal = 0;      // Somme des TOTAUX des factures
-    let totalCaisseGlobal = 0;     // Somme des MONTANTS VERSÉS
+    let totalEspecesEncaissées = 0; // Somme des paiements en ESPÈCES
     
     allInvoices.forEach(inv => {
-        totalVenduGlobal += (inv.total || 0);                    // Montant total de la facture
-        totalCaisseGlobal += (inv.paiement?.montantPaye || 0);   // Montant réellement payé
+        totalVenduGlobal += (inv.total || 0);
+        // 🔥 UNIQUEMENT les espèces pour la caisse
+        if (inv.paiement?.modePaiement === 'especes') {
+            totalEspecesEncaissées += (inv.paiement?.montantPaye || 0);
+        }
     });
     
-    const totalImpayeGlobal = totalVenduGlobal - totalCaisseGlobal;  // Ce qu'on doit encore
+    // 🔥 Récupérer les versements déjà effectués (en espèces)
+    let totalEspecesVersées = 0;
+    try {
+        const versementsSnap = await db.collection('versements').get();
+        versementsSnap.forEach(doc => {
+            const v = doc.data();
+            // On considère que tous les versements sont en espèces
+            // Si tu as un champ modePaiement, filtre-le ici
+            totalEspecesVersées += (v.montant || 0);
+        });
+    } catch (error) {
+        console.error("Erreur chargement versements:", error);
+    }
+    
+    // 🔥 CAISSE TOTALE = Espèces encaissées - Espèces versées
+    const totalCaisseGlobal = totalEspecesEncaissées - totalEspecesVersées;
+    const totalImpayeGlobal = totalVenduGlobal - totalEspecesEncaissées;
     
     // Mettre à jour les 3 nouvelles cartes
     const totalVenduElem = document.getElementById("dashboardTotalVenduGlobal");
