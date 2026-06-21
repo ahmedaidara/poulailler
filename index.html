@@ -1204,6 +1204,75 @@
     border-color: #3B82F6 !important;
     background: #eff6ff !important;
 }
+      
+      /* ============================================== */
+/* CACHER LES BOUTONS BOUTIQUE, STATS ET DETTES */
+/* ============================================== */
+
+/* 1. Cache dans la navigation du haut (PC / Tablettes) */
+.nav-links button[data-section="boutiques"],
+.nav-links button[data-section="stats"],
+.nav-links button[id="btnDepense"] {
+    display: none !important;
+}
+
+/* 2. Cache dans la navigation mobile du bas (Smartphones) */
+.mobile-nav-bottom button[data-section-mobile="boutiques"],
+.mobile-nav-bottom button[data-section-mobile="stats"],
+.mobile-nav-bottom button[data-section-mobile="depense"] {
+    display: none !important;
+}
+      /* ======================================================= */
+/* MASQUER LES ÉLÉMENTS DE LA SECTION HISTORIQUE           */
+/* ======================================================= */
+
+/* 1. Cache le sélecteur "Sélectionner une Production" et ses labels */
+#productionSelect,
+#productionSelect + label,
+label[for="productionSelect"],
+div:has(> #productionSelect) {
+    display: none !important;
+}
+
+/* 2. Cache l'ensemble du tableau d'historique et ses lignes (Chargement...) */
+#distributionsHistoryTable,
+#distributionsHistoryTable tr,
+#distributionsHistoryTable td,
+#emptyDistributions {
+    display: none !important;
+}
+
+/* 3. Supprime les bordures, titres ou conteneurs liés à cet historique */
+.table-container:has(#distributionsHistoryTable),
+.table-wrapper:has(#distributionsHistoryTable) {
+    display: none !important;
+}
+
+/* 4. Si vous avez un bouton d'actualisation spécifique à cet historique */
+button[onclick*="loadDistributionsHistory"] {
+    display: none !important;
+}
+      /* ======================================================= */
+/* CACHER LA SECTION SÉLECTION DE PRODUCTION ET STOCK     */
+/* ======================================================= */
+
+/* Cache le label, le menu déroulant et tout ce qui y est lié */
+label[for="productionSelect"],
+#productionSelect,
+.form-group:has(#productionSelect),
+div:has(> #productionSelect) {
+    display: none !important;
+}
+
+/* Cache la section ou les textes liés au stock de production en bas */
+.production-section,
+div:has(> label:contains("Sélectionner une Production")) {
+    display: none !important;
+}
+      /* Rend les deux boutons d'accueil cliquables de la même façon si gér és par liens */
+.mobile-nav-bottom button[data-section-mobile="dashboard"] {
+    pointer-events: auto !important;
+}
     </style>
 </head>
 <body>
@@ -12454,7 +12523,13 @@ setTimeout(() => {
     document.querySelector('.nav-btn[data-section="records"]').classList.add('active');
     document.querySelector('.nav-btn[data-section="dashboard"]')?.classList.remove('active');
 }, 100);
-         
 </script>
+       
+       
+       
 </body>
  </html>
+
+
+
+   
